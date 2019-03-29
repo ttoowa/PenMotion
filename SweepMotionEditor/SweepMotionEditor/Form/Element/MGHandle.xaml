@@ -12,10 +12,10 @@
         <system:Double x:Key="SubHandleWidth">12</system:Double>
     </UserControl.Resources>
     <Canvas ClipToBounds="False">
-        <Ellipse Canvas.Left="-56" Canvas.Top="-6" Width="{StaticResource SubHandleWidth}" Height="{StaticResource SubHandleWidth}" Fill="#9BB594" RenderTransformOrigin="0.5,0.5"></Ellipse>
-        <Ellipse Canvas.Left="44" Canvas.Top="-6" Width="{StaticResource SubHandleWidth}" Height="{StaticResource SubHandleWidth}" Fill="#9BB594" RenderTransformOrigin="0.5,0.5"></Ellipse>
-        <Line X1="0" X2="-56" Stroke="#9BB594" StrokeThickness="2"></Line>
-        <Line X1="0" X2="44" Stroke="#9BB594" StrokeThickness="2"></Line>
+        <Ellipse Name="subHandle0" Canvas.Left="-56" Canvas.Top="-6" Width="{StaticResource SubHandleWidth}" Height="{StaticResource SubHandleWidth}" Fill="#9BB594" RenderTransformOrigin="0.5,0.5"></Ellipse>
+        <Ellipse Name="subHandle1" Canvas.Left="44" Canvas.Top="-6" Width="{StaticResource SubHandleWidth}" Height="{StaticResource SubHandleWidth}" Fill="#9BB594" RenderTransformOrigin="0.5,0.5"></Ellipse>
+        <Line Name="subLine0" X1="0" X2="-56" Stroke="#9BB594" StrokeThickness="2"></Line>
+        <Line Name="subLine1" X1="0" X2="44" Stroke="#9BB594" StrokeThickness="2"></Line>
         <Rectangle Canvas.Left="-10" Canvas.Top="-10" Width="{StaticResource MainHandleWidth}" Height="{StaticResource MainHandleWidth}" Fill="#DBEBC0"></Rectangle>
     </Canvas>
 </UserControl>

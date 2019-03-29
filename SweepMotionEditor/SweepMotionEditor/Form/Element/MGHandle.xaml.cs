@@ -21,34 +21,76 @@ namespace SweepMotionEditor.Form.Element
 	/// </summary>
 	public partial class MGHandle : UserControl
 	{
+		public const float MainHandleWidth = 20f;
+		public const float MainHandleWidthHalf = MainHandleWidth * 0.5f;
+
+		private Property<Vector2> position;
+		private SubHandle[] subHandles;
+
 		public MGHandle()
 		{
 			InitializeComponent();
+
+			position = new Property<Vector2>();
+			subHandles = new SubHandle[] {
+				new SubHandle(subHandle0, subLine0),
+				new SubHandle(subHandle1, subLine1),
+			};
+
+			//Add event
+			position.OnValueChanged += OnValueChanged_position;
 		}
 
-
-		public class SubPoint
+		//Update랑 종속 바꾸기
+		private void OnValueChanged_position(Vector2 before, Vector2 newValue)
 		{
-			public Vector2 position;
-			public Shape shape;
+			Canvas.SetLeft(this, newValue.x);
+			Canvas.SetTop(this, newValue.y);
 		}
 
-		private static SolidColorBrush HandleColor = "DBEBC0".ToBrush();
-		private const float HandleWidth = 14f;
-		private const float HandleWidthHalf = HandleWidth * 0.5f;
+		public void SetMainHandle(Vector2 position) {
+			Canvas.SetLeft(this, position.x);
+			Canvas.SetTop(this, position.y);
+		}
+		public void SetSubHandle(int index, Vector2 position) {
+			subHandles[index].position.Value = position;
+		}
+		private void Update() {
+			position.RunEvent();
+			for(int i=0; i<subHandles.Length; ++i) {
+				SubHandle subHandle = subHandles[i];
+				subHandle.Update();
+			}
+		}
+	}
+	public class SubHandle {
+		private const float Width = 12f;
+		private const float WidthHalf = Width * 0.5f;
 
-		private Canvas graphContext;
+		public Property<Vector2> position;
+		public Ellipse handle;
+		public Line line;
 
-		private SubPoint mainPoint;
-		private SubPoint[] subPoints;
-		private Line[] pointConnectors;
+		public SubHandle(Ellipse handle, Line line) {
+			position = new Property<Vector2>();
+			this.handle = handle;
+			this.line = line;
 
-		public MGHandle(Canvas graphContext)
+			//Add event
+			position.OnValueChanged += OnValueChanged_position;
+		}
+		public void Update() {
+			position.RunEvent();
+		}
+
+		private void OnValueChanged_position(Vector2 before, Vector2 newValue)
 		{
-			this.graphContext = graphContext;
-
-
-
+			//Handle
+			Canvas.SetLeft(handle, -WidthHalf + newValue.x);
+			Canvas.SetTop(handle, -WidthHalf + newValue.y);
+			//Line
+			line.X2 = position.Value.x;
+			line.Y2 = position.Value.y;
 		}
 	}
 }
