@@ -13,15 +13,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GKit;
+using PendulumMotionEditor.Form.Element;
 
-namespace SweepMotionEditor
+namespace PendulumMotionEditor.Form
 {
 	/// <summary>
 	/// MainWindow.xaml에 대한 상호 작용 논리
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private MGData editMGData;
+		
+		//private MGData editMGData;
 		private GLoopCore mainLoopCore;
 		private GLoopCore previewLoopCore;
 		private float previewTime;
@@ -35,7 +37,6 @@ namespace SweepMotionEditor
 				return 1;
 			}
 		}
-
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -52,7 +53,7 @@ namespace SweepMotionEditor
 			previewLoopCore.AddLoopAction(OnPreviewTick);
 			previewLoopCore.StartLoop();
 
-			editMGData = new MGData();
+			//editMGData = new MGData();
 
 
 		}
@@ -69,7 +70,7 @@ namespace SweepMotionEditor
 				previewTime = -DelayTime;
 			}
 			float actualTime = Mathf.Clamp01(previewTime);
-			float motionTime = editMGData.GetMotionTime(actualTime);
+			float motionTime = actualTime;// editMGData.GetMotionTime(actualTime);
 
 			//Update Position
 			double gridWidth = PreviewPositionGrid.ColumnDefinitions[1].ActualWidth;
