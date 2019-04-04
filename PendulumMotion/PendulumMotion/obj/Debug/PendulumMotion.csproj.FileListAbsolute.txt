@@ -1,0 +1,16 @@
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\obj\Debug\PendulumMotion.csproj.CoreCompileInputs.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\bin\Debug\PendulumMotion.dll
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\bin\Debug\PendulumMotion.pdb
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\obj\Debug\PendulumMotion.dll
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\obj\Debug\PendulumMotion.pdb
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\bin\Debug\Newtonsoft.Json.xml
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\obj\Debug\PendulumMotion.csproj.Fody.CopyLocal.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotion\obj\Debug\PendulumMotion.csproj.CopyComplete
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\bin\Debug\PendulumMotion.dll
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\bin\Debug\PendulumMotion.pdb
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\bin\Debug\Newtonsoft.Json.xml
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\obj\Debug\PendulumMotion.csproj.CoreCompileInputs.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\obj\Debug\PendulumMotion.csproj.Fody.CopyLocal.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\obj\Debug\PendulumMotion.csproj.CopyComplete
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\obj\Debug\PendulumMotion.dll
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotion\obj\Debug\PendulumMotion.pdb

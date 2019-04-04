@@ -1,0 +1,15 @@
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotionTest\obj\Release\PendulumMotionTest.csprojAssemblyReference.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotionTest\obj\Release\PendulumMotionTest.csproj.CoreCompileInputs.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\Library\PSpline.dll
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\PendulumMotionTest.exe.config
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\PendulumMotionTest.exe
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\PendulumMotionTest.pdb
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\GKit.dll
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\PendulumMotion.dll
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\GKit.pdb
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\bin\Release\PendulumMotion.pdb
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\obj\Release\PendulumMotionTest.csprojAssemblyReference.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\obj\Release\PendulumMotionTest.csproj.CoreCompileInputs.cache
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\obj\Release\PendulumMotionTest.csproj.CopyComplete
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\obj\Release\PendulumMotionTest.exe
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionTest\obj\Release\PendulumMotionTest.pdb
