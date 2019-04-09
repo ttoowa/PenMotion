@@ -66,51 +66,58 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Form\Element\MGPoint.xaml.cs">
+    <Compile Include="Scripts\Root.cs" />
+    <Compile Include="Views\Component\MGEditPanel.xaml.cs">
+      <DependentUpon>MGEditPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Elements\MGPoint.xaml.cs">
       <DependentUpon>MGPoint.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Form\Element\MLMotionItem.xaml.cs">
+    <Compile Include="Views\Elements\MLMotionItem.xaml.cs">
       <DependentUpon>MLMotionItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Form\Element\SimpleTextbox.xaml.cs">
+    <Compile Include="Views\Elements\SimpleTextbox.xaml.cs">
       <DependentUpon>SimpleTextbox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resource\Image\Button_CopyMotion.xaml.cs">
+    <Compile Include="Resources\Image\Button_CopyMotion.xaml.cs">
       <DependentUpon>Button_CopyMotion.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resource\Image\Button_RemoveItem.xaml.cs">
+    <Compile Include="Resources\Image\Button_RemoveItem.xaml.cs">
       <DependentUpon>Button_RemoveItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resource\Image\Button_AddFolder.xaml.cs">
+    <Compile Include="Resources\Image\Button_AddFolder.xaml.cs">
       <DependentUpon>Button_AddFolder.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resource\Image\Button_SaveFile.xaml.cs">
+    <Compile Include="Resources\Image\Button_SaveFile.xaml.cs">
       <DependentUpon>Button_SaveFile.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resource\Image\Button_AddMotion.xaml.cs">
+    <Compile Include="Resources\Image\Button_AddMotion.xaml.cs">
       <DependentUpon>Button_AddMotion.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resource\Image\Button_OpenFile.xaml.cs">
+    <Compile Include="Resources\Image\Button_OpenFile.xaml.cs">
       <DependentUpon>Button_OpenFile.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resource\Image\Button_NewFile.xaml.cs">
+    <Compile Include="Resources\Image\Button_NewFile.xaml.cs">
       <DependentUpon>Button_NewFile.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Script\MotionGraph\Element\MGHandle.cs" />
-    <Compile Include="Script\MotionGraph\MGData.cs" />
-    <Page Include="Form\Element\MGPoint.xaml">
+    <Compile Include="Scripts\PMDManager.cs" />
+    <Page Include="Views\Component\MGEditPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Form\Element\MLMotionItem.xaml">
+    <Page Include="Views\Elements\MGPoint.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Form\Element\SimpleTextbox.xaml">
+    <Page Include="Views\Elements\MLMotionItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Form\Window\MainWindow.xaml">
+    <Page Include="Views\Elements\SimpleTextbox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -118,35 +125,35 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Form\Window\MainWindow.xaml.cs">
+    <Compile Include="Views\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resource\Image\Button_CopyMotion.xaml">
+    <Page Include="Resources\Image\Button_CopyMotion.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resource\Image\Button_RemoveItem.xaml">
+    <Page Include="Resources\Image\Button_RemoveItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resource\Image\Button_AddFolder.xaml">
+    <Page Include="Resources\Image\Button_AddFolder.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resource\Image\Button_SaveFile.xaml">
+    <Page Include="Resources\Image\Button_SaveFile.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resource\Image\Button_AddMotion.xaml">
+    <Page Include="Resources\Image\Button_AddMotion.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resource\Image\Button_OpenFile.xaml">
+    <Page Include="Resources\Image\Button_OpenFile.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resource\Image\Button_NewFile.xaml">
+    <Page Include="Resources\Image\Button_NewFile.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -174,14 +181,14 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Resource Include="Resource\Font\KoPub Dotum_Pro Bold.otf" />
-    <Resource Include="Resource\Font\KoPub Dotum_Pro Medium.otf" />
+    <Resource Include="Resources\Font\KoPub Dotum_Pro Bold.otf" />
+    <Resource Include="Resources\Font\KoPub Dotum_Pro Medium.otf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Form\Graphic\" />
+    <Folder Include="Scripts\Edit\Element\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PendulumMotion\PendulumMotion.csproj">

@@ -59,7 +59,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\Math\PMath.cs" />
     <Compile Include="System\Struct\Vector.cs" />
-    <Compile Include="System\Version.cs" />
+    <Compile Include="System\Infos.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

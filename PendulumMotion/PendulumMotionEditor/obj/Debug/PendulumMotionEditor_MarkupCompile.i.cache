@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotionEditor\obj\Debug\
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\obj\Debug\
 PendulumMotionEditor
 none
 false
 DEBUG;TRACE
-X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotionEditor\PendulumMotionEditor\PendulumMotionEditor\App.xaml
-11-502417908
+X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\App.xaml
+121154392525
 
-18-1007815848
-17215439252
-Form\Element\MGPoint.xaml;Form\Element\MLMotionItem.xaml;Form\Element\SimpleTextbox.xaml;Form\Window\MainWindow.xaml;Resource\Image\Button_CopyMotion.xaml;Resource\Image\Button_RemoveItem.xaml;Resource\Image\Button_AddFolder.xaml;Resource\Image\Button_SaveFile.xaml;Resource\Image\Button_AddMotion.xaml;Resource\Image\Button_OpenFile.xaml;Resource\Image\Button_NewFile.xaml;
+192131940173
+171056579792
+Views\Component\MGEditPanel.xaml;Views\Elements\MGPoint.xaml;Views\Elements\MLMotionItem.xaml;Views\Elements\SimpleTextbox.xaml;Views\Windows\MainWindow.xaml;Resources\Image\Button_CopyMotion.xaml;Resources\Image\Button_RemoveItem.xaml;Resources\Image\Button_AddFolder.xaml;Resources\Image\Button_SaveFile.xaml;Resources\Image\Button_AddMotion.xaml;Resources\Image\Button_OpenFile.xaml;Resources\Image\Button_NewFile.xaml;
 
 True
 

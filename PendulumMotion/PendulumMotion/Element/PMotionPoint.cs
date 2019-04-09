@@ -31,5 +31,9 @@ namespace PendulumMotion.Component
 				subPointRight,
 			};
 		}
+
+		public PVector2 GetAbsoluteSubPoint(int index) {
+			return mainPoint + subPoints[index];
+		}
 	}
 }

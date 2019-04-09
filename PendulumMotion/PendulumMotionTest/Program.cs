@@ -30,12 +30,12 @@ namespace PendulumMotionTest {
 
 			const string DummyFilePath = "X:/DummyMotion.pmotion";
 			PMotionFile file = new PMotionFile();
-			PMotionData dummyData = PMotionData.Default();
+			PMotionData dummyData = PMotionData.Default;
 			file.dataDict.Add("KeyA", dummyData);
 			file.dataDict.Add("KeyB", dummyData);
 			file.Save(DummyFilePath);
 
-			file = new PMotionFile(DummyFilePath);
+			//file = new PMotionFile(DummyFilePath);
 
 
 

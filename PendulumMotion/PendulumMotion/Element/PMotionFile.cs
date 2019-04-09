@@ -9,18 +9,16 @@ using System.Text;
 namespace PendulumMotion.Component {
 	public class PMotionFile
 	{
+		public string filePath;
 		public Dictionary<string, PMotionData> dataDict;
 
 		public PMotionFile() {
 			dataDict = new Dictionary<string, PMotionData>();
 		}
-		public PMotionFile(string filePath) : this() {
-			Load(filePath);
-		}
 
 		public void Save(string filePath) {
 			JObject jRoot = new JObject();
-			jRoot.Add("Version", VersionInfo.Version);
+			jRoot.Add("Version", SystemInfo.Version);
 
 			JObject jDatas = new JObject();
 			jRoot.Add("Datas", jDatas);
@@ -47,8 +45,9 @@ namespace PendulumMotion.Component {
 				}
 			}
 		}
-		public void Load(string filePath) {
-			dataDict.Clear();
+		public static PMotionFile Load(string filePath) {
+			PMotionFile file = new PMotionFile();
+			file.filePath = filePath;
 
 			string jsonString;
 			using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
@@ -61,23 +60,26 @@ namespace PendulumMotion.Component {
 
 			JObject jDatas = jRoot["Datas"] as JObject;
 			List<JProperty> jDataList = jDatas.Properties().ToList();
-			for(int dataI =0; dataI < jDataList.Count; ++dataI) {
+			for (int dataI = 0; dataI < jDataList.Count; ++dataI) {
 				JProperty jMotion = jDataList[dataI];
 				JArray jPoints = jMotion.Value as JArray;
 
 				PMotionData data = new PMotionData();
-				for(int pointI = 0; pointI < jPoints.Count; ++pointI) {
+				for (int pointI = 0; pointI < jPoints.Count; ++pointI) {
 					JArray jPoint = jPoints[pointI] as JArray;
 
 					PMotionPoint point = new PMotionPoint(
-						PVector2.Parse(jPoint[0].ToObject<string>()), 
-						PVector2.Parse(jPoint[1].ToObject<string>()), 
+						PVector2.Parse(jPoint[0].ToObject<string>()),
+						PVector2.Parse(jPoint[1].ToObject<string>()),
 						PVector2.Parse(jPoint[2].ToObject<string>()));
 					data.pointList.Add(point);
 				}
-				dataDict.Add(jMotion.Name, data);
+				file.dataDict.Add(jMotion.Name, data);
 			}
+
+			return file;
 		}
+
 		//public static bool RegistDeltaMotion(byte[] jsonBytes, string key) {
 		//	string jsonString;
 		//	using (MemoryStream memoryStream = new MemoryStream(jsonBytes)) {
@@ -121,7 +123,7 @@ namespace PendulumMotion.Component {
 		//		return false;
 		//	}
 		//}
-		public float GetMotionValue(string motionID, float linearValue, int maxSample, float tolerance) {
+		public float GetMotionValue(string motionID, float linearValue, int maxSample = PMotionData.DefaultMaxSample, float tolerance = PMotionData.DefaultMaxTolerance) {
 			if (motionID == null) {
 				throw new Exception("motionID is Null.");
 			}
@@ -130,9 +132,9 @@ namespace PendulumMotion.Component {
 			}
 
 			PMotionData data = dataDict[motionID];
-			return GetMotionValue(data, linearValue, maxSample, tolerance);
+			return data.GetMotionValue(linearValue, maxSample, tolerance);
 		}
-		public PVector2 GetMotionValue(string motionID, PVector2 linearValue, int maxSample, float tolerance) {
+		public PVector2 GetMotionValue(string motionID, PVector2 linearValue, int maxSample = PMotionData.DefaultMaxSample, float tolerance = PMotionData.DefaultMaxTolerance) {
 			if (motionID == null) {
 				throw new Exception("motionID is Null.");
 			}
@@ -142,11 +144,11 @@ namespace PendulumMotion.Component {
 
 			PMotionData data = dataDict[motionID];
 			return new PVector2(
-				GetMotionValue(data, linearValue.x, maxSample, tolerance),
-				GetMotionValue(data, linearValue.y, maxSample, tolerance)
+				data.GetMotionValue(linearValue.x, maxSample, tolerance),
+				data.GetMotionValue(linearValue.y, maxSample, tolerance)
 			);
 		}
-		public PVector3 GetMotionValue(string motionID, PVector3 linearValue, int maxSample, float tolerance) {
+		public PVector3 GetMotionValue(string motionID, PVector3 linearValue, int maxSample = PMotionData.DefaultMaxSample, float tolerance = PMotionData.DefaultMaxTolerance) {
 			if (motionID == null) {
 				throw new Exception("motionID is Null.");
 			}
@@ -156,34 +158,10 @@ namespace PendulumMotion.Component {
 
 			PMotionData data = dataDict[motionID];
 			return new PVector3(
-				GetMotionValue(data, linearValue.x, maxSample, tolerance),
-				GetMotionValue(data, linearValue.y, maxSample, tolerance),
-				GetMotionValue(data, linearValue.z, maxSample, tolerance)
+				data.GetMotionValue(linearValue.x, maxSample, tolerance),
+				data.GetMotionValue(linearValue.y, maxSample, tolerance),
+				data.GetMotionValue(linearValue.z, maxSample, tolerance)
 			);
-		}
-		private float GetMotionValue(PMotionData data, float linearValue, int maxSample, float tolerance) {
-			int rightIndex = -1;
-
-			for (int i = 1; i < data.pointList.Count; ++i) {
-				if (data.pointList[i].mainPoint.x >= linearValue) {
-					rightIndex = i;
-					break;
-				}
-			}
-			if (rightIndex == -1) {
-				if (data.pointList.Count > 0) {
-					//마지막 포인트를 벗어나면 마지막 좌표 반환
-					return data.pointList[data.pointList.Count - 1].mainPoint.y;
-				} else {
-					//포인트가 하나이거나 없을 때 1 반환
-					return 1;
-				}
-			}
-
-			PMotionPoint left = data.pointList[rightIndex - 1];
-			PMotionPoint right = data.pointList[rightIndex];
-
-			return PSpline.Bezier3_X2Y(linearValue, left.mainPoint, left.subPoints[1], right.subPoints[0], right.mainPoint, maxSample, tolerance);
 		}
 	}
 }

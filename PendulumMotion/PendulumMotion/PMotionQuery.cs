@@ -6,7 +6,7 @@ namespace PendulumMotion {
 	public static class PMotionQuery {
 		public static void LoadFile(string filePath, string fileID) { 
 			if(!CheckLoaded(fileID)) {
-				PMotionFile file = new PMotionFile(filePath);
+				PMotionFile file = PMotionFile.Load(filePath);
 				if (filePath == null) {
 					PMotionStorage.fileDict.Add(fileID, file);
 				} else {
@@ -35,15 +35,15 @@ namespace PendulumMotion {
 			}
 		}
 
-		public static float GetMotionValue(string fileID, string motionID, float linearValue, int maxSample = 10, float tolerance = 0.0001f) {
+		public static float GetMotionValue(string fileID, string motionID, float linearValue, int maxSample = PMotionData.DefaultMaxSample, float tolerance = PMotionData.DefaultMaxTolerance) {
 			PMotionFile file = PMotionStorage.GetFile(fileID);
 			return file.GetMotionValue(motionID, PMath.Clamp01(linearValue), maxSample, tolerance);
 		}
-		public static PVector2 GetMotionValue(string fileID, string motionID, PVector2 linearValue, int maxSample = 10, float tolerance = 0.0001f) {
+		public static PVector2 GetMotionValue(string fileID, string motionID, PVector2 linearValue, int maxSample = PMotionData.DefaultMaxSample, float tolerance = PMotionData.DefaultMaxTolerance) {
 			PMotionFile file = PMotionStorage.GetFile(fileID);
 			return file.GetMotionValue(motionID, PMath.Clamp01(linearValue), maxSample, tolerance);
 		}
-		public static PVector3 GetMotionValue(string fileID, string motionID, PVector3 linearValue, int maxSample = 10, float tolerance = 0.0001f) {
+		public static PVector3 GetMotionValue(string fileID, string motionID, PVector3 linearValue, int maxSample = PMotionData.DefaultMaxSample, float tolerance = PMotionData.DefaultMaxTolerance) {
 			PMotionFile file = PMotionStorage.GetFile(fileID);
 			return file.GetMotionValue(motionID, PMath.Clamp01(linearValue), maxSample, tolerance);
 		}
