@@ -8,11 +8,16 @@ using PendulumMotionEditor.Views.Windows;
 
 namespace PendulumMotionEditor {
 	public class Root {
+		public static Root Instance {
+			get; private set;
+		}
 
-		private GLoopEngine loopEngine;
-		private MainWindow mainWindow;
+		public GLoopEngine loopEngine;
+		public MainWindow mainWindow;
 
 		public Root(MainWindow mainWindow) {
+			Instance = this;
+
 			this.mainWindow = mainWindow;
 
 			loopEngine = new GLoopEngine();
@@ -23,7 +28,7 @@ namespace PendulumMotionEditor {
 
 
 		private void OnTick() {
-			
+
 		}
 	}
 }

@@ -66,6 +66,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Scripts\Element\EditableMotionFile.cs" />
     <Compile Include="Scripts\Root.cs" />
     <Compile Include="Views\Component\MGEditPanel.xaml.cs">
       <DependentUpon>MGEditPanel.xaml</DependentUpon>
@@ -73,9 +74,13 @@
     <Compile Include="Views\Elements\MGPoint.xaml.cs">
       <DependentUpon>MGPoint.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Elements\MLMotionItem.xaml.cs">
-      <DependentUpon>MLMotionItem.xaml</DependentUpon>
+    <Compile Include="Views\Elements\MLItem\MLFolderItem.cs" />
+    <Compile Include="Views\Elements\MLItem\Elements\MLItemBase.cs" />
+    <Compile Include="Views\Elements\MLItemView.xaml.cs">
+      <DependentUpon>MLItemView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Elements\MLItem\Elements\MLItemType.cs" />
+    <Compile Include="Views\Elements\MLItem\MLMotionItem.cs" />
     <Compile Include="Views\Elements\SimpleTextbox.xaml.cs">
       <DependentUpon>SimpleTextbox.xaml</DependentUpon>
     </Compile>
@@ -85,14 +90,14 @@
     <Compile Include="Resources\Image\Button_RemoveItem.xaml.cs">
       <DependentUpon>Button_RemoveItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resources\Image\Button_AddFolder.xaml.cs">
-      <DependentUpon>Button_AddFolder.xaml</DependentUpon>
+    <Compile Include="Resources\Image\Button_CreateFolder.xaml.cs">
+      <DependentUpon>Button_CreateFolder.xaml</DependentUpon>
     </Compile>
     <Compile Include="Resources\Image\Button_SaveFile.xaml.cs">
       <DependentUpon>Button_SaveFile.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Resources\Image\Button_AddMotion.xaml.cs">
-      <DependentUpon>Button_AddMotion.xaml</DependentUpon>
+    <Compile Include="Resources\Image\Button_CreateMotion.xaml.cs">
+      <DependentUpon>Button_CreateMotion.xaml</DependentUpon>
     </Compile>
     <Compile Include="Resources\Image\Button_OpenFile.xaml.cs">
       <DependentUpon>Button_OpenFile.xaml</DependentUpon>
@@ -109,7 +114,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Elements\MLMotionItem.xaml">
+    <Page Include="Views\Elements\MLItemView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -137,7 +142,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resources\Image\Button_AddFolder.xaml">
+    <Page Include="Resources\Image\Button_CreateFolder.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -145,7 +150,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resources\Image\Button_AddMotion.xaml">
+    <Page Include="Resources\Image\Button_CreateMotion.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

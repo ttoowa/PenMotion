@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\App.xaml
-121154392525
+12-1794566611
 
-18-1442466035
+23387384231
 171056579792
-Views\Component\MGEditPanel.xaml;Views\Elements\MGPoint.xaml;Views\Elements\MLMotionItem.xaml;Views\Elements\SimpleTextbox.xaml;Views\Windows\MainWindow.xaml;Resources\Image\Button_CopyMotion.xaml;Resources\Image\Button_RemoveItem.xaml;Resources\Image\Button_AddFolder.xaml;Resources\Image\Button_SaveFile.xaml;Resources\Image\Button_AddMotion.xaml;Resources\Image\Button_OpenFile.xaml;Resources\Image\Button_NewFile.xaml;
+Views\Component\MGEditPanel.xaml;Views\Elements\MGPoint.xaml;Views\Elements\MLItemView.xaml;Views\Elements\SimpleTextbox.xaml;Views\Windows\MainWindow.xaml;Resources\Image\Button_CopyMotion.xaml;Resources\Image\Button_RemoveItem.xaml;Resources\Image\Button_CreateFolder.xaml;Resources\Image\Button_SaveFile.xaml;Resources\Image\Button_CreateMotion.xaml;Resources\Image\Button_OpenFile.xaml;Resources\Image\Button_NewFile.xaml;
 
 False
 

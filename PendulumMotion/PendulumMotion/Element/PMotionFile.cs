@@ -5,11 +5,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using Microsoft;
+using Microsoft.Win32;
 
 namespace PendulumMotion.Component {
 	public class PMotionFile
 	{
 		public string filePath;
+		public bool IsFilePathAvailable =>string.IsNullOrEmpty(filePath);
 		public Dictionary<string, PMotionData> dataDict;
 
 		public PMotionFile() {

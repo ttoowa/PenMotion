@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,15 +41,14 @@ namespace PendulumMotionEditor.Views.Windows
 
 		private GLoopEngine previewLoopCore;
 
-		public bool OnEditing => editingFile != null;
-		public PMotionFile editingFile;
+		public bool OnEditing => editingMotion != null;
+		public EditableMotionFile editingMotion;
 
 		public MainWindow()
 		{
 			InitializeComponent();
 			Loaded += OnLoad;
 		}
-
 		private void OnLoad(object sender, RoutedEventArgs e)
 		{
 			Root root = new Root(this);
@@ -56,11 +56,13 @@ namespace PendulumMotionEditor.Views.Windows
 			previewLoopCore = new GLoopEngine();
 			previewLoopCore.AddLoopAction(OnPreviewTick);
 
-
+			Init();
 			RegisterEvents();
-
 			previewLoopCore.StartLoop();
 			
+			void Init() {
+				SetContentContextVisible(false);
+			}
 			void RegisterEvents() {
 				//Button reaction
 				Grid[] btns = new Grid[] {
@@ -91,6 +93,7 @@ namespace PendulumMotionEditor.Views.Windows
 			}
 		}
 
+		//Event
 		private void OnPreviewTick() {
 			const float DelayTime = 0.2f;
 			const float SeparatorWidthHalf = 2f;
@@ -111,38 +114,37 @@ namespace PendulumMotionEditor.Views.Windows
 			//Update Scale
 			PreviewScaleShape.RenderTransform = new ScaleTransform(motionTime, motionTime);
 		}
-
-		private bool CheckSaveEditingFile() {
-			return true;
-		}
-
 		private void OnClick_TMNewFileButton() {
-			if(OnEditing && !CheckSaveEditingFile())
+			if(OnEditing && editingMotion.isChanged)
 				return;
 
-			editingFile = new PMotionFile();
-			ContentContext.Visibility = Visibility.Visible;
+			editingMotion = new EditableMotionFile();
+			SetContentContextVisible(true);
 		}
 		private void OnClick_TMOpenFileButton() {
-			if (OnEditing && !CheckSaveEditingFile())
+			if (OnEditing && editingMotion.isChanged)
 				return;
+			Dispatcher.BeginInvoke(new Action(() => {
+				editingMotion = EditableMotionFile.Load();
 
-			OpenFileDialog dialog = new OpenFileDialog();
-			dialog.DefaultExt = ".pmotion";
-			bool? result = dialog.ShowDialog();
-
-			if(result != null && result.Value == true) {
-				editingFile = PMotionFile.Load(dialog.FileName);
-			}
+				if (editingMotion != null) {
+					//Success
+					SetContentContextVisible(true);
+				}
+			}));
 		}
 		private void OnClick_TMSaveFileButton() {
-
+			Dispatcher.BeginInvoke(new Action(()=> {
+				editingMotion.Save();
+			}));
 		}
 		private void OnClick_MLAddMotionButton() {
-
+			editingMotion.CreateMotionItem();
 		}
 		private void OnClick_MLAddFolderButton() {
-
+			editingMotion.CreateFolderItem();
+			//MLFolderItem folder = new MLFolderItem();
+			//MLItemContext.Children.Add(folder);
 		}
 		private void OnClick_MLRemoveButton() {
 
@@ -151,5 +153,9 @@ namespace PendulumMotionEditor.Views.Windows
 
 		}
 
+		//UI
+		public void SetContentContextVisible(bool show) {
+			ContentContext.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+		}
 	}
 }
