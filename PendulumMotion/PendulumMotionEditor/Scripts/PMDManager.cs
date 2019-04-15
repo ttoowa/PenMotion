@@ -9,7 +9,7 @@ using PendulumMotion.Component;
 namespace PendulumMotionEditor {
 	public class PMDManager {
 		
-		public PMotionFile editingFile;
+		public PMFile editingFile;
 
 		public PMDManager() {
 

@@ -22,7 +22,6 @@ namespace PendulumMotionEditor {
 
 			loopEngine = new GLoopEngine();
 			loopEngine.StartLoop();
-
 			loopEngine.AddLoopAction(OnTick);
 		}
 

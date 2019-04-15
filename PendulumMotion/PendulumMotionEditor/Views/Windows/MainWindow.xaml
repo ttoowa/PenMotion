@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
-        xmlns:Elements="clr-namespace:PendulumMotionEditor.Views.Elements"
+        xmlns:Items="clr-namespace:PendulumMotionEditor.Views.Items"
 		xmlns:Components="clr-namespace:PendulumMotionEditor.Views.Components"
         xmlns:Image="clr-namespace:PendulumMotionEditor.Resources.Image"
         xmlns:local="clr-namespace:PendulumMotionEditor.Views.Windows"
         mc:Ignorable="d"
-        Title="PendulumMotionEditor" Width="840" Height="600">
+        Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png">
 	<DockPanel>
 		<DockPanel.Resources>
 			<System:Double x:Key="SeparatorWidth">4</System:Double>
@@ -61,17 +61,27 @@
 							<Border/>
 						</Grid>
 					</StackPanel>
-					<ScrollViewer VerticalScrollBarVisibility="Auto">
-						<StackPanel Name="MLItemContext" Orientation="Vertical">
-						</StackPanel>
-					</ScrollViewer>
+					<Grid>
+						<ScrollViewer VerticalScrollBarVisibility="Auto">
+							<StackPanel Name="MLItemContext" Orientation="Vertical">
+							</StackPanel>
+						</ScrollViewer>
+						<Border Height="6" VerticalAlignment="Top">
+							<Border.Background>
+								<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+									<GradientStop Color="#55000000" Offset="0"/>
+									<GradientStop Color="#00000000" Offset="1"/>
+								</LinearGradientBrush>
+							</Border.Background>
+						</Border>
+					</Grid>
 				</DockPanel>
 				<Border DockPanel.Dock="Left" Width="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}"></Border>
 				<DockPanel>
 					<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="45" Background="#E8E8E8">
-						<Elements:SimpleTextbox Width="60" Margin="8,0"></Elements:SimpleTextbox>
+						<Components:SimpleTextbox Width="60" Margin="8,0"></Components:SimpleTextbox>
 						<TextBlock Text="FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
-						<Elements:SimpleTextbox Width="60" Margin="8,0"></Elements:SimpleTextbox>
+						<Components:SimpleTextbox Width="60" Margin="8,0"></Components:SimpleTextbox>
 						<TextBlock Text="Frame" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
 						<TextBlock Text="1초" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="10,0,0,12"></TextBlock>
 					</StackPanel>
@@ -97,8 +107,18 @@
 							<Ellipse Name="PreviewScaleShape" Width="35" Height="35" Fill="White" Stroke="#FF6C6C6C" RenderTransformOrigin="0.5,0.5"></Ellipse>
 						</Grid>
 					</Grid>
-					<Components:MGEditPanel x:Name="EditPanel">
-					</Components:MGEditPanel>
+					<Grid>
+						<Components:MGEditPanel x:Name="EditPanel">
+						</Components:MGEditPanel>
+						<Border Height="6" VerticalAlignment="Top">
+							<Border.Background>
+								<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+									<GradientStop Color="#55000000" Offset="0"/>
+									<GradientStop Color="#00000000" Offset="1"/>
+								</LinearGradientBrush>
+							</Border.Background>
+						</Border>
+					</Grid>
 				</DockPanel>
 			</DockPanel>
 		</Grid>

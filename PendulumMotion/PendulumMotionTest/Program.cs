@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PendulumMotion;
 using PendulumMotion.Component;
+using PendulumMotion.Items;
 using PendulumMotion.System;
 using GKit;
 
@@ -29,10 +30,10 @@ namespace PendulumMotionTest {
 			}).ToString());
 
 			const string DummyFilePath = "X:/DummyMotion.pmotion";
-			PMotionFile file = new PMotionFile();
-			PMotionData dummyData = PMotionData.Default;
-			file.dataDict.Add("KeyA", dummyData);
-			file.dataDict.Add("KeyB", dummyData);
+			PMFile file = new PMFile();
+			PMMotion dummyData = PMMotion.Default;
+			file.motionDict.Add("KeyA", dummyData);
+			file.motionDict.Add("KeyB", dummyData);
 			file.Save(DummyFilePath);
 
 			//file = new PMotionFile(DummyFilePath);

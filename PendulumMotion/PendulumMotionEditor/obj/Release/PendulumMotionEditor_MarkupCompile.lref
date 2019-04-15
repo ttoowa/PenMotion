@@ -1,14 +1,15 @@
 ﻿X:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\obj\Release\GeneratedInternalTypeHelper.g.cs
 
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Form\Element\MGPoint.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Form\Element\MLMotionItem.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Form\Element\SimpleTextbox.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Form\Window\MainWindow.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resource\Image\Button_CopyMotion.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resource\Image\Button_RemoveItem.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resource\Image\Button_AddFolder.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resource\Image\Button_SaveFile.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resource\Image\Button_AddMotion.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resource\Image\Button_OpenFile.xaml;;
-FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resource\Image\Button_NewFile.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Views\Component\MGEditPanel.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Views\Elements\MGPoint.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Views\Elements\MLItemView.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Views\Elements\SimpleTextbox.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Views\Windows\MainWindow.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resources\Image\Button_CopyMotion.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resources\Image\Button_RemoveItem.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resources\Image\Button_CreateFolder.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resources\Image\Button_SaveFile.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resources\Image\Button_CreateMotion.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resources\Image\Button_OpenFile.xaml;;
+FX:\Dropbox\WorkDesk\A_Programing\Csharp\2019\20190321_PendulumMotion\PendulumMotion\PendulumMotionEditor\Resources\Image\Button_NewFile.xaml;;
 

@@ -8,10 +8,10 @@ namespace PendulumMotion.Component
 	//라이브러리를 사용하는 클라이언트에서 여러 모션파일을 로드하기 위해 여기에 보관한다.
 	internal static class PMotionStorage
 	{
-		internal static Dictionary<string, PMotionFile> fileDict = new Dictionary<string, PMotionFile>();
-		internal static PMotionFile defaultFile;
+		internal static Dictionary<string, PMFile> fileDict = new Dictionary<string, PMFile>();
+		internal static PMFile defaultFile;
 
-		internal static PMotionFile GetFile(string fileID) {
+		internal static PMFile GetFile(string fileID) {
 			if (fileID == null) {
 				if (defaultFile != null) {
 					return defaultFile;

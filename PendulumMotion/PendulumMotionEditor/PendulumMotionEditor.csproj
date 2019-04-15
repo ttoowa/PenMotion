@@ -17,24 +17,47 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Client_Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;Editor</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Client_Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;Editor</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Editor_Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Editor_Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;Editor</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Editor_Release|AnyCPU'">
+    <OutputPath>bin\Editor_Release\</OutputPath>
+    <DefineConstants>TRACE;Editor</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Image\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Costura, Version=3.3.3.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
@@ -68,20 +91,16 @@
     </ApplicationDefinition>
     <Compile Include="Scripts\Element\EditableMotionFile.cs" />
     <Compile Include="Scripts\Root.cs" />
-    <Compile Include="Views\Component\MGEditPanel.xaml.cs">
+    <Compile Include="Views\Components\MGEditPanel.xaml.cs">
       <DependentUpon>MGEditPanel.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Elements\MGPoint.xaml.cs">
-      <DependentUpon>MGPoint.xaml</DependentUpon>
+    <Compile Include="Views\Items\PMPointView.xaml.cs">
+      <DependentUpon>PMPointView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Elements\MLItem\MLFolderItem.cs" />
-    <Compile Include="Views\Elements\MLItem\Elements\MLItemBase.cs" />
-    <Compile Include="Views\Elements\MLItemView.xaml.cs">
-      <DependentUpon>MLItemView.xaml</DependentUpon>
+    <Compile Include="Views\Items\PMItemView.xaml.cs">
+      <DependentUpon>PMItemView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Elements\MLItem\Elements\MLItemType.cs" />
-    <Compile Include="Views\Elements\MLItem\MLMotionItem.cs" />
-    <Compile Include="Views\Elements\SimpleTextbox.xaml.cs">
+    <Compile Include="Views\Components\SimpleTextbox.xaml.cs">
       <DependentUpon>SimpleTextbox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Resources\Image\Button_CopyMotion.xaml.cs">
@@ -106,19 +125,19 @@
       <DependentUpon>Button_NewFile.xaml</DependentUpon>
     </Compile>
     <Compile Include="Scripts\PMDManager.cs" />
-    <Page Include="Views\Component\MGEditPanel.xaml">
+    <Page Include="Views\Components\MGEditPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Elements\MGPoint.xaml">
+    <Page Include="Views\Items\PMPointView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Elements\MLItemView.xaml">
+    <Page Include="Views\Items\PMItemView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Elements\SimpleTextbox.xaml">
+    <Page Include="Views\Components\SimpleTextbox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -200,6 +219,10 @@
       <Project>{91981f2b-f18b-4f4b-8822-075a572a7cac}</Project>
       <Name>PendulumMotion</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Image\Icon.ico" />
+    <Resource Include="Resources\Image\Icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.4.0.2\build\Fody.targets" Condition="Exists('..\packages\Fody.4.0.2\build\Fody.targets')" />

@@ -17,8 +17,9 @@ using Microsoft.Win32;
 using GKit;
 using PendulumMotion;
 using PendulumMotion.Component;
+using PendulumMotion.Items;
 using PendulumMotion.System;
-using PendulumMotionEditor.Views.Elements;
+using PendulumMotionEditor.Views.Items;
 
 namespace PendulumMotionEditor.Views.Windows
 {
@@ -104,7 +105,7 @@ namespace PendulumMotionEditor.Views.Windows
 				previewTime = -DelayTime;
 			}
 			float actualTime = Mathf.Clamp01(previewTime);
-			float motionTime = EditPanel.OnEditing ? EditPanel.editingData.GetMotionValue(actualTime) : 0f;
+			float motionTime = EditPanel.OnEditing ? EditPanel.editingMotion.GetMotionValue(actualTime) : 0f;
 
 			//Update Position
 			double gridWidth = PreviewPositionGrid.ColumnDefinitions[1].ActualWidth;
@@ -139,10 +140,12 @@ namespace PendulumMotionEditor.Views.Windows
 			}));
 		}
 		private void OnClick_MLAddMotionButton() {
-			editingMotion.CreateMotionItem();
+			PMMotion motion = editingMotion.CreateMotion();
+			editingMotion.SelectItem(motion);
 		}
 		private void OnClick_MLAddFolderButton() {
-			editingMotion.CreateFolderItem();
+			PMFolder folder = editingMotion.CreateFolder();
+			editingMotion.SelectItem(folder);
 			//MLFolderItem folder = new MLFolderItem();
 			//MLItemContext.Children.Add(folder);
 		}
