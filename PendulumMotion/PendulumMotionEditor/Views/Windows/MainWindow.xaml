@@ -9,7 +9,7 @@
         xmlns:Image="clr-namespace:PendulumMotionEditor.Resources.Image"
         xmlns:local="clr-namespace:PendulumMotionEditor.Views.Windows"
         mc:Ignorable="d"
-        Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png">
+        Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450">
 	<DockPanel>
 		<DockPanel.Resources>
 			<System:Double x:Key="SeparatorWidth">4</System:Double>
@@ -78,13 +78,14 @@
 				</DockPanel>
 				<Border DockPanel.Dock="Left" Width="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}"></Border>
 				<DockPanel>
-					<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="45" Background="#E8E8E8">
-						<Components:SimpleTextbox Width="60" Margin="8,0"></Components:SimpleTextbox>
-						<TextBlock Text="FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
-						<Components:SimpleTextbox Width="60" Margin="8,0"></Components:SimpleTextbox>
-						<TextBlock Text="Frame" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
-						<TextBlock Text="1초" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="10,0,0,12"></TextBlock>
-					</StackPanel>
+					<DockPanel DockPanel.Dock="Top" Height="45" Background="#E8E8E8">
+						<Components:SimpleTextbox x:Name="PreviewFpsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
+						<TextBlock DockPanel.Dock="Left" Text="FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
+						<Components:SimpleTextbox x:Name="PreviewSecondsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
+						<TextBlock DockPanel.Dock="Left" Text="Sec" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
+						<TextBlock Name="ActualFrameTextView" DockPanel.Dock="Left" Text="(60 Frame)" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="10,0,0,12"></TextBlock>
+						<TextBlock Name="ActualFPSTextView" DockPanel.Dock="Right" Text="60 FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FFE2675B" VerticalAlignment="Bottom" Margin="0,0,12,12" HorizontalAlignment="Right"></TextBlock>
+					</DockPanel>
 					<Grid DockPanel.Dock="Top" Height="55" Background="#CCCCCC">
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="8*"/>

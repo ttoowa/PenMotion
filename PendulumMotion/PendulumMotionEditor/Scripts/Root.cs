@@ -19,15 +19,16 @@ namespace PendulumMotionEditor {
 			Instance = this;
 
 			this.mainWindow = mainWindow;
-
 			loopEngine = new GLoopEngine();
+
+
 			loopEngine.StartLoop();
 			loopEngine.AddLoopAction(OnTick);
+
 		}
 
-
 		private void OnTick() {
-
+			mainWindow.ApplyPreviewFPS();
 		}
 	}
 }

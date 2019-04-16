@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace PendulumMotion {
+namespace PendulumMotion.System {
 	public struct PVector2 {
 		public float x, y;
 

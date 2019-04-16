@@ -16,6 +16,7 @@ using GKit;
 using PendulumMotion;
 using PendulumMotion.Component;
 using PendulumMotion.Items;
+using PendulumMotion.System;
 using PendulumMotionEditor.Views.Items;
 
 namespace PendulumMotionEditor.Views.Components {
@@ -27,7 +28,7 @@ namespace PendulumMotionEditor.Views.Components {
 		public bool OnEditing => editingMotion != null;
 		public PMMotion editingMotion;
 
-		private const float WidthRatio = 1.832f;
+		private const float WidthRatio = 1.777f;
 		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
 		private const int GridVerticalCount = 3;
 		private const int GridHorizontalCount = 5;
@@ -51,18 +52,17 @@ namespace PendulumMotionEditor.Views.Components {
 				return new PVector2((float)GridContext.ActualWidth * 0.5f + actualOffset.x, (float)GridContext.ActualHeight * 0.5f + actualOffset.y);
 			}
 		}
-		private PVector2 DGraph01BotLeft {
+		private PRect DGraphRect {
 			get {
 				PVector2 graphCenter = DGraphCenter;
 				PVector2 graph01Size = DGraph01Size;
-				return new PVector2(graphCenter.x - graph01Size.x * 0.5f, graphCenter.y + graph01Size.y * 0.5f);
-			}
-		}
-		private PVector2 DGraph01TopRight {
-			get {
-				PVector2 graphCenter = DGraphCenter;
-				PVector2 graph01Size = DGraph01Size;
-				return new PVector2(graphCenter.x + graph01Size.x * 0.5f, graphCenter.y - graph01Size.y * 0.5f);
+				PVector2 actualOffset = ActualOffset;
+				return new PRect(
+					graphCenter.x + actualOffset.x - graph01Size.x * 0.5f,
+					graphCenter.y + actualOffset.y - graph01Size.y * 0.5f,
+					graphCenter.x + actualOffset.x + graph01Size.x * 0.5f,
+					graphCenter.y + actualOffset.y + graph01Size.y * 0.5f
+				);
 			}
 		}
 		private PVector2 DGraph01Size {
@@ -98,6 +98,11 @@ namespace PendulumMotionEditor.Views.Components {
 			ClearPoints();
 		}
 
+		public void UpdateUI() {
+			UpdateGrid();
+			UpdateGraph();
+		}
+
 		private void CreateGrid() {
 			SolidColorBrush gridColor = "#4D4D4D".ToBrush();
 
@@ -118,12 +123,12 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 		}
 		private void UpdateGrid() {
+			PRect graphRect = DGraphRect;
 			PVector2 graph01Size = DGraph01Size;
-			PVector2 actualOffset = ActualOffset;
 
 			for (int i = 0; i < gridVerticals.Length; ++i) {
 				Line line = gridVerticals[i];
-				float x = (float)(i * graph01Size.x  / (GridVerticalCount-1)) + actualOffset.x;
+				float x = graphRect.xMin + (i * graph01Size.x  / (GridVerticalCount-1));
 				line.X1 =
 				line.X2 = x;
 				line.Y1 = 0d;
@@ -131,7 +136,7 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 			for (int i = 0; i < gridHorizontals.Length; ++i) {
 				Line line = gridHorizontals[i];
-				float y = (float)(i * graph01Size.y / (GridHorizontalCount-1)) + actualOffset.y;
+				float y = graphRect.yMax - (i * graph01Size.y / (GridHorizontalCount-1));
 				line.Y1 =
 				line.Y2 = y;
 				line.X1 = 0d;
@@ -151,7 +156,7 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		private void UpdateGraph() {
 			PVector2 graph01Size = DGraph01Size;
-			PVector2 actualOffset = ActualOffset;
+			PRect graphRect = DGraphRect;
 
 			for (int i = 0; i < graphLines.Length; ++i) {
 				float motionValue = GetMotionValue(i);
@@ -159,10 +164,10 @@ namespace PendulumMotionEditor.Views.Components {
 
 
 				Line line = graphLines[i];
-				line.X1 = (float)i * graph01Size.x / GraphResolution + actualOffset.x;
-				line.X2 = (float)(i + 1) * graph01Size.x / GraphResolution + actualOffset.x;
-				line.Y1 = (ActualHeight) - (float)motionValue * graph01Size.y + actualOffset.y;
-				line.Y2 = (ActualHeight) - (float)nextMotionValue * graph01Size.y + actualOffset.y;
+				line.X1 = graphRect.xMin + i * graph01Size.x / GraphResolution;
+				line.X2 = graphRect.xMin + (i + 1) * graph01Size.x / GraphResolution;
+				line.Y1 = graphRect.yMax - motionValue * graph01Size.y;
+				line.Y2 = graphRect.yMax - nextMotionValue * graph01Size.y;
 
 
 				float GetMotionValue(int index) {
