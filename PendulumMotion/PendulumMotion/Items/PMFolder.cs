@@ -9,7 +9,7 @@ namespace PendulumMotion.Items {
 
 		public List<PMItemBase> childList;
 
-		public PMFolder() : base(PMItemType.Folder) {
+		internal PMFolder() : base(PMItemType.Folder) {
 			childList = new List<PMItemBase>();
 		}
 	}

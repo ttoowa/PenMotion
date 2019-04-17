@@ -23,6 +23,7 @@ namespace PendulumMotionEditor {
 
 		public bool isChanged;
 		public PMFile file;
+
 		public HashSet<PMItemBase> selectedItemSet;
 		public PMFolder SelectedParentFolder {
 			get {
@@ -83,8 +84,24 @@ namespace PendulumMotionEditor {
 
 			if (result != null && result.Value == true) {
 				PMFile file = PMFile.Load(dialog.FileName);
+				EditableMotionFile editingFile = new EditableMotionFile(file);
 
-				return new EditableMotionFile(file); 
+				CreateViewRecursion(file.rootFolder);
+
+				void CreateViewRecursion(PMFolder parentFolder) {
+					for (int childI = 0; childI < parentFolder.childList.Count; ++childI) {
+						PMItemBase item = parentFolder.childList[childI];
+						PMItemView view = new PMItemView(item.type);
+						item.view = view;
+						parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(view);
+
+						if (item.type == PMItemType.Folder) {
+							CreateViewRecursion(item.Cast<PMFolder>());
+						}
+					}
+				}
+
+				return editingFile; 
 			} else {
 				return null;
 			}
@@ -157,5 +174,6 @@ namespace PendulumMotionEditor {
 			selectedItemSet.Clear();
 			MainWindow.EditPanel.DetachMotion();
 		}
+
 	}
 }

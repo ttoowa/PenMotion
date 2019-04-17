@@ -35,12 +35,13 @@ namespace PendulumMotionEditor.Views.Windows
 		private float PreviewSeconds => Mathf.Clamp(PreviewSecondsEditText.textBox.Text.Parse2Float(1f), 0.02f, 1000f);
 		private float previewTime;
 
+		//Preview
 		private GLoopEngine previewLoopEngine;
 		private Stopwatch previewWatch;
-
+		private float UpdateFPSTimer;
+		
 		public bool OnEditing => editingMotion != null;
 		public EditableMotionFile editingMotion;
-		private float UpdateFPSTimer;
 
 		public MainWindow()
 		{
@@ -55,14 +56,14 @@ namespace PendulumMotionEditor.Views.Windows
 			RegisterEvents();
 			
 			void Init() {
+				previewLoopEngine = new GLoopEngine(registInput:false);
+				previewWatch = new Stopwatch();
+
 				SetContentContextVisible(false);
 				PreviewFpsEditText.textBox.SetOnlyIntInput();
 				PreviewSecondsEditText.textBox.SetOnlyFloatInput();
 				PreviewFpsEditText.textBox.Text = 60.ToString();
 				PreviewSecondsEditText.textBox.Text = 1.ToString();
-
-				previewLoopEngine = new GLoopEngine(registInput:false);
-				previewWatch = new Stopwatch();
 
 				previewLoopEngine.StartLoop();
 				previewLoopEngine.AddLoopAction(OnPreviewTick);
@@ -82,8 +83,8 @@ namespace PendulumMotionEditor.Views.Windows
 					TMNewFileButton,
 					TMOpenFileButton,
 					TMSaveFileButton,
-					MLAddMotionButton,
-					MLAddFolderButton,
+					MLCreateMotionButton,
+					MLCreateFolderButton,
 					MLRemoveButton,
 					MLCopyButton,
 				};
@@ -98,8 +99,8 @@ namespace PendulumMotionEditor.Views.Windows
 				TMSaveFileButton.SetOnClick(OnClick_TMSaveFileButton);
 
 				//Motionlist button
-				MLAddMotionButton.SetOnClick(OnClick_MLAddMotionButton);
-				MLAddFolderButton.SetOnClick(OnClick_MLAddFolderButton);
+				MLCreateMotionButton.SetOnClick(OnClick_MLCreateMotionButton);
+				MLCreateFolderButton.SetOnClick(OnClick_MLCreateFolderButton);
 				MLRemoveButton.SetOnClick(OnClick_MLRemoveButton);
 				MLCopyButton.SetOnClick(OnClick_MLCopyButton);
 
@@ -182,6 +183,12 @@ namespace PendulumMotionEditor.Views.Windows
 				if (editingMotion != null) {
 					//Success
 					SetContentContextVisible(true);
+
+
+					List<PMItemBase> rootItemList = editingMotion.file.rootFolder.childList;
+					if(rootItemList.Count > 0) {
+						editingMotion.SelectItem(rootItemList[0]);
+					}
 				}
 			}));
 		}
@@ -190,11 +197,11 @@ namespace PendulumMotionEditor.Views.Windows
 				editingMotion.Save();
 			}));
 		}
-		private void OnClick_MLAddMotionButton() {
+		private void OnClick_MLCreateMotionButton() {
 			PMMotion motion = editingMotion.CreateMotion();
 			editingMotion.SelectItem(motion);
 		}
-		private void OnClick_MLAddFolderButton() {
+		private void OnClick_MLCreateFolderButton() {
 			PMFolder folder = editingMotion.CreateFolder();
 			editingMotion.SelectItem(folder);
 			//MLFolderItem folder = new MLFolderItem();

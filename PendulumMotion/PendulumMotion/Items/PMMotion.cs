@@ -11,14 +11,14 @@ namespace PendulumMotion.Items {
 
 		public List<PMPoint> pointList;
 
-		public PMMotion() : base(PMItemType.Motion) {
+		internal PMMotion() : base(PMItemType.Motion) {
 			pointList = new List<PMPoint>();
 		}
 		public static PMMotion Default {
 			get {
 				PMMotion data = new PMMotion();
-				data.pointList.Add(new PMPoint(new PVector2(0f, 0f)));
-				data.pointList.Add(new PMPoint(new PVector2(1f, 1f)));
+				data.AddPoint(new PMPoint(new PVector2(0f, 0f)));
+				data.AddPoint(new PMPoint(new PVector2(1f, 1f)));
 				return data;
 			}
 		}
@@ -46,6 +46,22 @@ namespace PendulumMotion.Items {
 			PMPoint right = pointList[rightIndex];
 
 			return PSpline.Bezier3_X2Y(linearValue, left.mainPoint, left.GetAbsoluteSubPoint(1), right.GetAbsoluteSubPoint(0), right.mainPoint, maxSample, tolerance);
+		}
+		public PMPoint AddPoint() {
+			PMPoint point = new PMPoint(new PVector2(0f, 0f));
+			pointList.Add(point);
+			return point;
+		}
+		public PMPoint AddPoint(PMPoint point) {
+			pointList.Add(point);
+			return point;
+		}
+		public PMPoint InsertPoint(PMPoint point, int index) {
+			pointList.Insert(index, point);
+			return point;
+		}
+		public bool RemovePoint(PMPoint point) {
+			return pointList.Remove(point);
 		}
 	}
 }

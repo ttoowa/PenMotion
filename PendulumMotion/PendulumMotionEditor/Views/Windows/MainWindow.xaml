@@ -44,11 +44,11 @@
 				<DockPanel DockPanel.Dock="Left" Width="220" Background="#C7C7C7">
 					<StackPanel Name="ListControlContext" Orientation="Horizontal" DockPanel.Dock="Top" Height="45" Background="#F2F2F2">
 						<Border Width="6"></Border>
-						<Grid Name="MLAddMotionButton" Background="#F0B871" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
+						<Grid Name="MLCreateMotionButton" Background="#F0B871" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
 							<Image:Button_CreateMotion Margin="9,9,0,0"/>
 							<Border/>
 						</Grid>
-						<Grid Name="MLAddFolderButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
+						<Grid Name="MLCreateFolderButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
 							<Image:Button_CreateFolder Margin="9,9,0,0"/>
 							<Border/>
 						</Grid>

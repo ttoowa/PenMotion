@@ -192,5 +192,10 @@ namespace PendulumMotionEditor.Views.Components {
 				PointContext.Children.Add(pointView);
 			}
 		}
+		private void UpdatePoints() {
+			for (int pointI = 0; pointI < editingMotion.pointList.Count; ++pointI) {
+
+			}
+		}
 	}
 }

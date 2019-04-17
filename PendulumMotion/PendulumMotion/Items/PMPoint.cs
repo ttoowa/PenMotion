@@ -9,6 +9,9 @@ namespace PendulumMotion.Items {
 		public const float DefaultSubPointOffset = 0.3f;
 		public PVector2 mainPoint;
 		public PVector2[] subPoints;
+#if OnEditor
+		public object view;
+#endif
 
 		public PMPoint() {
 			subPoints = new PVector2[] {

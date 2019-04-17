@@ -7,40 +7,54 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PendulumMotionEditor", "Pen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PendulumMotion", "PendulumMotion\PendulumMotion.csproj", "{91981F2B-F18B-4F4B-8822-075A572A7CAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PendulumMotionTest", "PendulumMotionTest\PendulumMotionTest.csproj", "{28C48949-F2BA-4B6F-ABFC-26E5026C357B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PMTester", "PMTester\PMTester.csproj", "{0D2D946C-13B6-40E3-BB14-2F404E425659}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Client_Debug|Any CPU = Client_Debug|Any CPU
 		Client_Release|Any CPU = Client_Release|Any CPU
+		Debug|Any CPU = Debug|Any CPU
 		Editor_Debug|Any CPU = Editor_Debug|Any CPU
 		Editor_Release|Any CPU = Editor_Release|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Client_Debug|Any CPU.ActiveCfg = Client_Debug|Any CPU
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Client_Debug|Any CPU.Build.0 = Client_Debug|Any CPU
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Client_Release|Any CPU.ActiveCfg = Client_Release|Any CPU
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Client_Release|Any CPU.Build.0 = Client_Release|Any CPU
+		{E155BA23-08FA-4138-8992-0490AAC34012}.Debug|Any CPU.ActiveCfg = Editor_Debug|Any CPU
+		{E155BA23-08FA-4138-8992-0490AAC34012}.Debug|Any CPU.Build.0 = Editor_Debug|Any CPU
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Editor_Debug|Any CPU.ActiveCfg = Editor_Debug|Any CPU
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Editor_Debug|Any CPU.Build.0 = Editor_Debug|Any CPU
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Editor_Release|Any CPU.ActiveCfg = Editor_Release|Any CPU
 		{E155BA23-08FA-4138-8992-0490AAC34012}.Editor_Release|Any CPU.Build.0 = Editor_Release|Any CPU
+		{E155BA23-08FA-4138-8992-0490AAC34012}.Release|Any CPU.ActiveCfg = Editor_Release|Any CPU
+		{E155BA23-08FA-4138-8992-0490AAC34012}.Release|Any CPU.Build.0 = Editor_Release|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Client_Debug|Any CPU.ActiveCfg = Client_Debug|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Client_Debug|Any CPU.Build.0 = Client_Debug|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Client_Release|Any CPU.ActiveCfg = Client_Release|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Client_Release|Any CPU.Build.0 = Client_Release|Any CPU
+		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Debug|Any CPU.ActiveCfg = Editor_Debug|Any CPU
+		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Debug|Any CPU.Build.0 = Editor_Debug|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Editor_Debug|Any CPU.ActiveCfg = Editor_Debug|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Editor_Debug|Any CPU.Build.0 = Editor_Debug|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Editor_Release|Any CPU.ActiveCfg = Editor_Release|Any CPU
 		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Editor_Release|Any CPU.Build.0 = Editor_Release|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Client_Debug|Any CPU.ActiveCfg = Client_Debug|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Client_Debug|Any CPU.Build.0 = Client_Debug|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Client_Release|Any CPU.ActiveCfg = Client_Release|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Client_Release|Any CPU.Build.0 = Client_Release|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Editor_Debug|Any CPU.ActiveCfg = Editor_Debug|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Editor_Debug|Any CPU.Build.0 = Editor_Debug|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Editor_Release|Any CPU.ActiveCfg = Editor_Release|Any CPU
-		{28C48949-F2BA-4B6F-ABFC-26E5026C357B}.Editor_Release|Any CPU.Build.0 = Editor_Release|Any CPU
+		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Release|Any CPU.ActiveCfg = Editor_Release|Any CPU
+		{91981F2B-F18B-4F4B-8822-075A572A7CAC}.Release|Any CPU.Build.0 = Editor_Release|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Client_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Client_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Client_Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Client_Release|Any CPU.Build.0 = Release|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Editor_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Editor_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Editor_Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Editor_Release|Any CPU.Build.0 = Release|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
