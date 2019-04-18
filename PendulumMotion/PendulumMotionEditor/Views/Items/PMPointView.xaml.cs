@@ -27,70 +27,29 @@ namespace PendulumMotionEditor.Views.Items
 		private const float SubHandleWidth = 12f;
 		private const float SubHandleWidthHalf = SubHandleWidth * 0.5f;
 
-		public Property<Vector2> mainHandlePos;
-		public Property<Vector2>[] subHandlePoss;
-		private Rectangle mainHandle;
-		private Ellipse[] subHandles;
-		private Line[] lines;
+		public Rectangle MainHandleView {
+			get; private set;
+		}
+		public Ellipse[] SubHandleViews {
+			get; private set;
+		}
+		public Line[] SubLineViews {
+			get; private set;
+		}
 
 		public PMPointView()
 		{
 			InitializeComponent();
 
-			//mainHandlePos = new Property<Vector2>();
-			//subHandlePoss = new Property<Vector2>[] {
-			//	new Property<Vector2>(new Vector2(-DefaultSubOffset, 0f)),
-			//	new Property<Vector2>(new Vector2(DefaultSubOffset, 0f)),
-			//};
-			//mainHandle = MainHandle;
-			//subHandles = new Ellipse[] {
-			//	SubHandle0,
-			//	SubHandle1,
-			//};
-			//lines = new Line[] {
-			//	SubLine0,
-			//	SubLine1,
-			//};
-
-			////Add event
-			//mainHandlePos.OnValueChanged += OnValueChanged_mainHandlePos;
-			//for(int i=0; i<subHandlePoss.Length; ++i) {
-			//	subHandlePoss[i].OnValueChanged += OnValueChanged_subHandlePos;
-			//}
+			MainHandleView = this.MainHandle;
+			SubHandleViews = new Ellipse[] {
+				SubHandle0,
+				SubHandle1,
+			};
+			SubLineViews = new Line[] {
+				SubLine0,
+				SubLine1,
+			};
 		}
-
-		//public void UpdateAll() {
-		//	UpdateMainHandle();
-		//	UpdateSubHandle();
-		//}
-		//public void UpdateMainHandle() {
-		//	Thickness margin = this.Margin;
-		//	margin.Left = mainHandlePos.Value.x;
-		//	margin.Bottom = mainHandlePos.Value.y;
-		//	this.Margin = margin;
-		//}
-		//public void UpdateSubHandle() {
-		//	for(int i=0; i<subHandles.Length; ++i) {
-		//		Ellipse subHandle = subHandles[i];
-		//		Line line = lines[i];
-		//		Property<Vector2> subHandlePos = subHandlePoss[i];
-
-		//		//Handle
-		//		Canvas.SetLeft(subHandle, -SubHandleWidthHalf + subHandlePos.Value.x);
-		//		Canvas.SetTop(subHandle, -SubHandleWidthHalf + subHandlePos.Value.y);
-		//		//Line
-		//		line.X2 = subHandlePos.Value.x;
-		//		line.Y2 = subHandlePos.Value.y;
-		//	}
-		//}
-
-		//private void OnValueChanged_mainHandlePos(Vector2 before, Vector2 newValue)
-		//{
-		//	UpdateMainHandle();
-		//}
-		//private void OnValueChanged_subHandlePos(Vector2 before, Vector2 newValue)
-		//{
-		//	UpdateSubHandle();
-		//}
 	}
 }

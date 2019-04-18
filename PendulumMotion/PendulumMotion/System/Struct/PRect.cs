@@ -10,6 +10,9 @@ namespace PendulumMotion.System {
 		public float xMax;
 		public float yMin;
 		public float yMax;
+		public float Width => xMax - xMin;
+		public float Height => yMax - yMin;
+
 
 		public PRect(float xMin, float yMin, float xMax, float yMax) {
 			this.xMin = xMin;
