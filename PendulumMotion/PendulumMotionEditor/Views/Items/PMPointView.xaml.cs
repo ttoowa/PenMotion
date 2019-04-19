@@ -21,16 +21,16 @@ namespace PendulumMotionEditor.Views.Items
 	/// </summary>
 	public partial class PMPointView : UserControl
 	{
-		private const float DefaultSubOffset = 0.3f;
-		private const float MainHandleWidth = 20f;
-		private const float MainHandleWidthHalf = MainHandleWidth * 0.5f;
-		private const float SubHandleWidth = 12f;
-		private const float SubHandleWidthHalf = SubHandleWidth * 0.5f;
+		public const float DefaultSubOffset = 0.3f;
+		public const float MainHandleWidth = 20f;
+		public const float MainHandleWidthHalf = MainHandleWidth * 0.5f;
+		public const float SubHandleWidth = 14f;
+		public const float SubHandleWidthHalf = SubHandleWidth * 0.5f;
 
-		public Rectangle MainHandleView {
+		public Grid MainHandleView {
 			get; private set;
 		}
-		public Ellipse[] SubHandleViews {
+		public Grid[] SubHandleViews {
 			get; private set;
 		}
 		public Line[] SubLineViews {
@@ -42,7 +42,7 @@ namespace PendulumMotionEditor.Views.Items
 			InitializeComponent();
 
 			MainHandleView = this.MainHandle;
-			SubHandleViews = new Ellipse[] {
+			SubHandleViews = new Grid[] {
 				SubHandle0,
 				SubHandle1,
 			};
@@ -50,6 +50,18 @@ namespace PendulumMotionEditor.Views.Items
 				SubLine0,
 				SubLine1,
 			};
+
+			RegisterEvent();
+
+			void RegisterEvent() {
+				SetBtnColor(MainHandleView);
+				for(int subI=0; subI<SubHandleViews.Length; ++subI) {
+					SetBtnColor(SubHandleViews[subI]);
+				}
+			}
+			void SetBtnColor(Grid button) {
+				button.SetBtnColor((Shape)button.Children[button.Children.Count - 1]);
+			}
 		}
 	}
 }

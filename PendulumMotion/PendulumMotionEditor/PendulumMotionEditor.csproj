@@ -91,6 +91,7 @@
     </ApplicationDefinition>
     <Compile Include="Scripts\Element\EditableMotionFile.cs" />
     <Compile Include="Scripts\Root.cs" />
+    <Compile Include="Scripts\Utility\WPFViewUtility.cs" />
     <Compile Include="Scripts\Utility\VectorUtility.cs" />
     <Compile Include="Views\Components\MGEditPanel.xaml.cs">
       <DependentUpon>MGEditPanel.xaml</DependentUpon>

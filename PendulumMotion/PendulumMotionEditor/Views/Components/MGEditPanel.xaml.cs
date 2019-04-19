@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace PendulumMotionEditor.Views.Components {
 		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
 		private const int GridVerticalCount = 3;
 		private const int GridHorizontalCount = 5;
-		private const int GraphResolution = 50;
+		private const int GraphResolution = 80;
 		private Line[] gridVerticals;
 		private Line[] gridHorizontals;
 		private Line[] graphLines;
@@ -193,45 +194,70 @@ namespace PendulumMotionEditor.Views.Components {
 					PMPointView pointView = new PMPointView();
 					point.view = pointView;
 
-					RegisterEvent(point, pointView);
+					RegisterPointEvent(point, pointView);
 				}
 				PointContext.Children.Add(point.view.Cast<PMPointView>());
 
 			}
 
-			void RegisterEvent(PMPoint point, PMPointView pointView) {
+			void RegisterPointEvent(PMPoint point, PMPointView pointView) {
+				Vector2 cursorOffset = new Vector2();
+
 				pointView.MainHandleView.MouseDown += OnMouseDown_PointMainHandle;
+				for(int subI = 0; subI < pointView.SubHandleViews.Length; ++subI) {
+					int subHandleIndex = subI;
+					Grid subHandleView = pointView.SubHandleViews[subI];
+					subHandleView.MouseDown += OnMouseDown_PointSubHandle;
+
+					void OnMouseDown_PointSubHandle(object sender, MouseButtonEventArgs e) {
+						cursorOffset = GetCursorOffset(pointView, subHandleView) + new Vector2(PMPointView.SubHandleWidthHalf, PMPointView.SubHandleWidthHalf);
+						LoopEngine.AddLoopAction(OnDrag_PointSubHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
+					}
+					void OnDrag_PointSubHandle() {
+						//PointView
+						Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
+						Vector2 pointViewPos = pointView.GetCanvasPosition();
+						point.subPoints[subHandleIndex] = DisplayToNormal(cursorPos).ToPVector2() - point.mainPoint;
+
+						UpdateGraph();
+						UpdatePoint(point);
+					}
+				}
 
 				void OnMouseDown_PointMainHandle(object sender, MouseButtonEventArgs e) {
+					cursorOffset = GetCursorOffset(PointContext, pointView);
 					LoopEngine.AddLoopAction(OnDrag_PointMainHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 				}
 				void OnDrag_PointMainHandle() {
-					Vector2 canvasPos = PointContext.GetAbsolutePosition();
-					Vector2 cursorPos = MouseInput.AbsolutePosition - canvasPos;
+					Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
 
-					Canvas.SetLeft(pointView, cursorPos.x);
-					Canvas.SetTop(pointView, cursorPos.y);
 					point.mainPoint = DisplayToNormal(cursorPos).ToPVector2();
-					System.Diagnostics.Debug.WriteLine(point.mainPoint.ToString());
 
 					UpdateGraph();
+					UpdatePoint(point);
 				}
 			}
-			
 		}
-
 		private void UpdatePoints() {
 			for (int pointI = 0; pointI < editingMotion.pointList.Count; ++pointI) {
-				PMPoint point = editingMotion.pointList[pointI];
-				PMPointView pointView = point.view.Cast<PMPointView>();
+				UpdatePoint(editingMotion.pointList[pointI]);
+			}
+		}
+		private void UpdatePoint(PMPoint point) {
+			PMPointView pointView = point.view.Cast<PMPointView>();
+			Vector2 dPointPos = NormalToDisplay(point.mainPoint.ToVector2());
+			pointView.SetCanvasPosition(dPointPos);
 
-				Canvas.SetLeft(pointView, NormalToDisplayX(point.mainPoint.x));
-				Canvas.SetTop(pointView, NormalToDisplayY(point.mainPoint.y));
+			for (int subI = 0; subI < point.subPoints.Length; ++subI) {
+				Grid subHandleView = pointView.SubHandleViews[subI];
+				Line subLineView = pointView.SubLineViews[subI];
 
+				Vector2 dSubPoint = NormalToDisplay((point.subPoints[subI] + point.mainPoint).ToVector2()) - dPointPos;
+				subHandleView.SetCanvasPosition(dSubPoint - new Vector2(PMPointView.SubHandleWidthHalf, PMPointView.SubHandleWidthHalf));
+				subLineView.SetLinePosition(new Vector2(), dSubPoint);
 
 			}
 		}
-
 		
 
 		public float NormalToDisplayX(float x) {
@@ -251,6 +277,9 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		public Vector2 DisplayToNormal(Vector2 displayPoint) {
 			return new Vector2(DisplayToNormalX(displayPoint.x), DisplayToNormalY(displayPoint.y));
+		}
+		private Vector2 GetCursorOffset(Visual context, UIElement element) {
+			return new Vector2((float)Canvas.GetLeft(element), (float)Canvas.GetTop(element)) - MouseInput.GetRelativePosition(context);
 		}
 	}
 }
