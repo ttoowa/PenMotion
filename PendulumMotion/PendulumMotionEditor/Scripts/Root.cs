@@ -12,14 +12,16 @@ namespace PendulumMotionEditor {
 			get; private set;
 		}
 
-		public GLoopEngine loopEngine;
-		public MainWindow mainWindow;
+		public readonly GLoopEngine loopEngine;
+		public readonly MainWindow mainWindow;
+		public readonly CursorStorage cursorStorage;
 
 		public Root(MainWindow mainWindow) {
 			Instance = this;
 
 			this.mainWindow = mainWindow;
 			loopEngine = new GLoopEngine();
+			cursorStorage = new CursorStorage(mainWindow);
 
 
 			loopEngine.StartLoop();

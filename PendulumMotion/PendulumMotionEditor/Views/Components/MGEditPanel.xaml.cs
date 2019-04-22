@@ -29,6 +29,7 @@ namespace PendulumMotionEditor.Views.Components {
 		private static Root Root => Root.Instance;
 		private static MainWindow MainWindow => Root.mainWindow;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
+		private static CursorStorage CursorStorage => Root.cursorStorage;
 
 		public bool OnEditing => editingMotion != null;
 		public PMMotion editingMotion;
@@ -38,6 +39,7 @@ namespace PendulumMotionEditor.Views.Components {
 		private const int GridVerticalCount = 3;
 		private const int GridHorizontalCount = 5;
 		private const int GraphResolution = 80;
+		private const float NearDistance = 0.016f;
 		private Line[] gridVerticals;
 		private Line[] gridHorizontals;
 		private Line[] graphLines;
@@ -81,9 +83,17 @@ namespace PendulumMotionEditor.Views.Components {
 			Loaded += OnLoaded;
 		}
 		private void OnLoaded(object sender, RoutedEventArgs e) {
+			Init();
 			ResetEnv();
 			CreateGrid();
 			CreateGraph();
+
+			void Init() {
+				Cursor = CursorStorage.cursor_add;
+				HideSmartFollowText();
+				HideSmartLineForX();
+				HideSmartLineForY();
+			}
 		}
 		private void ResetEnv() {
 			displayZoom = 0.6f;
@@ -108,6 +118,7 @@ namespace PendulumMotionEditor.Views.Components {
 			UpdatePoints();
 		}
 
+		//Grid
 		private void CreateGrid() {
 			SolidColorBrush gridColor = "#4D4D4D".ToBrush();
 
@@ -149,6 +160,7 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 		}
 
+		//Graph
 		private void CreateGraph() {
 			graphLines = new Line[GraphResolution];
 			for(int i=0; i<graphLines.Length; ++i) {
@@ -182,6 +194,7 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 		}
 
+		//Point
 		private void ClearPoints() {
 			PointContext.Children.Clear();
 		}
@@ -212,29 +225,69 @@ namespace PendulumMotionEditor.Views.Components {
 					void OnMouseDown_PointSubHandle(object sender, MouseButtonEventArgs e) {
 						cursorOffset = GetCursorOffset(pointView, subHandleView) + new Vector2(PMPointView.SubHandleWidthHalf, PMPointView.SubHandleWidthHalf);
 						LoopEngine.AddLoopAction(OnDrag_PointSubHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
+						LoopEngine.AddLoopAction(OnMouseUp_PointSubHandle, GLoopCycle.None, GWhen.MouseUpRemove);
 					}
 					void OnDrag_PointSubHandle() {
-						//PointView
 						Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
-						Vector2 pointViewPos = pointView.GetCanvasPosition();
-						point.subPoints[subHandleIndex] = DisplayToNormal(cursorPos).ToPVector2() - point.mainPoint;
+						//Vector2 pointViewPos = pointView.GetCanvasPosition();
+						Vector2 pointPosAbsolute = DisplayToNormal(cursorPos);
+
+						//Magnet
+						float? magnet;
+						magnet = FindMagnetForY(pointPosAbsolute.y, false, point);
+						if (magnet.HasValue) {
+							pointPosAbsolute.y = magnet.Value;
+						}
+						magnet = FindMagnetForX(pointPosAbsolute.x, false, point);
+						if (magnet.HasValue) {
+							pointPosAbsolute.x = magnet.Value;
+						}
+						Vector2 pointPosRelative = pointPosAbsolute - point.mainPoint.ToVector2();
+
+						point.subPoints[subHandleIndex] = pointPosRelative.ToPVector2();
 
 						UpdateGraph();
 						UpdatePoint(point);
+
+						SetSmartFollowText(pointPosRelative, NormalToDisplay(pointPosAbsolute));
+					}
+					void OnMouseUp_PointSubHandle() {
+						HideSmartFollowText();
+						HideSmartLineForX();
+						HideSmartLineForY();
 					}
 				}
 
 				void OnMouseDown_PointMainHandle(object sender, MouseButtonEventArgs e) {
 					cursorOffset = GetCursorOffset(PointContext, pointView);
 					LoopEngine.AddLoopAction(OnDrag_PointMainHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
+					LoopEngine.AddLoopAction(OnMouseUp_PointMainHandle, GLoopCycle.None, GWhen.MouseUpRemove);
 				}
 				void OnDrag_PointMainHandle() {
 					Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
+					Vector2 pointPos = DisplayToNormal(cursorPos);
+					//Magnet
+					float? magnet;
+					magnet = FindMagnetForY(pointPos.y, true, point);
+					if(magnet.HasValue) {
+						pointPos.y = magnet.Value;
+					}
+					magnet = FindMagnetForX(pointPos.x, true, point);
+					if(magnet.HasValue) {
+						pointPos.x = magnet.Value;
+					}
 
-					point.mainPoint = DisplayToNormal(cursorPos).ToPVector2();
+					point.mainPoint = pointPos.ToPVector2();
 
 					UpdateGraph();
 					UpdatePoint(point);
+
+					SetSmartFollowText(pointPos);
+				}
+				void OnMouseUp_PointMainHandle() {
+					HideSmartFollowText();
+					HideSmartLineForX();
+					HideSmartLineForY();
 				}
 			}
 		}
@@ -260,6 +313,91 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		
 
+		//SmartUI
+		public void SetSmartFollowText(Vector2 dataPosition) {
+			SetSmartFollowText(dataPosition, NormalToDisplay(dataPosition));
+		}
+		public void SetSmartFollowText(Vector2 dataPosition, Vector2 displayPosition) {
+			SmartFollowTextView.Text = $"({dataPosition.x.ToString("0.00")}, {dataPosition.y.ToString("0.00")})";
+			if (SmartFollowTextView.ActualWidth == 0f)
+				return;
+
+			SmartFollowTextView.SetCanvasPosition(new Vector2(
+				displayPosition.x - (float)SmartFollowTextView.ActualWidth * 0.5f,
+				displayPosition.y - (float)SmartFollowTextView.ActualHeight * 2.3f));
+			SmartFollowTextView.Visibility = Visibility.Visible;
+		}
+		public void HideSmartFollowText() {
+			SmartFollowTextView.Visibility = Visibility.Hidden;
+		}
+
+		public void SetSmartLineForX(float x) {
+			SmartLineForXView.X1 =
+			SmartLineForXView.X2 = NormalToDisplayX(x);
+			SmartLineForXView.Y1 = 0d;
+			SmartLineForXView.Y2 = SmartContext.ActualHeight;
+			SmartLineForXView.Visibility = Visibility.Visible;
+		}
+		public void SetSmartLineForY(float y) {
+			SmartLineForYView.X1 = 0d;
+			SmartLineForYView.X2 = SmartContext.ActualWidth;
+			SmartLineForYView.Y1 =
+			SmartLineForYView.Y2 = NormalToDisplayY(y);
+			SmartLineForYView.Visibility = Visibility.Visible;
+		}
+		public void HideSmartLineForX() {
+			SmartLineForXView.Visibility = Visibility.Hidden;
+		}
+		public void HideSmartLineForY() {
+			SmartLineForYView.Visibility = Visibility.Hidden;
+		}
+
+		private float? FindMagnetForX(float x, bool findPoints, PMPoint exclusivePoint) {
+			List<float> magnetList = new List<float>() {
+				0f,
+				1f,
+			};
+			if (findPoints) {
+				foreach (PMPoint point in editingMotion.pointList) {
+					if (point != exclusivePoint) {
+						magnetList.Add(point.mainPoint.x);
+					}
+				}
+			}
+			foreach (float magnet in magnetList) {
+				if (Mathf.Abs(magnet - x) < NearDistance) {
+					//Found magnet
+					SetSmartLineForX(magnet);
+					return magnet;
+				}
+			}
+			HideSmartLineForX();
+			return null;
+		}
+		private float? FindMagnetForY(float y, bool findPoints, PMPoint exclusivePoint) {
+			List<float> magnetList = new List<float>() {
+				0f,
+				1f,
+			};
+			if (findPoints) {
+				foreach (PMPoint point in editingMotion.pointList) {
+					if (point != exclusivePoint) {
+						magnetList.Add(point.mainPoint.y);
+					}
+				}
+			}
+			foreach (float magnet in magnetList) {
+				if (Mathf.Abs(magnet - y) < NearDistance) {
+					//Found magnet
+					SetSmartLineForY(magnet);
+					return magnet;
+				}
+			}
+			HideSmartLineForY();
+			return null;
+		}
+
+		//Matrix
 		public float NormalToDisplayX(float x) {
 			return DGraphRect.xMin + x * DGraphRect.Width;
 		}

@@ -59,5 +59,35 @@ namespace PendulumMotionEditor.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   System.Byte[] 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static byte[] Cursor_Add {
+            get {
+                object obj = ResourceManager.GetObject("Cursor_Add", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Byte[] 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static byte[] Cursor_Default {
+            get {
+                object obj = ResourceManager.GetObject("Cursor_Default", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Byte[] 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static byte[] Cursor_Remove {
+            get {
+                object obj = ResourceManager.GetObject("Cursor_Remove", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

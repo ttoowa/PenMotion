@@ -31,6 +31,9 @@ namespace PendulumMotionEditor.Views.Windows
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		private static Root Root;
+		private static CursorStorage CursorStorage => Root.cursorStorage;
+
 		private int PreviewFps => Mathf.Clamp(PreviewFpsEditText.textBox.Text.Parse2Int(60), 1, 1000);
 		private float PreviewSeconds => Mathf.Clamp(PreviewSecondsEditText.textBox.Text.Parse2Float(1f), 0.02f, 1000f);
 		private float previewTime;
@@ -50,7 +53,7 @@ namespace PendulumMotionEditor.Views.Windows
 		}
 		private void OnLoad(object sender, RoutedEventArgs e)
 		{
-			Root root = new Root(this);
+			Root = new Root(this);
 			
 			Init();
 			RegisterEvents();
@@ -59,6 +62,7 @@ namespace PendulumMotionEditor.Views.Windows
 				previewLoopEngine = new GLoopEngine(registInput:false);
 				previewWatch = new Stopwatch();
 
+				Cursor = CursorStorage.cursor_default;
 				SetContentContextVisible(false);
 				PreviewFpsEditText.textBox.SetOnlyIntInput();
 				PreviewSecondsEditText.textBox.SetOnlyFloatInput();

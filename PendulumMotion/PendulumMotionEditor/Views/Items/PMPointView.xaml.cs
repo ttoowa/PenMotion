@@ -60,7 +60,7 @@ namespace PendulumMotionEditor.Views.Items
 				}
 			}
 			void SetBtnColor(Grid button) {
-				button.SetBtnColor((Shape)button.Children[button.Children.Count - 1]);
+				button.SetBtnColor((Shape)button.Children[button.Children.Count - 1], 0.3f);
 			}
 		}
 	}
