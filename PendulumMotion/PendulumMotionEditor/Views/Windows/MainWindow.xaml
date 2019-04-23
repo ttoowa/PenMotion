@@ -101,11 +101,11 @@
 							<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource PreviewLineColor}" HorizontalAlignment="Right" Grid.Column="1"></Border>
 							<TextBlock Margin="2,0,0,2" Grid.Column="0" Grid.ColumnSpan="2" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="{StaticResource PreviewLineColor}" VerticalAlignment="Bottom" Text="Position" HorizontalAlignment="Left" FontSize="20"></TextBlock>
 							<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}" HorizontalAlignment="Right" Grid.Column="2"></Border>
-							<Rectangle Name="PreviewPositionShape" Width="30" Height="30" Grid.Column="1" Grid.ColumnSpan="3" Fill="White" Stroke="#FF6C6C6C" HorizontalAlignment="Left"></Rectangle>
+							<Ellipse Name="PreviewPositionShape" Width="38" Height="38" Grid.Column="1" Grid.ColumnSpan="3" Fill="White" Stroke="#FF6C6C6C" HorizontalAlignment="Left" VerticalAlignment="Center"></Ellipse>
 						</Grid>
 						<Grid Grid.Column="1" Grid.ColumnSpan="1">
 							<TextBlock Margin="2" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="{StaticResource PreviewLineColor}" VerticalAlignment="Bottom" Text="Scale" HorizontalAlignment="Left" FontSize="20"></TextBlock>
-							<Ellipse Name="PreviewScaleShape" Width="35" Height="35" Fill="White" Stroke="#FF6C6C6C" RenderTransformOrigin="0.5,0.5"></Ellipse>
+							<Rectangle Name="PreviewScaleShape" Width="35" Height="35" Fill="White" Stroke="#FF6C6C6C" RenderTransformOrigin="0.5,0.5"></Rectangle>
 						</Grid>
 					</Grid>
 					<Grid>

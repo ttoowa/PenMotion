@@ -25,6 +25,7 @@ namespace PendulumMotion.Items {
 
 		public float GetMotionValue(float linearValue, int maxSample = DefaultMaxSample, float tolerance = DefaultMaxTolerance) {
 			int rightIndex = -1;
+			linearValue = Math.Max(Math.Min(linearValue, 1f), 0f);
 
 			for (int i = 1; i < pointList.Count; ++i) {
 				if (pointList[i].mainPoint.x >= linearValue) {

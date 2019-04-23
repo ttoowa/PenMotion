@@ -95,8 +95,10 @@ namespace PendulumMotionEditor {
 						item.view = view;
 						parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(view);
 
-						if (item.type == PMItemType.Folder) {
-							CreateViewRecursion(item.Cast<PMFolder>());
+						switch(item.type) {
+							case PMItemType.Folder:
+								CreateViewRecursion(item.Cast<PMFolder>());
+								break;
 						}
 					}
 				}
@@ -157,6 +159,7 @@ namespace PendulumMotionEditor {
 			selectedItemSet.Add(item);
 			if(item.type == PMItemType.Motion) {
 				MainWindow.EditPanel.AttachMotion(item.Cast<PMMotion>());
+				MainWindow.ResetPreviewTime();
 			} else {
 				MainWindow.EditPanel.DetachMotion();
 			}

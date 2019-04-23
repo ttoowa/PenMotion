@@ -13,7 +13,7 @@
 			<DockPanel Name="ContentPanel" Height="40" Background="#E0E0E0">
 				<Border DockPanel.Dock="Bottom" Height="1" Background="#B5B5B5" VerticalAlignment="Bottom"></Border>
 				<Grid Name="MotionContent" DockPanel.Dock="Right">
-					<Canvas Name="PreviewContext" Width="60" Height="32" Background="#A69165" HorizontalAlignment="Right" Margin="0,0,5,0"/>
+					<Canvas Name="PreviewGraphContext" Width="60" Height="32" Background="#FF63605C" ClipToBounds="True" HorizontalAlignment="Right" Margin="0,0,5,0"/>
 				</Grid>
 				<Grid Name="FolderContent" DockPanel.Dock="Left" Visibility="Visible">
 					<Grid Name="FoldButton" Width="12" Height="20">

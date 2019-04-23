@@ -38,11 +38,12 @@ namespace PendulumMotionEditor.Views.Components {
 		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
 		private const int GridVerticalCount = 3;
 		private const int GridHorizontalCount = 5;
-		private const int GraphResolution = 80;
+		private const int GraphResolution = 120;
 		private const float NearDistance = 0.016f;
 		private Line[] gridVerticals;
 		private Line[] gridHorizontals;
 		private Line[] graphLines;
+		private Line[] outsideLines;
 		private List<PMPointView> pointViewList;
 
 		//Display
@@ -80,6 +81,8 @@ namespace PendulumMotionEditor.Views.Components {
 
 		public MGEditPanel() {
 			InitializeComponent();
+			if (this.CheckDesignMode())
+				return;
 			Loaded += OnLoaded;
 		}
 		private void OnLoaded(object sender, RoutedEventArgs e) {
@@ -87,6 +90,7 @@ namespace PendulumMotionEditor.Views.Components {
 			ResetEnv();
 			CreateGrid();
 			CreateGraph();
+			DetachMotion();
 
 			void Init() {
 				Cursor = CursorStorage.cursor_add;
@@ -105,17 +109,31 @@ namespace PendulumMotionEditor.Views.Components {
 			editingMotion = motion;
 			CreatePoints();
 			UpdateUI();
+			PreviewContext.Visibility = Visibility.Visible;
 		}
 		public void DetachMotion() {
 			editingMotion = null;
 			ResetEnv();
 			ClearPoints();
+			PreviewContext.Visibility = Visibility.Collapsed;
 		}
 
 		public void UpdateUI() {
+			if (!OnEditing)
+				return;
+
 			UpdateGrid();
 			UpdateGraph();
 			UpdatePoints();
+		}
+		public void UpdatePreview(float time, float maxOverTime) {
+			PlaybackRadar.Height = PreviewContext.ActualHeight;
+
+			PRect dGraphRect = DGraphRect;
+			float x = dGraphRect.xMin + dGraphRect.Width * time;
+			float overTime = time > 0f ? Mathf.Max(0f, time - 1f) : -time;
+			PlaybackRadar.Opacity = 1f - overTime / maxOverTime;
+			Canvas.SetLeft(PlaybackRadar, x - PlaybackRadar.Width);
 		}
 
 		//Grid
@@ -163,35 +181,50 @@ namespace PendulumMotionEditor.Views.Components {
 		//Graph
 		private void CreateGraph() {
 			graphLines = new Line[GraphResolution];
+			outsideLines = new Line[2];
+
 			for(int i=0; i<graphLines.Length; ++i) {
 				Line line = graphLines[i] = new Line();
-				line.Stroke = GraphLineColor;
-				line.StrokeThickness = 2d;
+				SetLineStyle(line);
 
 				GraphContext.Children.Add(line);
 			}
+			for(int i=0; i<outsideLines.Length; ++i) {
+				Line line = outsideLines[i] = new Line();
+				SetLineStyle(line);
+
+				GraphContext.Children.Add(line);
+			}
+
+			void SetLineStyle(Line line) {
+				line.Stroke = GraphLineColor;
+				line.StrokeThickness = 2d;
+			}
 		}
 		private void UpdateGraph() {
-			PVector2 graph01Size = DGraph01Size;
-			PRect graphRect = DGraphRect;
+			PVector2 dGraph01Size = DGraph01Size;
+			PRect dGraphRect = DGraphRect;
 
-			for (int i = 0; i < graphLines.Length; ++i) {
-				float motionValue = GetMotionValue(i);
-				float nextMotionValue = GetMotionValue(i + 1);
+			for (int graphLineI = 0; graphLineI < graphLines.Length; ++graphLineI) {
+				float motionValue = GetMotionValue(graphLineI);
+				float nextMotionValue = GetMotionValue(graphLineI + 1);
 
-
-				Line line = graphLines[i];
-				line.X1 = graphRect.xMin + i * graph01Size.x / GraphResolution;
-				line.X2 = graphRect.xMin + (i + 1) * graph01Size.x / GraphResolution;
-				line.Y1 = graphRect.yMax - motionValue * graph01Size.y;
-				line.Y2 = graphRect.yMax - nextMotionValue * graph01Size.y;
-
+				Line line = graphLines[graphLineI];
+				line.X1 = dGraphRect.xMin + graphLineI * dGraph01Size.x / GraphResolution;
+				line.X2 = dGraphRect.xMin + (graphLineI + 1) * dGraph01Size.x / GraphResolution;
+				line.Y1 = dGraphRect.yMax - motionValue * dGraph01Size.y;
+				line.Y2 = dGraphRect.yMax - nextMotionValue * dGraph01Size.y;
 
 				float GetMotionValue(int index) {
-					float linearValue = (float)index / (graphLines.Length - 1);
+					float linearValue = (float)index / graphLines.Length;
 					return editingMotion.GetMotionValue(linearValue);
 				}
 			}
+
+			float outsideLeftY = NormalToDisplayY(editingMotion.GetMotionValue(0f));
+			float outsideRightY = NormalToDisplayY(editingMotion.GetMotionValue(1f));
+			outsideLines[0].SetLinePosition(new Vector2(Mathf.Min(dGraphRect.xMin, 0f), outsideLeftY), new Vector2(dGraphRect.xMin, outsideLeftY));
+			outsideLines[1].SetLinePosition(new Vector2(dGraphRect.xMax, outsideRightY), new Vector2(Mathf.Max(dGraphRect.xMax, (float)GraphContext.ActualWidth), outsideRightY));
 		}
 
 		//Point
@@ -248,6 +281,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 						UpdateGraph();
 						UpdatePoint(point);
+						editingMotion.view.Cast<PMItemView>().UpdateGraph(editingMotion);
 
 						SetSmartFollowText(pointPosRelative, NormalToDisplay(pointPosAbsolute));
 					}
@@ -281,6 +315,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 					UpdateGraph();
 					UpdatePoint(point);
+					editingMotion.view.Cast<PMItemView>().UpdateGraph(editingMotion);
 
 					SetSmartFollowText(pointPos);
 				}

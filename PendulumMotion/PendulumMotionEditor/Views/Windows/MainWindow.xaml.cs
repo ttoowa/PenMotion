@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -32,6 +33,7 @@ namespace PendulumMotionEditor.Views.Windows
 	public partial class MainWindow : Window
 	{
 		private static Root Root;
+		private static GLoopEngine LoopEngine => Root.loopEngine;
 		private static CursorStorage CursorStorage => Root.cursorStorage;
 
 		private int PreviewFps => Mathf.Clamp(PreviewFpsEditText.textBox.Text.Parse2Int(60), 1, 1000);
@@ -49,17 +51,20 @@ namespace PendulumMotionEditor.Views.Windows
 		public MainWindow()
 		{
 			InitializeComponent();
+			if (this.CheckDesignMode())
+				return;
+
+			Root = new Root(this);
 			Loaded += OnLoad;
 		}
 		private void OnLoad(object sender, RoutedEventArgs e)
 		{
-			Root = new Root(this);
-			
 			Init();
 			RegisterEvents();
 			
 			void Init() {
 				previewLoopEngine = new GLoopEngine(registInput:false);
+				previewLoopEngine.MaxOverlapFrame = 3;
 				previewWatch = new Stopwatch();
 
 				Cursor = CursorStorage.cursor_default;
@@ -71,6 +76,8 @@ namespace PendulumMotionEditor.Views.Windows
 
 				previewLoopEngine.StartLoop();
 				previewLoopEngine.AddLoopAction(OnPreviewTick);
+
+				LoopEngine.AddGRoutine(UpdateItemPreviewRoutine());
 			}
 			void RegisterEvents() {
 				const int TimeTextBoxMaxLength = 5;
@@ -111,22 +118,56 @@ namespace PendulumMotionEditor.Views.Windows
 			}
 		}
 
-
 		//Event
+		private IEnumerator UpdateItemPreviewRoutine() {
+			//UpdateItemPreview
+			int iterCounter = 0;
+			for(; ;) {
+				if(OnEditing) {
+					yield return UpdateItemPreview(editingMotion.file.rootFolder);
+				}
+				yield return new GWait(GTimeUnit.Frame, 1);
+			}
+
+			IEnumerator UpdateItemPreview(PMFolder folder) {
+				for(int childI=0; childI<folder.childList.Count; ++childI) {
+					PMItemBase child = folder.childList[childI];
+					switch(child.type) {
+						case PMItemType.Motion:
+							PMMotion motion = child.Cast<PMMotion>();
+							motion.view.Cast<PMItemView>().UpdateGraph(motion);
+
+							if(++iterCounter >= 2) {
+								iterCounter = 0;
+								yield return new GWait(GTimeUnit.Frame, 1);
+							}
+							break;
+						case PMItemType.Folder:
+							yield return UpdateItemPreview(child.Cast<PMFolder>());
+							break;
+					}
+				}
+			}
+		}
 		private void OnPreviewTick() {
-			const float DelayTime = 0.2f;
 			const float SeparatorWidthHalf = 2f;
 			const float UpdateFPSTick = 0.5f;
+			const float OverTimeSec = 0.8f;
 
 			float previewSec = PreviewSeconds;
 			float previewFps = PreviewFps;
+			float frameDelta = 1f / previewSec / previewFps;
+			float maxOverTime = OverTimeSec / previewSec;
 			//Simulate Time
-			previewTime += 1f / (float)previewSec / previewFps;
-			if(previewTime > 1f + DelayTime) {
-				previewTime = -DelayTime;
+			previewTime += frameDelta;
+			if(previewTime > 1f + maxOverTime || previewTime < -maxOverTime) {
+				previewTime = -maxOverTime;
 			}
 			float actualTime = Mathf.Clamp01(previewTime);
 			float motionTime = EditPanel.OnEditing ? EditPanel.editingMotion.GetMotionValue(actualTime) : 0f;
+
+			//Update Radar
+			EditPanel.UpdatePreview(previewTime, maxOverTime);
 
 			//Update Position
 			double gridWidth = PreviewPositionGrid.ColumnDefinitions[1].ActualWidth;
@@ -136,7 +177,7 @@ namespace PendulumMotionEditor.Views.Windows
 			//Update Scale
 			PreviewScaleShape.RenderTransform = new ScaleTransform(motionTime, motionTime);
 
-
+			//Update TextInfos
 			previewWatch.Stop();
 			ActualFrameTextView.Text = $"({((int)(previewSec * previewFps))} Frame)";
 			float deltaMillisec = previewWatch.GetElapsedMilliseconds();
@@ -219,6 +260,9 @@ namespace PendulumMotionEditor.Views.Windows
 		}
 
 		//UI
+		public void ResetPreviewTime() {
+			previewTime = 0f;
+		}
 		public void SetContentContextVisible(bool show) {
 			ContentContext.Visibility = show ? Visibility.Visible : Visibility.Hidden;
 		}
