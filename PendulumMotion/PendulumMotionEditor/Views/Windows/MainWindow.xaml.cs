@@ -135,7 +135,7 @@ namespace PendulumMotionEditor.Views.Windows
 					switch(child.type) {
 						case PMItemType.Motion:
 							PMMotion motion = child.Cast<PMMotion>();
-							motion.view.Cast<PMItemView>().UpdateGraph(motion);
+							motion.view.Cast<PMItemView>().UpdatePreviewGraph(motion);
 
 							if(++iterCounter >= 2) {
 								iterCounter = 0;

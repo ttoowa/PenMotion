@@ -281,7 +281,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 						UpdateGraph();
 						UpdatePoint(point);
-						editingMotion.view.Cast<PMItemView>().UpdateGraph(editingMotion);
+						editingMotion.view.Cast<PMItemView>().UpdatePreviewGraph(editingMotion);
 
 						SetSmartFollowText(pointPosRelative, NormalToDisplay(pointPosAbsolute));
 					}
@@ -315,7 +315,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 					UpdateGraph();
 					UpdatePoint(point);
-					editingMotion.view.Cast<PMItemView>().UpdateGraph(editingMotion);
+					editingMotion.view.Cast<PMItemView>().UpdatePreviewGraph(editingMotion);
 
 					SetSmartFollowText(pointPos);
 				}

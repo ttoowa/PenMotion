@@ -113,7 +113,9 @@ namespace PendulumMotionEditor {
 			PMFolder parentFolder = SelectedParentFolder;
 
 			PMMotion motion = file.CreateMotion(parentFolder);
-			motion.view = new PMItemView(PMItemType.Motion);
+			PMItemView view = new PMItemView(PMItemType.Motion);
+			motion.view = view;
+			view.SetName(motion.name);
 			parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(motion.view.Cast<PMItemView>());
 
 			RegisterItemEvent(motion);
@@ -123,7 +125,9 @@ namespace PendulumMotionEditor {
 			PMFolder parentFolder = SelectedParentFolder;
 
 			PMFolder folder = file.CreateFolder(parentFolder);
-			folder.view = new PMItemView(PMItemType.Folder);
+			PMItemView view = new PMItemView(PMItemType.Folder);
+			folder.view = view;
+			view.SetName(folder.name);
 			parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(folder.view.Cast<PMItemView>());
 
 			RegisterItemEvent(folder);
@@ -135,18 +139,24 @@ namespace PendulumMotionEditor {
 		}
 
 		private void RegisterItemEvent(PMItemBase item) {
-			item.view.Cast<PMItemView>().ContentPanel.MouseDown += OnMouseDown_ItemBackPanel;
+			PMItemView itemView = item.view.Cast<PMItemView>();
+			itemView.ContentPanel.MouseDown += OnMouseDown_ItemBackPanel;
 
 			void OnMouseDown_ItemBackPanel(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-				if(KeyInput.GetKey(WinKey.LeftControl) || KeyInput.GetKey(WinKey.RightControl)) {
-					if(selectedItemSet.Contains(item)) {
-						RemoveSelectedItem(item);
+				if(e.ClickCount == 1) {
+					if(KeyInput.GetKey(WinKey.LeftControl) || KeyInput.GetKey(WinKey.RightControl)) {
+						if(selectedItemSet.Contains(item)) {
+							RemoveSelectedItem(item);
+						} else {
+							AddSelectedItem(item);
+						}
 					} else {
-						AddSelectedItem(item);
+						SelectItem(item);
 					}
-				} else {
-					SelectItem(item);
+				} else if(e.ClickCount == 2) {
+					itemView.SetNameEditTextVisible(true);
 				}
+				e.Handled = true;
 			}
 		}
 

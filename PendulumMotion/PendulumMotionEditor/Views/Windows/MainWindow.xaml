@@ -9,7 +9,7 @@
         xmlns:Image="clr-namespace:PendulumMotionEditor.Resources.Image"
         xmlns:local="clr-namespace:PendulumMotionEditor.Views.Windows"
         mc:Ignorable="d"
-        Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450">
+        Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450" Focusable="False">
 	<DockPanel>
 		<DockPanel.Resources>
 			<System:Double x:Key="SeparatorWidth">4</System:Double>

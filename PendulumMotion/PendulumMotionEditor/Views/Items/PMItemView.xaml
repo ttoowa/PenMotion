@@ -6,6 +6,30 @@
              xmlns:local="clr-namespace:PendulumMotionEditor.Views.Items"
              mc:Ignorable="d" 
              d:DesignWidth="400">
+	<UserControl.Resources>
+		<Style TargetType="TextBox">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type TextBox}">
+						<Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+							<ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsEnabled" Value="false">
+								<Setter Property="Opacity" TargetName="border" Value="0.56"/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="true">
+								<Setter Property="BorderBrush" TargetName="border" Value="#FFCFCFCF"/>
+							</Trigger>
+							<Trigger Property="IsFocused" Value="true">
+								<Setter Property="BorderBrush" TargetName="border" Value="#FFE6C73D"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</UserControl.Resources>
 	<DockPanel Name="BackPanel" Background="#FF7C7C7C">
 		<StackPanel Name="ChildContext" DockPanel.Dock="Bottom" Margin="8, 0, 0, 0">
 		</StackPanel>
@@ -20,7 +44,7 @@
 						<Polygon Points="0,0 0,8 7,4" VerticalAlignment="Center" HorizontalAlignment="Right" Fill="#FF9E9E9E"/>
 					</Grid>
 				</Grid>
-				<TextBlock FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" FontSize="14" Text="Name" TextOptions.TextHintingMode="Animated" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="#FF2C2C2C"/>
+				<TextBox Name="NameEditText" IsHitTestVisible="False" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" FontSize="14" Text="Name" TextOptions.TextHintingMode="Animated" VerticalAlignment="Center" Margin="6,0" Foreground="#FF343434" Height="30" VerticalContentAlignment="Center" BorderBrush="{x:Null}" SelectionBrush="#FFDAAF3C"/>
 			</DockPanel>
 		</DockPanel>
 	</DockPanel>
