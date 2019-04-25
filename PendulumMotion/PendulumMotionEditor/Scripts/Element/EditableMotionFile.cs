@@ -91,11 +91,9 @@ namespace PendulumMotionEditor {
 				void CreateViewRecursion(PMFolder parentFolder) {
 					for (int childI = 0; childI < parentFolder.childList.Count; ++childI) {
 						PMItemBase item = parentFolder.childList[childI];
-						PMItemView view = new PMItemView(item.type);
-						item.view = view;
-						parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(view);
+						editingFile.InitItem(item, parentFolder);
 
-						switch(item.type) {
+						switch (item.type) {
 							case PMItemType.Folder:
 								CreateViewRecursion(item.Cast<PMFolder>());
 								break;
@@ -111,31 +109,29 @@ namespace PendulumMotionEditor {
 
 		public PMMotion CreateMotion() {
 			PMFolder parentFolder = SelectedParentFolder;
-
 			PMMotion motion = file.CreateMotion(parentFolder);
-			PMItemView view = new PMItemView(PMItemType.Motion);
-			motion.view = view;
-			view.SetName(motion.name);
-			parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(motion.view.Cast<PMItemView>());
 
-			RegisterItemEvent(motion);
+			InitItem(motion, parentFolder);
 			return motion;
 		}
 		public PMFolder CreateFolder() {
 			PMFolder parentFolder = SelectedParentFolder;
-
 			PMFolder folder = file.CreateFolder(parentFolder);
-			PMItemView view = new PMItemView(PMItemType.Folder);
-			folder.view = view;
-			view.SetName(folder.name);
-			parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(folder.view.Cast<PMItemView>());
 
-			RegisterItemEvent(folder);
+			InitItem(folder, parentFolder);
 			return folder;
 		}
 		public void RemoveItem(PMItemBase item) {
 			item.parent.view.Cast<PMItemView>().ChildContext.Children.Remove(item.view.Cast<PMItemView>());
 			file.RemoveItem(item);
+		}
+		private void InitItem(PMItemBase item, PMFolder parentFolder) {
+			PMItemView view = new PMItemView(item.type);
+			item.view = view;
+			view.SetName(item.name);
+			parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(view);
+
+			RegisterItemEvent(item);
 		}
 
 		private void RegisterItemEvent(PMItemBase item) {

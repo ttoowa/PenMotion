@@ -229,10 +229,10 @@
     <Resource Include="Resources\Image\Icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Cursor_Add.cur" />
+    <None Include="Resources\Cursor_Default.cur" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Cursor_Default.cur" />
+    <None Include="Resources\Cursor_Add.cur" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Cursor_Remove.cur" />

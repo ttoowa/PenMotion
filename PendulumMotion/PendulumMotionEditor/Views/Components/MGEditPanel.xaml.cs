@@ -87,34 +87,105 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		private void OnLoaded(object sender, RoutedEventArgs e) {
 			Init();
+			RegisterEvent();
 			ResetEnv();
 			CreateGrid();
 			CreateGraph();
 			DetachMotion();
 
 			void Init() {
-				Cursor = CursorStorage.cursor_add;
 				HideSmartFollowText();
 				HideSmartLineForX();
 				HideSmartLineForY();
 			}
+			void RegisterEvent() {
+				LoopEngine.AddLoopAction(OnTick);
+			}
+		}
+		private void OnTick() {
+			CheckCursorInteraction();
 		}
 		private void ResetEnv() {
 			displayZoom = 0.6f;
 			displayOffset = new PVector2();
 		}
 
+		private void CheckCursorInteraction() {
+			const float InteractionThreshold = 0.02f;
+
+			if (!OnEditing)
+				return;
+
+			bool cursorChanged = false;
+			//Find MouseOverPoint
+			PMPoint mouseOverPoint = null;
+			int mouseOverPointIndex = -1;
+			for (int handleI = 0; handleI < editingMotion.pointList.Count; ++handleI) {
+				PMPoint point = editingMotion.pointList[handleI];
+				if (point.view.Cast<PMPointView>().MainHandleView.IsMouseOver) {
+					mouseOverPoint = point;
+					mouseOverPointIndex = handleI;
+					break;
+				}
+			}
+
+			if (KeyInput.GetKey(WinKey.LeftAlt)) {
+				//RemoveTest
+				if (mouseOverPoint != null && mouseOverPointIndex > 0 && mouseOverPointIndex < editingMotion.pointList.Count - 1) {
+					SetCursor(CursorStorage.cursor_remove);
+					cursorChanged = true;
+
+					if (MouseInput.LeftDown) {
+						RemovePoint(mouseOverPoint);
+
+						UpdatePointViews();
+						UpdateGraph();
+					}
+				}
+			} else if(KeyInput.GetKey(WinKey.LeftControl) && mouseOverPoint == null) {
+				//AddTest
+				Vector2 cursorPos = DisplayToNormal(MouseInput.GetRelativePosition(PointContext));
+				if (cursorPos.x > 0f && cursorPos.x < 1f) {
+					int rightIndex = editingMotion.GetRightIndex(cursorPos.x);
+					if (rightIndex > 0) {
+						SetCursor(CursorStorage.cursor_add);
+						SetSmartLineForX(cursorPos.x);
+						cursorChanged = true;
+
+						if (MouseInput.LeftDown) {
+							CreatePoint(cursorPos, rightIndex);
+
+							UpdatePointViews();
+							UpdateGraph();
+						}
+					}
+				} else {
+					HideSmartLineForX();
+				}
+			}
+			if(KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.LeftAuto) {
+				HideSmartLineForX();
+			}
+			if (!cursorChanged) {
+				SetCursor(CursorStorage.cursor_default);
+			}
+		}
+
 		public void AttachMotion(PMMotion motion) {
 			DetachMotion();
 			editingMotion = motion;
-			CreatePoints();
+			CreatePointViews();
 			UpdateUI();
 			PreviewContext.Visibility = Visibility.Visible;
 		}
 		public void DetachMotion() {
 			editingMotion = null;
 			ResetEnv();
-			ClearPoints();
+			ClearPointViews();
+			SetGraphVisible(false);
+			HideSmartFollowText();
+			HideSmartLineForX();
+			HideSmartLineForY();
 			PreviewContext.Visibility = Visibility.Collapsed;
 		}
 
@@ -124,7 +195,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 			UpdateGrid();
 			UpdateGraph();
-			UpdatePoints();
+			UpdatePointViews();
 		}
 		public void UpdatePreview(float time, float maxOverTime) {
 			PlaybackRadar.Height = PreviewContext.ActualHeight;
@@ -135,7 +206,7 @@ namespace PendulumMotionEditor.Views.Components {
 			PlaybackRadar.Opacity = 1f - overTime / maxOverTime;
 			Canvas.SetLeft(PlaybackRadar, x - PlaybackRadar.Width);
 		}
-
+		
 		//Grid
 		private void CreateGrid() {
 			SolidColorBrush gridColor = "#4D4D4D".ToBrush();
@@ -162,7 +233,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 			for (int i = 0; i < gridVerticals.Length; ++i) {
 				Line line = gridVerticals[i];
-				float x = graphRect.xMin + (i * graph01Size.x  / (GridVerticalCount-1));
+				float x = graphRect.xMin + (i * graph01Size.x / (GridVerticalCount - 1));
 				line.X1 =
 				line.X2 = x;
 				line.Y1 = 0d;
@@ -170,7 +241,7 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 			for (int i = 0; i < gridHorizontals.Length; ++i) {
 				Line line = gridHorizontals[i];
-				float y = graphRect.yMax - (i * graph01Size.y / (GridHorizontalCount-1));
+				float y = graphRect.yMax - (i * graph01Size.y / (GridHorizontalCount - 1));
 				line.Y1 =
 				line.Y2 = y;
 				line.X1 = 0d;
@@ -183,13 +254,13 @@ namespace PendulumMotionEditor.Views.Components {
 			graphLines = new Line[GraphResolution];
 			outsideLines = new Line[2];
 
-			for(int i=0; i<graphLines.Length; ++i) {
+			for (int i = 0; i < graphLines.Length; ++i) {
 				Line line = graphLines[i] = new Line();
 				SetLineStyle(line);
 
 				GraphContext.Children.Add(line);
 			}
-			for(int i=0; i<outsideLines.Length; ++i) {
+			for (int i = 0; i < outsideLines.Length; ++i) {
 				Line line = outsideLines[i] = new Line();
 				SetLineStyle(line);
 
@@ -201,7 +272,12 @@ namespace PendulumMotionEditor.Views.Components {
 				line.StrokeThickness = 2d;
 			}
 		}
+		private void SetGraphVisible(bool visible) {
+			GraphContext.Visibility = visible ? Visibility.Visible : Visibility.Hidden;
+		}
 		private void UpdateGraph() {
+			SetGraphVisible(true);
+
 			PVector2 dGraph01Size = DGraph01Size;
 			PRect dGraphRect = DGraphRect;
 
@@ -228,29 +304,53 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 
 		//Point
-		private void ClearPoints() {
-			PointContext.Children.Clear();
+		private void CreatePoint(Vector2 cursorPos, int rightIndex) {
+			PMPoint prevPoint = editingMotion.pointList[rightIndex - 1];
+			PMPoint nextPoint = editingMotion.pointList[rightIndex];
+			PVector2 delta = nextPoint.mainPoint - prevPoint.mainPoint;
+			PMPoint point = new PMPoint();
+
+			float mainPointX = cursorPos.x;
+			float subPoint0X = prevPoint.mainPoint.x + delta.x * 0.25f;
+			float subPoint1X = prevPoint.mainPoint.x + delta.x * 0.75f;
+			point.mainPoint = new PVector2(mainPointX, editingMotion.GetMotionValue(mainPointX));
+			point.subPoints[0] = new PVector2(subPoint0X, editingMotion.GetMotionValue(subPoint0X)) - point.mainPoint;
+			point.subPoints[1] = new PVector2(subPoint1X, editingMotion.GetMotionValue(subPoint1X)) - point.mainPoint;
+
+			prevPoint.subPoints[1] *= 0.5f;
+			nextPoint.subPoints[0] *= 0.5f;
+
+			editingMotion.InsertPoint(point, rightIndex);
+
+			CreatePointView(point);
 		}
-		private void CreatePoints() {
+		private void RemovePoint(PMPoint point) {
+			RemovePointView(point);
+			editingMotion.RemovePoint(point);
+		}
+		private void CreatePointViews() {
 			pointViewList = new List<PMPointView>();
-			
+
 			for (int pointI = 0; pointI < editingMotion.pointList.Count; ++pointI) {
 				PMPoint point = editingMotion.pointList[pointI];
-				if(point.view == null) {
-					PMPointView pointView = new PMPointView();
-					point.view = pointView;
 
-					RegisterPointEvent(point, pointView);
-				}
-				PointContext.Children.Add(point.view.Cast<PMPointView>());
-
+				CreatePointView(point);
 			}
+		}
+		private void CreatePointView(PMPoint point) {
+			if (point.view == null) {
+				PMPointView pointView = new PMPointView();
+				point.view = pointView;
 
-			void RegisterPointEvent(PMPoint point, PMPointView pointView) {
+				RegisterPointEvent(pointView);
+			}
+			PointContext.Children.Add(point.view.Cast<PMPointView>());
+
+			void RegisterPointEvent(PMPointView pointView) {
 				Vector2 cursorOffset = new Vector2();
 
 				pointView.MainHandleView.MouseDown += OnMouseDown_PointMainHandle;
-				for(int subI = 0; subI < pointView.SubHandleViews.Length; ++subI) {
+				for (int subI = 0; subI < pointView.SubHandleViews.Length; ++subI) {
 					int subHandleIndex = subI;
 					Grid subHandleView = pointView.SubHandleViews[subI];
 					subHandleView.MouseDown += OnMouseDown_PointSubHandle;
@@ -280,7 +380,7 @@ namespace PendulumMotionEditor.Views.Components {
 						point.subPoints[subHandleIndex] = pointPosRelative.ToPVector2();
 
 						UpdateGraph();
-						UpdatePoint(point);
+						UpdatePointView(point);
 						editingMotion.view.Cast<PMItemView>().UpdatePreviewGraph(editingMotion);
 
 						SetSmartFollowText(pointPosRelative, NormalToDisplay(pointPosAbsolute));
@@ -303,18 +403,18 @@ namespace PendulumMotionEditor.Views.Components {
 					//Magnet
 					float? magnet;
 					magnet = FindMagnetForY(pointPos.y, true, point);
-					if(magnet.HasValue) {
+					if (magnet.HasValue) {
 						pointPos.y = magnet.Value;
 					}
 					magnet = FindMagnetForX(pointPos.x, true, point);
-					if(magnet.HasValue) {
+					if (magnet.HasValue) {
 						pointPos.x = magnet.Value;
 					}
 
 					point.mainPoint = pointPos.ToPVector2();
 
 					UpdateGraph();
-					UpdatePoint(point);
+					UpdatePointView(point);
 					editingMotion.view.Cast<PMItemView>().UpdatePreviewGraph(editingMotion);
 
 					SetSmartFollowText(pointPos);
@@ -326,12 +426,18 @@ namespace PendulumMotionEditor.Views.Components {
 				}
 			}
 		}
-		private void UpdatePoints() {
+		private void ClearPointViews() {
+			PointContext.Children.Clear();
+		}
+		private void RemovePointView(PMPoint point) {
+			PointContext.Children.Remove(point.view as PMPointView);
+		}
+		private void UpdatePointViews() {
 			for (int pointI = 0; pointI < editingMotion.pointList.Count; ++pointI) {
-				UpdatePoint(editingMotion.pointList[pointI]);
+				UpdatePointView(editingMotion.pointList[pointI]);
 			}
 		}
-		private void UpdatePoint(PMPoint point) {
+		private void UpdatePointView(PMPoint point) {
 			PMPointView pointView = point.view.Cast<PMPointView>();
 			Vector2 dPointPos = NormalToDisplay(point.mainPoint.ToVector2());
 			pointView.SetCanvasPosition(dPointPos);
@@ -346,7 +452,6 @@ namespace PendulumMotionEditor.Views.Components {
 
 			}
 		}
-		
 
 		//SmartUI
 		public void SetSmartFollowText(Vector2 dataPosition) {
@@ -453,6 +558,12 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		private Vector2 GetCursorOffset(Visual context, UIElement element) {
 			return new Vector2((float)Canvas.GetLeft(element), (float)Canvas.GetTop(element)) - MouseInput.GetRelativePosition(context);
+		}
+
+		private void SetCursor(Cursor cursor) {
+			if (this.Cursor != cursor) {
+				this.Cursor = cursor;
+			}
 		}
 	}
 }

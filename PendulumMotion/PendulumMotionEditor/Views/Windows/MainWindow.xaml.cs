@@ -216,6 +216,7 @@ namespace PendulumMotionEditor.Views.Windows
 			if(OnEditing && editingMotion.isChanged)
 				return;
 
+			ClearEditingData();
 			editingMotion = new EditableMotionFile();
 			SetContentContextVisible(true);
 		}
@@ -223,8 +224,9 @@ namespace PendulumMotionEditor.Views.Windows
 			if (OnEditing && editingMotion.isChanged)
 				return;
 			Dispatcher.BeginInvoke(new Action(() => {
+				ClearEditingData();
 				editingMotion = EditableMotionFile.Load();
-
+				
 				if (editingMotion != null) {
 					//Success
 					SetContentContextVisible(true);
@@ -260,6 +262,10 @@ namespace PendulumMotionEditor.Views.Windows
 		}
 
 		//UI
+		private void ClearEditingData() {
+			EditPanel.DetachMotion();
+			MLItemContext.Children.Clear();
+		}
 		public void ResetPreviewTime() {
 			previewTime = 0f;
 		}

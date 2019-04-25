@@ -25,15 +25,9 @@ namespace PendulumMotion.Items {
 		}
 
 		public float GetMotionValue(float linearValue, int maxSample = DefaultMaxSample, float tolerance = DefaultMaxTolerance) {
-			int rightIndex = -1;
 			linearValue = Math.Max(Math.Min(linearValue, 1f), 0f);
 
-			for (int i = 1; i < pointList.Count; ++i) {
-				if (pointList[i].mainPoint.x >= linearValue) {
-					rightIndex = i;
-					break;
-				}
-			}
+			int rightIndex = GetRightIndex(linearValue);
 			if (rightIndex == -1) {
 				if (pointList.Count > 0) {
 					//마지막 포인트를 벗어나면 마지막 좌표 반환
@@ -49,6 +43,17 @@ namespace PendulumMotion.Items {
 
 			return PSpline.Bezier3_X2Y(linearValue, left.mainPoint, left.GetAbsoluteSubPoint(1), right.GetAbsoluteSubPoint(0), right.mainPoint, maxSample, tolerance);
 		}
+		public int GetRightIndex(float linearValue) {
+			int rightIndex = -1;
+			for (int i = 1; i < pointList.Count; ++i) {
+				if (pointList[i].mainPoint.x >= linearValue) {
+					rightIndex = i;
+					break;
+				}
+			}
+			return rightIndex;
+		}
+
 		public PMPoint AddPoint() {
 			PMPoint point = new PMPoint(new PVector2(0f, 0f));
 			pointList.Add(point);

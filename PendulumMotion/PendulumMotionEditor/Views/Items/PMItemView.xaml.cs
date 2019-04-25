@@ -29,7 +29,7 @@ namespace PendulumMotionEditor.Views.Items {
 		private static SolidColorBrush SelectedBG = "EACB9E".ToBrush();
 		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
 		private static SolidColorBrush EditTextBG = "FFFFFF".ToBrush();
-		private const int GraphResolution = 10;
+		private const int GraphResolution = 16;
 
 		private Line[] graphLines;
 		private GLoopAction focusedLoopAction;
@@ -126,6 +126,7 @@ namespace PendulumMotionEditor.Views.Items {
 		private void OnKeyDown_NameEditText(object sender, KeyEventArgs e) {
 			if(e.Key == Key.Return) {
 				SetNameEditTextVisible(false);
+				Keyboard.ClearFocus();
 			}
 		}
 		private bool CheckAvailableName(string name) {
