@@ -16,12 +16,12 @@ namespace PMTester {
 
 			const string DummyFilePath = "X:/DummyMotion.pmotion";
 			PMFile file = new PMFile();
-			file.CreateMotion();
+			file.CreateMotionDefault();
 			file.Save(DummyFilePath);
 
 			file = PMFile.Load(DummyFilePath);
 
-			if(!((file.motionDict.Count == 1) &&
+			if(!((file.itemDict.Count == 1) &&
 			file.rootFolder.childList.Count == 1 &&
 			((PMMotion)file.rootFolder.childList[0]).pointList.Count == 2)) {
 				throw new Exception("데이터 로드에 실패했습니다.");

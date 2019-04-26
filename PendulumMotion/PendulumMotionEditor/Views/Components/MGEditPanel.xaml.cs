@@ -30,6 +30,7 @@ namespace PendulumMotionEditor.Views.Components {
 		private static MainWindow MainWindow => Root.mainWindow;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
 		private static CursorStorage CursorStorage => Root.cursorStorage;
+		private static EditableMotionFile EditingFile => MainWindow.editingFile;
 
 		public bool OnEditing => editingMotion != null;
 		public PMMotion editingMotion;
@@ -120,15 +121,8 @@ namespace PendulumMotionEditor.Views.Components {
 			//Find MouseOverPoint
 			PMPoint mouseOverPoint = null;
 			int mouseOverPointIndex = -1;
-			for (int handleI = 0; handleI < editingMotion.pointList.Count; ++handleI) {
-				PMPoint point = editingMotion.pointList[handleI];
-				if (point.view.Cast<PMPointView>().MainHandleView.IsMouseOver) {
-					mouseOverPoint = point;
-					mouseOverPointIndex = handleI;
-					break;
-				}
-			}
-
+			FindMouseOverPoint();
+			
 			if (KeyInput.GetKey(WinKey.LeftAlt)) {
 				//RemoveTest
 				if (mouseOverPoint != null && mouseOverPointIndex > 0 && mouseOverPointIndex < editingMotion.pointList.Count - 1) {
@@ -140,6 +134,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 						UpdatePointViews();
 						UpdateGraph();
+						EditingFile.MarkUnsaved();
 					}
 				}
 			} else if(KeyInput.GetKey(WinKey.LeftControl) && mouseOverPoint == null) {
@@ -157,6 +152,7 @@ namespace PendulumMotionEditor.Views.Components {
 
 							UpdatePointViews();
 							UpdateGraph();
+							EditingFile.MarkUnsaved();
 						}
 					}
 				} else {
@@ -168,6 +164,17 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 			if (!cursorChanged) {
 				SetCursor(CursorStorage.cursor_default);
+			}
+
+			//반환형 리팩토링 필요
+			void FindMouseOverPoint() {
+				for (int handleI = 0; handleI < editingMotion.pointList.Count; ++handleI) {
+					PMPoint point = editingMotion.pointList[handleI];
+					if (point.view.Cast<PMPointView>().MainHandleView.IsMouseOver) {
+						mouseOverPointIndex = handleI;
+						mouseOverPoint = point;
+					}
+				}
 			}
 		}
 
@@ -307,18 +314,26 @@ namespace PendulumMotionEditor.Views.Components {
 		private void CreatePoint(Vector2 cursorPos, int rightIndex) {
 			PMPoint prevPoint = editingMotion.pointList[rightIndex - 1];
 			PMPoint nextPoint = editingMotion.pointList[rightIndex];
-			PVector2 delta = nextPoint.mainPoint - prevPoint.mainPoint;
+			float prevNextDeltaX = nextPoint.mainPoint.x - prevPoint.mainPoint.x;
+			float prevDeltaX = cursorPos.x - prevPoint.mainPoint.x;
+			float nextDeltaX = nextPoint.mainPoint.x - cursorPos.x;
 			PMPoint point = new PMPoint();
 
 			float mainPointX = cursorPos.x;
-			float subPoint0X = prevPoint.mainPoint.x + delta.x * 0.25f;
-			float subPoint1X = prevPoint.mainPoint.x + delta.x * 0.75f;
+			float subPoint0X = cursorPos.x - prevDeltaX * 0.5f;
+			float subPoint1X = cursorPos.x + nextDeltaX * 0.5f;
 			point.mainPoint = new PVector2(mainPointX, editingMotion.GetMotionValue(mainPointX));
-			point.subPoints[0] = new PVector2(subPoint0X, editingMotion.GetMotionValue(subPoint0X)) - point.mainPoint;
-			point.subPoints[1] = new PVector2(subPoint1X, editingMotion.GetMotionValue(subPoint1X)) - point.mainPoint;
+			PVector2 subPoint0 = new PVector2(subPoint0X, editingMotion.GetMotionValue(subPoint0X)) - point.mainPoint;
+			PVector2 subPoint1 = new PVector2(subPoint1X, editingMotion.GetMotionValue(subPoint1X)) - point.mainPoint;
+			//망한 방법이다. 나중에 고치자.
+			//Vector2 averageVector = GetAverageVector(subPoint0.ToVector2(), subPoint1.ToVector2());
+			//point.subPoints[0] = (averageVector * subPoint0.magnitude).ToPVector2();
+			//point.subPoints[1] = (-averageVector * subPoint1.magnitude).ToPVector2();
+			point.subPoints[0] = subPoint0;
+			point.subPoints[1] = subPoint1;
 
-			prevPoint.subPoints[1] *= 0.5f;
-			nextPoint.subPoints[0] *= 0.5f;
+			prevPoint.subPoints[1] *= prevDeltaX * 0.5f / prevNextDeltaX;
+			nextPoint.subPoints[0] *= nextDeltaX * 0.5f / prevNextDeltaX;
 
 			editingMotion.InsertPoint(point, rightIndex);
 
@@ -359,6 +374,8 @@ namespace PendulumMotionEditor.Views.Components {
 						cursorOffset = GetCursorOffset(pointView, subHandleView) + new Vector2(PMPointView.SubHandleWidthHalf, PMPointView.SubHandleWidthHalf);
 						LoopEngine.AddLoopAction(OnDrag_PointSubHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 						LoopEngine.AddLoopAction(OnMouseUp_PointSubHandle, GLoopCycle.None, GWhen.MouseUpRemove);
+
+						EditingFile.MarkUnsaved();
 					}
 					void OnDrag_PointSubHandle() {
 						Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
@@ -396,6 +413,8 @@ namespace PendulumMotionEditor.Views.Components {
 					cursorOffset = GetCursorOffset(PointContext, pointView);
 					LoopEngine.AddLoopAction(OnDrag_PointMainHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 					LoopEngine.AddLoopAction(OnMouseUp_PointMainHandle, GLoopCycle.None, GWhen.MouseUpRemove);
+
+					EditingFile.MarkUnsaved();
 				}
 				void OnDrag_PointMainHandle() {
 					Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
@@ -558,6 +577,12 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		private Vector2 GetCursorOffset(Visual context, UIElement element) {
 			return new Vector2((float)Canvas.GetLeft(element), (float)Canvas.GetTop(element)) - MouseInput.GetRelativePosition(context);
+		}
+		private Vector2 GetAverageVector(Vector2 left, Vector2 right) {
+			float averageAngle = ((left.x / left.y) + (right.x / right.y)) * 0.5f * Mathf.Rad2Deg;
+			float verticalRadian = (averageAngle + 90f) * Mathf.Deg2Rad;
+
+			return new Vector2(Mathf.Cos(verticalRadian), -Mathf.Sin(verticalRadian));
 		}
 
 		private void SetCursor(Cursor cursor) {

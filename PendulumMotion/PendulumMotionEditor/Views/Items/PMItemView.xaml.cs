@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PendulumMotion.Component;
 using PendulumMotion.Items;
+using PendulumMotionEditor.Views.Windows;
 using GKit;
 
 namespace PendulumMotionEditor.Views.Items {
@@ -31,15 +32,19 @@ namespace PendulumMotionEditor.Views.Items {
 		private static SolidColorBrush EditTextBG = "FFFFFF".ToBrush();
 		private const int GraphResolution = 16;
 
+		public PMItemBase ownerItem;
 		private Line[] graphLines;
 		private GLoopAction focusedLoopAction;
 		private bool onFocus;
 		private string prevName;
 
-		public PMItemView() {
+		private PMItemView() {
 			InitializeComponent();
+			//for WPFDesigner
 		}
-		public PMItemView(PMItemType type) {
+		public PMItemView(PMItemBase ownerItem, PMItemType type) {
+			this.ownerItem = ownerItem;
+
 			InitializeComponent();
 			Init();
 			RegisterEvent();
@@ -59,7 +64,7 @@ namespace PendulumMotionEditor.Views.Items {
 			}
 
 			void Init() {
-				SetNameEditTextVisible(false, true);
+				SetNameEditTextVisible(false, true, false);
 			}
 			void RegisterEvent() {
 				NameEditText.KeyDown += OnKeyDown_NameEditText;
@@ -72,12 +77,12 @@ namespace PendulumMotionEditor.Views.Items {
 		public void SetSelected(bool selected) {
 			ContentPanel.Background = selected ? SelectedBG : DefaultBG;
 		}
-		public void SetNameEditTextVisible(bool visible, bool force = false) {
-			if(visible) {
-				if (onFocus && !force)
-					return;
-				onFocus = true;
+		public void SetNameEditTextVisible(bool visible, bool force = false, bool callNameChangedEvent = true) {
+			if (onFocus == visible && !force)
+				return;
+			onFocus = visible;
 
+			if (visible) {
 				prevName = NameEditText.Text;
 				NameEditText.Background = EditTextBG;
 				NameEditText.Cursor = Cursors.IBeam;
@@ -87,10 +92,6 @@ namespace PendulumMotionEditor.Views.Items {
 				
 				RegisterFocusedLoopAction();
 			} else {
-				if (!onFocus && !force)
-					return;
-				onFocus = false;
-
 				NameEditText.Background = null;
 				NameEditText.Cursor = CursorStorage.cursor_default;
 				NameEditText.IsReadOnly = true;
@@ -98,10 +99,16 @@ namespace PendulumMotionEditor.Views.Items {
 
 				UnregisterFocusedLoopAction();
 
-				if (CheckAvailableName(NameEditText.Text)) {
-					FilterName();
-				} else {
-					NameEditText.Text = prevName;
+				if(callNameChangedEvent) {
+					if (CheckAvailableName(NameEditText.Text)) {
+						string newName = FilterName(NameEditText.Text);
+						ownerItem.Rename(newName);
+						NameEditText.Text = newName;
+					} else {
+						NameEditText.Text = prevName;
+
+						ToastMessage.Show("이미 존재하는 이름입니다.");
+					}
 				}
 			}
 		}
@@ -115,7 +122,7 @@ namespace PendulumMotionEditor.Views.Items {
 		private void UnregisterFocusedLoopAction() {
 			if (focusedLoopAction == null)
 				return;
-			focusedLoopAction.Stop();
+			focusedLoopAction.StopAndDispose();
 			focusedLoopAction = null;
 		}
 		private void OnFocusedTick() {
@@ -130,12 +137,10 @@ namespace PendulumMotionEditor.Views.Items {
 			}
 		}
 		private bool CheckAvailableName(string name) {
-			return true;
+			return !ownerItem.ownerFile.itemDict.ContainsKey(name);
 		}
-		private void FilterName() {
-			string name = NameEditText.Text;
-			name = name.Trim();
-			NameEditText.Text = name;
+		private string FilterName(string name) {
+			return name.Trim();
 		}
 
 		//MotionItem

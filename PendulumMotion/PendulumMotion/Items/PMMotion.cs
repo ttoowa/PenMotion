@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows;
+using PendulumMotion.Component;
 using PendulumMotion.System;
 
 namespace PendulumMotion.Items {
@@ -12,16 +13,14 @@ namespace PendulumMotion.Items {
 
 		public List<PMPoint> pointList;
 
-		internal PMMotion() : base(PMItemType.Motion) {
-			pointList = new List<PMPoint>();
+		public static PMMotion CreateDefault(PMFile ownerFile) {
+			PMMotion data = new PMMotion(ownerFile);
+			data.AddPoint(new PMPoint(new PVector2(0f, 0f)));
+			data.AddPoint(new PMPoint(new PVector2(1f, 1f)));
+			return data;
 		}
-		public static PMMotion Default {
-			get {
-				PMMotion data = new PMMotion();
-				data.AddPoint(new PMPoint(new PVector2(0f, 0f)));
-				data.AddPoint(new PMPoint(new PVector2(1f, 1f)));
-				return data;
-			}
+		internal PMMotion(PMFile ownerFile) : base(ownerFile, PMItemType.Motion) {
+			pointList = new List<PMPoint>();
 		}
 
 		public float GetMotionValue(float linearValue, int maxSample = DefaultMaxSample, float tolerance = DefaultMaxTolerance) {

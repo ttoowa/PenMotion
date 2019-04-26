@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using Microsoft.Win32;
 using PendulumMotion;
 using PendulumMotion.Component;
@@ -21,7 +22,7 @@ namespace PendulumMotionEditor {
 		private static Root Root => Root.Instance;
 		private static MainWindow MainWindow => Root.mainWindow;
 
-		public bool isChanged;
+		public bool isUnsaved;
 		public PMFile file;
 
 		public HashSet<PMItemBase> selectedItemSet;
@@ -48,7 +49,7 @@ namespace PendulumMotionEditor {
 		}
 		private void Init() {
 			selectedItemSet = new HashSet<PMItemBase>();
-			file.rootFolder.view = new PMItemView(PMItemType.RootFolder);
+			file.rootFolder.view = new PMItemView(file.rootFolder, PMItemType.RootFolder);
 			MainWindow.MLItemContext.Children.Add(file.rootFolder.view.Cast<PMItemView>());
 		}
 		public void Dispose() {
@@ -73,7 +74,10 @@ namespace PendulumMotionEditor {
 			}
 
 			file.Save(filePath);
-			isChanged = false;
+			isUnsaved = false;
+
+			ToastMessage.Show("저장되었습니다.");
+
 			return true;
 		}
 		public static EditableMotionFile Load() {
@@ -106,10 +110,26 @@ namespace PendulumMotionEditor {
 				return null;
 			}
 		}		
+		public bool ShowSaveMessage() {
+			if(isUnsaved) {
+				MessageBoxResult result = MessageBox.Show("저장되지 않았습니다. 저장하시겠습니까?", "저장", MessageBoxButton.YesNoCancel);
+				switch (result) {
+					case MessageBoxResult.Yes:
+						return Save();
+					case MessageBoxResult.No:
+						return true;
+					default:
+					case MessageBoxResult.Cancel:
+						return false;
+				}
+			} else {
+				return true;
+			}
+		}
 
 		public PMMotion CreateMotion() {
 			PMFolder parentFolder = SelectedParentFolder;
-			PMMotion motion = file.CreateMotion(parentFolder);
+			PMMotion motion = file.CreateMotionDefault(parentFolder);
 
 			InitItem(motion, parentFolder);
 			return motion;
@@ -122,11 +142,17 @@ namespace PendulumMotionEditor {
 			return folder;
 		}
 		public void RemoveItem(PMItemBase item) {
-			item.parent.view.Cast<PMItemView>().ChildContext.Children.Remove(item.view.Cast<PMItemView>());
+			item.view.Cast<PMItemView>().Parent.Cast<Panel>().Children.Remove(item.view.Cast<PMItemView>());
 			file.RemoveItem(item);
 		}
+		public void RemoveSelectedItems() {
+			foreach(PMItemBase item in selectedItemSet) {
+				RemoveItem(item);
+			}
+			UnselectItemAll();
+		}
 		private void InitItem(PMItemBase item, PMFolder parentFolder) {
-			PMItemView view = new PMItemView(item.type);
+			PMItemView view = new PMItemView(item, item.type);
 			item.view = view;
 			view.SetName(item.name);
 			parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(view);
@@ -134,33 +160,11 @@ namespace PendulumMotionEditor {
 			RegisterItemEvent(item);
 		}
 
-		private void RegisterItemEvent(PMItemBase item) {
-			PMItemView itemView = item.view.Cast<PMItemView>();
-			itemView.ContentPanel.MouseDown += OnMouseDown_ItemBackPanel;
-
-			void OnMouseDown_ItemBackPanel(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-				if(e.ClickCount == 1) {
-					if(KeyInput.GetKey(WinKey.LeftControl) || KeyInput.GetKey(WinKey.RightControl)) {
-						if(selectedItemSet.Contains(item)) {
-							RemoveSelectedItem(item);
-						} else {
-							AddSelectedItem(item);
-						}
-					} else {
-						SelectItem(item);
-					}
-				} else if(e.ClickCount == 2) {
-					itemView.SetNameEditTextVisible(true);
-				}
-				e.Handled = true;
-			}
+		public void SelectItemSingle(PMItemBase item) {
+			UnselectItemAll();
+			SelectItemAdd(item);
 		}
-
-		public void SelectItem(PMItemBase item) {
-			ClearSelectedItem();
-			AddSelectedItem(item);
-		}
-		public void AddSelectedItem(PMItemBase item) {
+		public void SelectItemAdd(PMItemBase item) {
 			item.view.Cast<PMItemView>().SetSelected(true);
 			selectedItemSet.Add(item);
 			if(item.type == PMItemType.Motion) {
@@ -171,12 +175,12 @@ namespace PendulumMotionEditor {
 			}
 
 		}
-		public void RemoveSelectedItem(PMItemBase item) {
+		public void UnselectItemSingle(PMItemBase item) {
 			item.view.Cast<PMItemView>().SetSelected(false);
 			selectedItemSet.Remove(item);
 			MainWindow.EditPanel.DetachMotion();
 		}
-		public void ClearSelectedItem() {
+		public void UnselectItemAll() {
 			foreach(PMItemBase item in selectedItemSet) {
 				item.view.Cast<PMItemView>().SetSelected(false);
 			}
@@ -184,5 +188,29 @@ namespace PendulumMotionEditor {
 			MainWindow.EditPanel.DetachMotion();
 		}
 
+		public void MarkUnsaved() {
+			isUnsaved = true;
+		}
+		private void RegisterItemEvent(PMItemBase item) {
+			PMItemView itemView = item.view.Cast<PMItemView>();
+			itemView.ContentPanel.MouseDown += OnMouseDown_ItemBackPanel;
+
+			void OnMouseDown_ItemBackPanel(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+				if(e.ClickCount == 1) {
+					if(KeyInput.GetKey(WinKey.LeftControl) || KeyInput.GetKey(WinKey.RightControl)) {
+						if(selectedItemSet.Contains(item)) {
+							UnselectItemSingle(item);
+						} else {
+							SelectItemAdd(item);
+						}
+					} else {
+						SelectItemSingle(item);
+					}
+				} else if(e.ClickCount == 2) {
+					itemView.SetNameEditTextVisible(true);
+				}
+				e.Handled = true;
+			}
+		}
 	}
 }

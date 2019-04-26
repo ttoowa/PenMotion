@@ -39,14 +39,15 @@ namespace PendulumMotionEditor.Views.Windows
 		private int PreviewFps => Mathf.Clamp(PreviewFpsEditText.textBox.Text.Parse2Int(60), 1, 1000);
 		private float PreviewSeconds => Mathf.Clamp(PreviewSecondsEditText.textBox.Text.Parse2Float(1f), 0.02f, 1000f);
 		private float previewTime;
+		private bool OnSaveMarked => editingFile == null || editingFile.ShowSaveMessage();
 
 		//Preview
 		private GLoopEngine previewLoopEngine;
 		private Stopwatch previewWatch;
 		private float UpdateFPSTimer;
 		
-		public bool OnEditing => editingMotion != null;
-		public EditableMotionFile editingMotion;
+		public bool OnEditing => editingFile != null;
+		public EditableMotionFile editingFile;
 
 		public MainWindow()
 		{
@@ -57,6 +58,8 @@ namespace PendulumMotionEditor.Views.Windows
 			Root = new Root(this);
 			Loaded += OnLoad;
 		}
+
+		//Event
 		private void OnLoad(object sender, RoutedEventArgs e)
 		{
 			Init();
@@ -80,6 +83,7 @@ namespace PendulumMotionEditor.Views.Windows
 				LoopEngine.AddGRoutine(UpdateItemPreviewRoutine());
 			}
 			void RegisterEvents() {
+				Closing += OnClosing;
 				const int TimeTextBoxMaxLength = 5;
 				EditPanel.SizeChanged += OnSizeChanged_EditPanel;
 				PreviewFpsEditText.LostFocus += OnLostFocus_PreviewFpsEditText;
@@ -117,36 +121,9 @@ namespace PendulumMotionEditor.Views.Windows
 
 			}
 		}
-
-		//Event
-		private IEnumerator UpdateItemPreviewRoutine() {
-			//UpdateItemPreview
-			int iterCounter = 0;
-			for(; ;) {
-				if(OnEditing) {
-					yield return UpdateItemPreview(editingMotion.file.rootFolder);
-				}
-				yield return new GWait(GTimeUnit.Frame, 1);
-			}
-
-			IEnumerator UpdateItemPreview(PMFolder folder) {
-				for(int childI=0; childI<folder.childList.Count; ++childI) {
-					PMItemBase child = folder.childList[childI];
-					switch(child.type) {
-						case PMItemType.Motion:
-							PMMotion motion = child.Cast<PMMotion>();
-							motion.view.Cast<PMItemView>().UpdatePreviewGraph(motion);
-
-							if(++iterCounter >= 2) {
-								iterCounter = 0;
-								yield return new GWait(GTimeUnit.Frame, 1);
-							}
-							break;
-						case PMItemType.Folder:
-							yield return UpdateItemPreview(child.Cast<PMFolder>());
-							break;
-					}
-				}
+		private void OnClosing(object sender, CancelEventArgs e) {
+			if (!OnSaveMarked) {
+				e.Cancel = true;
 			}
 		}
 		private void OnPreviewTick() {
@@ -213,55 +190,96 @@ namespace PendulumMotionEditor.Views.Windows
 			}
 		}
 		private void OnClick_TMNewFileButton() {
-			if(OnEditing && editingMotion.isChanged)
+			if(OnEditing && editingFile.isUnsaved)
 				return;
 
-			ClearEditingData();
-			editingMotion = new EditableMotionFile();
-			SetContentContextVisible(true);
+			if (OnSaveMarked) {
+				ClearEditingData();
+				editingFile = new EditableMotionFile();
+				SetContentContextVisible(true);
+			}
 		}
 		private void OnClick_TMOpenFileButton() {
-			if (OnEditing && editingMotion.isChanged)
+			if (OnEditing && editingFile.isUnsaved)
 				return;
-			Dispatcher.BeginInvoke(new Action(() => {
-				ClearEditingData();
-				editingMotion = EditableMotionFile.Load();
-				
-				if (editingMotion != null) {
-					//Success
-					SetContentContextVisible(true);
+
+			if (OnSaveMarked) {
+				Dispatcher.BeginInvoke(new Action(() => {
+					ClearEditingData();
+					editingFile = EditableMotionFile.Load();
+
+					if (editingFile != null) {
+						//Success
+						SetContentContextVisible(true);
 
 
-					List<PMItemBase> rootItemList = editingMotion.file.rootFolder.childList;
-					if(rootItemList.Count > 0) {
-						editingMotion.SelectItem(rootItemList[0]);
+						List<PMItemBase> rootItemList = editingFile.file.rootFolder.childList;
+						if (rootItemList.Count > 0) {
+							editingFile.SelectItemSingle(rootItemList[0]);
+						}
 					}
-				}
-			}));
+				}));
+			}
 		}
 		private void OnClick_TMSaveFileButton() {
 			Dispatcher.BeginInvoke(new Action(()=> {
-				editingMotion.Save();
+				editingFile.Save();
 			}));
 		}
 		private void OnClick_MLCreateMotionButton() {
-			PMMotion motion = editingMotion.CreateMotion();
-			editingMotion.SelectItem(motion);
+			PMMotion motion = editingFile.CreateMotion();
+			editingFile.SelectItemSingle(motion);
+
+			editingFile.MarkUnsaved();
 		}
 		private void OnClick_MLCreateFolderButton() {
-			PMFolder folder = editingMotion.CreateFolder();
-			editingMotion.SelectItem(folder);
-			//MLFolderItem folder = new MLFolderItem();
-			//MLItemContext.Children.Add(folder);
+			PMFolder folder = editingFile.CreateFolder();
+			editingFile.SelectItemSingle(folder);
+
+			editingFile.MarkUnsaved();
 		}
 		private void OnClick_MLRemoveButton() {
+			editingFile.RemoveSelectedItems();
 
+			editingFile.MarkUnsaved();
 		}
 		private void OnClick_MLCopyButton() {
 
+
+			editingFile.MarkUnsaved();
 		}
 
 		//UI
+		private IEnumerator UpdateItemPreviewRoutine() {
+			//UpdateItemPreview
+			int iterCounter = 0;
+			for(; ;) {
+				if(OnEditing) {
+					yield return UpdateItemPreview(editingFile.file.rootFolder);
+				}
+				yield return new GWait(GTimeUnit.Frame, 1);
+			}
+
+			IEnumerator UpdateItemPreview(PMFolder folder) {
+				for(int childI=0; childI<folder.childList.Count; ++childI) {
+					PMItemBase child = folder.childList[childI];
+					switch(child.type) {
+						case PMItemType.Motion:
+							PMMotion motion = child.Cast<PMMotion>();
+							motion.view.Cast<PMItemView>().UpdatePreviewGraph(motion);
+
+							if(++iterCounter >= 2) {
+								iterCounter = 0;
+								yield return new GWait(GTimeUnit.Frame, 1);
+							}
+							break;
+						case PMItemType.Folder:
+							yield return UpdateItemPreview(child.Cast<PMFolder>());
+							break;
+					}
+				}
+			}
+		}
 		private void ClearEditingData() {
 			EditPanel.DetachMotion();
 			MLItemContext.Children.Clear();

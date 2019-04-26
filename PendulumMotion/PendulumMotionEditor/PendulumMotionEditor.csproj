@@ -129,6 +129,9 @@
       <DependentUpon>Button_NewFile.xaml</DependentUpon>
     </Compile>
     <Compile Include="Scripts\PMDManager.cs" />
+    <Compile Include="Views\Windows\ToastMessage.xaml.cs">
+      <DependentUpon>ToastMessage.xaml</DependentUpon>
+    </Compile>
     <Page Include="Views\Components\MGEditPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -182,6 +185,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Resources\Image\Button_NewFile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\ToastMessage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

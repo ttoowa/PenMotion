@@ -15,13 +15,13 @@ namespace PendulumMotion.Component {
 	{
 		public string filePath;
 		public bool IsFilePathAvailable =>!string.IsNullOrEmpty(filePath);
-		public Dictionary<string, PMMotion> motionDict;
+		public Dictionary<string, PMItemBase> itemDict;
 		public PMFolder rootFolder;
 
 
 		public PMFile() {
-			motionDict = new Dictionary<string, PMMotion>();
-			rootFolder = new PMFolder();
+			itemDict = new Dictionary<string, PMItemBase>();
+			rootFolder = new PMFolder(this);
 		}
 
 		public void Save(string filePath) {
@@ -110,7 +110,7 @@ namespace PendulumMotion.Component {
 			void LoadMotion(PMFolder parent, JToken jChild, string name) {
 				JArray jMotion = jChild["Data"] as JArray;
 
-				PMMotion motion = new PMMotion();
+				PMMotion motion = new PMMotion(file);
 				motion.name = name;
 				for (int pointI = 0; pointI < jMotion.Count; ++pointI) {
 					JArray jPoint = jMotion[pointI] as JArray;
@@ -124,13 +124,15 @@ namespace PendulumMotion.Component {
 				parent.childList.Add(motion);
 
 
-				file.motionDict.Add(name, motion);
+				file.itemDict.Add(name, motion);
 			}
 			void LoadFolder(PMFolder parent, JToken jParent, JToken jFolder, string name) {
-				PMFolder folder = new PMFolder();
+				PMFolder folder = new PMFolder(file);
 				folder.name = name;
 				parent.childList.Add(folder);
 				LoadItemRecursion(jParent, folder);
+
+				file.itemDict.Add(name, folder);
 			}
 
 			return file;
@@ -140,52 +142,63 @@ namespace PendulumMotion.Component {
 			if (motionID == null) {
 				throw new Exception("motionID is Null.");
 			}
-			if (!motionDict.ContainsKey(motionID)) {
+			if (!itemDict.ContainsKey(motionID)) {
 				throw new Exception("Not exist motion.");
 			}
 
-			PMMotion data = motionDict[motionID];
-			return data.GetMotionValue(linearValue, maxSample, tolerance);
+			if (CheckAvailableKey(motionID)) {
+				PMMotion data = itemDict[motionID] as PMMotion;
+				return data.GetMotionValue(linearValue, maxSample, tolerance);
+			} else {
+				throw new KeyNotFoundException();
+			}
 		}
 		public PVector2 GetMotionValue(string motionID, PVector2 linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
 			if (motionID == null) {
 				throw new Exception("motionID is Null.");
 			}
-			if (!motionDict.ContainsKey(motionID)) {
+			if (!itemDict.ContainsKey(motionID)) {
 				throw new Exception("Not exist motion.");
 			}
 
-			PMMotion data = motionDict[motionID];
-			return new PVector2(
-				data.GetMotionValue(linearValue.x, maxSample, tolerance),
-				data.GetMotionValue(linearValue.y, maxSample, tolerance)
-			);
+			if (CheckAvailableKey(motionID)) {
+				PMMotion data = itemDict[motionID] as PMMotion;
+				return new PVector2(
+					data.GetMotionValue(linearValue.x, maxSample, tolerance),
+					data.GetMotionValue(linearValue.y, maxSample, tolerance)
+				);
+			} else {
+				throw new KeyNotFoundException();
+			}
 		}
 		public PVector3 GetMotionValue(string motionID, PVector3 linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
 			if (motionID == null) {
 				throw new Exception("motionID is Null.");
 			}
-			if (!motionDict.ContainsKey(motionID)) {
+			if (!itemDict.ContainsKey(motionID)) {
 				throw new Exception("Not exist motion.");
 			}
-
-			PMMotion data = motionDict[motionID];
-			return new PVector3(
-				data.GetMotionValue(linearValue.x, maxSample, tolerance),
-				data.GetMotionValue(linearValue.y, maxSample, tolerance),
-				data.GetMotionValue(linearValue.z, maxSample, tolerance)
-			);
+			if (CheckAvailableKey(motionID)) {
+				PMMotion data = itemDict[motionID] as PMMotion;
+				return new PVector3(
+					data.GetMotionValue(linearValue.x, maxSample, tolerance),
+					data.GetMotionValue(linearValue.y, maxSample, tolerance),
+					data.GetMotionValue(linearValue.z, maxSample, tolerance)
+				);
+			} else {
+				throw new KeyNotFoundException();
+			}
 		}
 
-		public PMMotion CreateMotion(PMFolder parentFolder = null) {
+		public PMMotion CreateMotionDefault(PMFolder parentFolder = null) {
 			if (parentFolder == null)
 				parentFolder = rootFolder;
 
-			PMMotion motion = PMMotion.Default;
+			PMMotion motion = PMMotion.CreateDefault(this);
 			motion.parent = parentFolder;
 			motion.name = GetNewName(PMItemType.Motion);
 			parentFolder.childList.Add(motion);
-			motionDict.Add(motion.name, motion);
+			itemDict.Add(motion.name, motion);
 
 			return motion;
 		}
@@ -193,11 +206,11 @@ namespace PendulumMotion.Component {
 			if (parentFolder == null)
 				parentFolder = rootFolder;
 
-			PMMotion motion = new PMMotion();
+			PMMotion motion = new PMMotion(this);
 			motion.parent = parentFolder;
 			motion.name = GetNewName(PMItemType.Motion);
 			parentFolder.childList.Add(motion);
-			motionDict.Add(motion.name, motion);
+			itemDict.Add(motion.name, motion);
 
 			return motion;
 		}
@@ -205,7 +218,7 @@ namespace PendulumMotion.Component {
 			if (parentFolder == null)
 				parentFolder = rootFolder;
 
-			PMFolder folder = new PMFolder();
+			PMFolder folder = new PMFolder(this);
 			folder.parent = parentFolder;
 			folder.name = GetNewName(PMItemType.Folder);
 			parentFolder.childList.Add(folder);
@@ -215,7 +228,7 @@ namespace PendulumMotion.Component {
 		public void RemoveItem(PMItemBase item) {
 			item.parent.childList.Remove(item);
 			if(item.type == PMItemType.Motion) {
-				motionDict.Remove(item.name);
+				itemDict.Remove(item.name);
 			}
 		}
 
@@ -223,13 +236,16 @@ namespace PendulumMotion.Component {
 			string nameBase = $"New {type.ToString()} ";
 			int num = 1;
 			for(; ;) {
-				if(motionDict.ContainsKey(nameBase + num)) {
+				if(itemDict.ContainsKey(nameBase + num)) {
 					++num;
 					continue;
 				} else {
 					return nameBase + num;
 				}
 			}
+		}
+		private bool CheckAvailableKey(string key) {
+			return itemDict.ContainsKey(key) && itemDict[key].type == PMItemType.Motion;
 		}
 	}
 }
