@@ -31,9 +31,9 @@ namespace PendulumMotion.Component {
 			//MotionTree
 			JObject jMotionTree = new JObject();
 			jRoot.Add("MotionTree", jMotionTree);
-			AddChildRecursion(jMotionTree, rootFolder);
+			AddChildRecursive(jMotionTree, rootFolder);
 
-			void AddChildRecursion(JObject jParent, PMFolder parent) {
+			void AddChildRecursive(JObject jParent, PMFolder parent) {
 				for (int i=0; i< parent.childList.Count; ++i) {
 					PMItemBase child = parent.childList[i];
 					JObject jChild = new JObject();
@@ -46,7 +46,7 @@ namespace PendulumMotion.Component {
 							break;
 						case PMItemType.RootFolder:
 						case PMItemType.Folder:
-							AddChildRecursion(jChild, (PMFolder)child);
+							AddChildRecursive(jChild, (PMFolder)child);
 							break;
 					}
 				}
@@ -89,9 +89,9 @@ namespace PendulumMotion.Component {
 
 			//MotionTree
 			JObject jMotionTree = jRoot["MotionTree"] as JObject;
-			LoadItemRecursion(jMotionTree, file.rootFolder);
+			LoadItemRecursive(jMotionTree, file.rootFolder);
 
-			void LoadItemRecursion(JToken jParent, PMFolder parent) {
+			void LoadItemRecursive(JToken jParent, PMFolder parent) {
 				foreach(JToken jChildPropToken in jParent.Children()) {
 					JProperty jChildProp = jChildPropToken as JProperty;
 					JObject jChild = jChildProp.Value as JObject;
@@ -130,7 +130,7 @@ namespace PendulumMotion.Component {
 				PMFolder folder = new PMFolder(file);
 				folder.name = name;
 				parent.childList.Add(folder);
-				LoadItemRecursion(jParent, folder);
+				LoadItemRecursive(jParent, folder);
 
 				file.itemDict.Add(name, folder);
 			}

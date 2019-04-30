@@ -118,26 +118,25 @@ namespace PendulumMotionEditor.Views.Components {
 				return;
 
 			bool cursorChanged = false;
-			//Find MouseOverPoint
-			PMPoint mouseOverPoint = null;
-			int mouseOverPointIndex = -1;
-			FindMouseOverPoint();
+			PMPoint cursorOverPoint;
+			int cursorOverPointIndex = -1;
+			FindCursorOverPoint(out cursorOverPoint, out cursorOverPointIndex);
 			
-			if (KeyInput.GetKey(WinKey.LeftAlt)) {
+			if (KeyInput.GetKeyHold(WinKey.LeftAlt)) {
 				//RemoveTest
-				if (mouseOverPoint != null && mouseOverPointIndex > 0 && mouseOverPointIndex < editingMotion.pointList.Count - 1) {
+				if (cursorOverPoint != null && cursorOverPointIndex > 0 && cursorOverPointIndex < editingMotion.pointList.Count - 1) {
 					SetCursor(CursorStorage.cursor_remove);
 					cursorChanged = true;
 
 					if (MouseInput.LeftDown) {
-						RemovePoint(mouseOverPoint);
+						RemovePoint(cursorOverPoint);
 
 						UpdatePointViews();
 						UpdateGraph();
 						EditingFile.MarkUnsaved();
 					}
 				}
-			} else if(KeyInput.GetKey(WinKey.LeftControl) && mouseOverPoint == null) {
+			} else if(KeyInput.GetKeyHold(WinKey.LeftControl) && cursorOverPoint == null) {
 				//AddTest
 				Vector2 cursorPos = DisplayToNormal(MouseInput.GetRelativePosition(PointContext));
 				if (cursorPos.x > 0f && cursorPos.x < 1f) {
@@ -159,21 +158,23 @@ namespace PendulumMotionEditor.Views.Components {
 					HideSmartLineForX();
 				}
 			}
-			if(KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.LeftAuto) {
+			if(KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.LeftHold) {
 				HideSmartLineForX();
 			}
 			if (!cursorChanged) {
 				SetCursor(CursorStorage.cursor_default);
 			}
 
-			//반환형 리팩토링 필요
-			void FindMouseOverPoint() {
-				for (int handleI = 0; handleI < editingMotion.pointList.Count; ++handleI) {
-					PMPoint point = editingMotion.pointList[handleI];
-					if (point.view.Cast<PMPointView>().MainHandleView.IsMouseOver) {
-						mouseOverPointIndex = handleI;
-						mouseOverPoint = point;
-					}
+			
+		}
+		private void FindCursorOverPoint(out PMPoint cursorOverPoint, out int cursorOverIndex) {
+			cursorOverPoint = null;
+			cursorOverIndex = -1;
+			for (int handleI = 0; handleI < editingMotion.pointList.Count; ++handleI) {
+				PMPoint point = editingMotion.pointList[handleI];
+				if (point.view.Cast<PMPointView>().MainHandleView.IsMouseOver) {
+					cursorOverIndex = handleI;
+					cursorOverPoint = point;
 				}
 			}
 		}

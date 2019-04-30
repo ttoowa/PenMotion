@@ -72,6 +72,7 @@ namespace PendulumMotionEditor.Views.Windows
 
 				Cursor = CursorStorage.cursor_default;
 				SetContentContextVisible(false);
+				MLItemMovePointer.Visibility = Visibility.Collapsed;
 				PreviewFpsEditText.textBox.SetOnlyIntInput();
 				PreviewSecondsEditText.textBox.SetOnlyFloatInput();
 				PreviewFpsEditText.textBox.Text = 60.ToString();

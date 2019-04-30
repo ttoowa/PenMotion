@@ -100,15 +100,7 @@ namespace PendulumMotionEditor.Views.Items {
 				UnregisterFocusedLoopAction();
 
 				if(callNameChangedEvent) {
-					if (CheckAvailableName(NameEditText.Text)) {
-						string newName = FilterName(NameEditText.Text);
-						ownerItem.Rename(newName);
-						NameEditText.Text = newName;
-					} else {
-						NameEditText.Text = prevName;
-
-						ToastMessage.Show("이미 존재하는 이름입니다.");
-					}
+					OnNameEditComplete();
 				}
 			}
 		}
@@ -124,6 +116,16 @@ namespace PendulumMotionEditor.Views.Items {
 				return;
 			focusedLoopAction.StopAndDispose();
 			focusedLoopAction = null;
+		}
+		private void OnNameEditComplete() {
+			if (CheckAvailableName(NameEditText.Text)) {
+				string newName = FilterName(NameEditText.Text);
+				ownerItem.Rename(newName);
+				NameEditText.Text = newName;
+			} else if(prevName != NameEditText.Text) {
+				NameEditText.Text = prevName;
+				ToastMessage.Show("이미 존재하는 이름입니다.");
+			}
 		}
 		private void OnFocusedTick() {
 			if(MouseInput.LeftDown && !NameEditText.IsMouseOver && !ContentPanel.IsMouseOver) {

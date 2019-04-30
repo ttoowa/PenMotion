@@ -63,8 +63,13 @@
 					</StackPanel>
 					<Grid>
 						<ScrollViewer VerticalScrollBarVisibility="Auto">
-							<StackPanel Name="MLItemContext" Orientation="Vertical">
-							</StackPanel>
+							<Grid>
+								<StackPanel Name="MLItemContext" Orientation="Vertical">
+								</StackPanel>
+								<Canvas>
+									<Rectangle Name="MLItemMovePointer" Width="100" Height="10" Fill="#7F3DEC9C"></Rectangle>
+								</Canvas>
+							</Grid>
 						</ScrollViewer>
 						<Border Height="6" VerticalAlignment="Top">
 							<Border.Background>

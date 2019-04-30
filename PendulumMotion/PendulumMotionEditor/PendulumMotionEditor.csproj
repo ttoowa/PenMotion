@@ -98,6 +98,7 @@
     <Compile Include="Views\Components\MGEditPanel.xaml.cs">
       <DependentUpon>MGEditPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Items\MoveOrder.cs" />
     <Compile Include="Views\Items\PMPointView.xaml.cs">
       <DependentUpon>PMPointView.xaml</DependentUpon>
     </Compile>
