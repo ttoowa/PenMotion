@@ -13,9 +13,7 @@ namespace PendulumMotion.Items {
 		public PMFolder parent;
 		public PMItemType type;
 		public string name;
-		#if OnEditor
 		public object view;
-		#endif
 
 		public PMItemBase(PMFile ownerFile, PMItemType type) {
 			this.ownerFile = ownerFile;
