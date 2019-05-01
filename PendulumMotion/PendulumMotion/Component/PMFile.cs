@@ -123,7 +123,6 @@ namespace PendulumMotion.Component {
 				}
 				parent.childList.Add(motion);
 
-
 				file.itemDict.Add(name, motion);
 			}
 			void LoadFolder(PMFolder parent, JToken jParent, JToken jFolder, string name) {
@@ -138,56 +137,24 @@ namespace PendulumMotion.Component {
 			return file;
 		}
 
-		public float GetMotionValue(string motionID, float linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
-			if (motionID == null) {
-				throw new Exception("motionID is Null.");
-			}
-			if (!itemDict.ContainsKey(motionID)) {
-				throw new Exception("Not exist motion.");
-			}
-
-			if (CheckAvailableKey(motionID)) {
-				PMMotion data = itemDict[motionID] as PMMotion;
-				return data.GetMotionValue(linearValue, maxSample, tolerance);
-			} else {
-				throw new KeyNotFoundException();
-			}
+		public float GetMotionValue(string motionId, float linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
+			PMMotion motion = GetMotion(motionId);
+			return motion.GetMotionValue(linearValue, maxSample, tolerance);
 		}
-		public PVector2 GetMotionValue(string motionID, PVector2 linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
-			if (motionID == null) {
-				throw new Exception("motionID is Null.");
-			}
-			if (!itemDict.ContainsKey(motionID)) {
-				throw new Exception("Not exist motion.");
-			}
-
-			if (CheckAvailableKey(motionID)) {
-				PMMotion data = itemDict[motionID] as PMMotion;
-				return new PVector2(
-					data.GetMotionValue(linearValue.x, maxSample, tolerance),
-					data.GetMotionValue(linearValue.y, maxSample, tolerance)
+		public PVector2 GetMotionValue(string motionId, PVector2 linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
+			PMMotion motion = GetMotion(motionId);
+			return new PVector2(
+					motion.GetMotionValue(linearValue.x, maxSample, tolerance),
+					motion.GetMotionValue(linearValue.y, maxSample, tolerance)
 				);
-			} else {
-				throw new KeyNotFoundException();
-			}
 		}
-		public PVector3 GetMotionValue(string motionID, PVector3 linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
-			if (motionID == null) {
-				throw new Exception("motionID is Null.");
-			}
-			if (!itemDict.ContainsKey(motionID)) {
-				throw new Exception("Not exist motion.");
-			}
-			if (CheckAvailableKey(motionID)) {
-				PMMotion data = itemDict[motionID] as PMMotion;
-				return new PVector3(
-					data.GetMotionValue(linearValue.x, maxSample, tolerance),
-					data.GetMotionValue(linearValue.y, maxSample, tolerance),
-					data.GetMotionValue(linearValue.z, maxSample, tolerance)
+		public PVector3 GetMotionValue(string motionId, PVector3 linearValue, int maxSample = PMMotion.DefaultMaxSample, float tolerance = PMMotion.DefaultMaxTolerance) {
+			PMMotion motion = GetMotion(motionId);
+			return new PVector3(
+					motion.GetMotionValue(linearValue.x, maxSample, tolerance),
+					motion.GetMotionValue(linearValue.y, maxSample, tolerance),
+					motion.GetMotionValue(linearValue.z, maxSample, tolerance)
 				);
-			} else {
-				throw new KeyNotFoundException();
-			}
 		}
 
 		public PMMotion CreateMotionDefault(PMFolder parentFolder = null) {
@@ -222,16 +189,28 @@ namespace PendulumMotion.Component {
 			folder.parent = parentFolder;
 			folder.name = GetNewName(PMItemType.Folder);
 			parentFolder.childList.Add(folder);
+			itemDict.Add(folder.name, folder);
 
 			return folder;
 		}
 		public void RemoveItem(PMItemBase item) {
 			item.parent.childList.Remove(item);
-			if(item.type == PMItemType.Motion) {
-				itemDict.Remove(item.name);
-			}
+			itemDict.Remove(item.name);
 		}
 
+		public PMMotion GetMotion(string motionId) {
+			if (motionId == null) {
+				throw new Exception("motionId is Null.");
+			}
+			if (!itemDict.ContainsKey(motionId)) {
+				throw new KeyNotFoundException("Not exist motion.");
+			}
+			PMItemBase item = itemDict[motionId];
+			if (item.type != PMItemType.Motion) {
+				throw new TypeLoadException("Item isn't Motion type.");
+			}
+			return item as PMMotion;
+		}
 		public string GetNewName(PMItemType type) {
 			string nameBase = $"New {type.ToString()} ";
 			int num = 1;
@@ -243,9 +222,6 @@ namespace PendulumMotion.Component {
 					return nameBase + num;
 				}
 			}
-		}
-		private bool CheckAvailableKey(string key) {
-			return itemDict.ContainsKey(key) && itemDict[key].type == PMItemType.Motion;
 		}
 	}
 }

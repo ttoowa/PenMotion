@@ -25,6 +25,9 @@ namespace PendulumMotionEditor {
 		private static MainWindow MainWindow => Root.mainWindow;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
 
+		private const float FolderSideEventWeight = 0.2f;
+		private const float FolderMidEventWeight = 1f - FolderSideEventWeight * 2f;
+
 		public bool isUnsaved;
 		public PMFile file;
 
@@ -33,8 +36,10 @@ namespace PendulumMotionEditor {
 			get {
 				if (selectedItemSet.Count == 1) {
 					foreach (PMItemBase item in selectedItemSet) {
-						if (item.type == PMItemType.Folder) {
+						if (item.IsFoldable) {
 							return item.Cast<PMFolder>();
+						} else {
+							return item.parent;
 						}
 					}
 				}
@@ -108,13 +113,13 @@ namespace PendulumMotionEditor {
 					}
 				}
 
-				return editingFile; 
+				return editingFile;
 			} else {
 				return null;
 			}
-		}		
+		}
 		public bool ShowSaveMessage() {
-			if(isUnsaved) {
+			if (isUnsaved) {
 				MessageBoxResult result = MessageBox.Show("저장되지 않았습니다. 저장하시겠습니까?", "저장", MessageBoxButton.YesNoCancel);
 				switch (result) {
 					case MessageBoxResult.Yes:
@@ -128,6 +133,9 @@ namespace PendulumMotionEditor {
 			} else {
 				return true;
 			}
+		}
+		public void MarkUnsaved() {
+			isUnsaved = true;
 		}
 
 		public PMMotion CreateMotion() {
@@ -149,7 +157,7 @@ namespace PendulumMotionEditor {
 			file.RemoveItem(item);
 		}
 		public void RemoveSelectedItems() {
-			foreach(PMItemBase item in selectedItemSet) {
+			foreach (PMItemBase item in selectedItemSet) {
 				RemoveItem(item);
 			}
 			UnselectItemAll();
@@ -170,7 +178,7 @@ namespace PendulumMotionEditor {
 		public void SelectItemAdd(PMItemBase item) {
 			item.view.Cast<PMItemView>().SetSelected(true);
 			selectedItemSet.Add(item);
-			if(item.type == PMItemType.Motion) {
+			if (item.type == PMItemType.Motion) {
 				MainWindow.EditPanel.AttachMotion(item.Cast<PMMotion>());
 				MainWindow.ResetPreviewTime();
 			} else {
@@ -184,165 +192,290 @@ namespace PendulumMotionEditor {
 			MainWindow.EditPanel.DetachMotion();
 		}
 		public void UnselectItemAll() {
-			foreach(PMItemBase item in selectedItemSet) {
+			foreach (PMItemBase item in selectedItemSet) {
 				item.view.Cast<PMItemView>().SetSelected(false);
 			}
 			selectedItemSet.Clear();
 			MainWindow.EditPanel.DetachMotion();
 		}
 
-		public void MarkUnsaved() {
-			isUnsaved = true;
-		}
 		private void RegisterItemEvent(PMItemBase item) {
-			//심각하게 하드코딩이긴 한데.. 한가지 기능만을 하는 UI를 모듈화 시켜야 할 이유가?
-
-			const float FolderSideEventWeight = 0.2f;
-			const float FolderMidEventWeight = 1f - FolderSideEventWeight * 2f;
-
 			PMItemView itemView = item.view.Cast<PMItemView>();
 			itemView.ContentPanel.MouseDown += OnMouseDown_ItemContentPanel;
 
-
 			void OnMouseDown_ItemContentPanel(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-				if(e.ClickCount == 1) {
+				if (e.ClickCount == 1) {
 					if (KeyInput.GetKeyHold(WinKey.LeftControl) || KeyInput.GetKeyHold(WinKey.RightControl)) {
 						if (selectedItemSet.Contains(item)) {
 							UnselectItemSingle(item);
 						} else {
 							SelectItemAdd(item);
 						}
-					} else if (KeyInput.GetKeyHold(WinKey.LeftShift) || KeyInput.GetKeyHold(WinKey.RightShift)) { 
+					} else if (KeyInput.GetKeyHold(WinKey.LeftShift) || KeyInput.GetKeyHold(WinKey.RightShift)) {
 						//드래그 선택
 					} else {
 						LoopEngine.AddGRoutine(OnMouseDrag_ItemContentPanel());
 					}
-				} else if(e.ClickCount == 2) {
-					itemView.SetNameEditTextVisible(true);
+				} else if (e.ClickCount == 2) {
+					if (selectedItemSet.Count < 2) {
+						itemView.SetNameEditTextVisible(true);
+					}
 				}
 				e.Handled = true;
 			}
 			IEnumerator OnMouseDrag_ItemContentPanel() {
-				for(; ;) {
-					if(MouseInput.LeftUp) {
+				for (; ; ) {
+					if (!MouseInput.LeftHold) {
 						SelectItemSingle(item);
 						yield break;
 					}
-					if(!IsMouseOver(item.view.Cast<PMItemView>().ContentPanel)) {
-						if(!IsSelected(item)) {
+					if (!IsMouseOverY(item.view.Cast<PMItemView>().ContentPanel)) {
+						if (!IsSelected(item)) {
 							SelectItemSingle(item);
 						}
 						LoopEngine.AddLoopAction(OnMouseDrag_ItemContentPanel_ForMove, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 						yield break;
 					}
-					
+
 					yield return new GWait(GTimeUnit.Frame, 1);
 				}
 			}
 			void OnMouseDrag_ItemContentPanel_ForMove() {
-				MoveOrder moveOrder = GetCursorTarget();
-				Rectangle movePointer = MainWindow.MLItemMovePointer;
-				if (moveOrder != null) {
-					PMItemView targetView = moveOrder.target.view.Cast<PMItemView>();
-					Panel targetContent = targetView.ContentContext;
-					float panelRelativeTop = (float)targetView.TranslatePoint(new Point(), MainWindow.MLItemContext).Y;
-					Vector2 targetPanelSize = new Vector2((float)targetContent.ActualWidth, (float)targetContent.ActualHeight);
+				if (selectedItemSet.Count == 0)
+					return;
 
-					if (MouseInput.LeftUp) {
-						//Hide MovePointer
-						movePointer.Visibility = Visibility.Collapsed;
-						//Apply
+				MoveOrder moveOrder = GetMoveOrder();
+				Rectangle movePointer = MainWindow.MoveOrderPointer;
+				if (moveOrder != null) {
+					if (!MouseInput.LeftHold) {
+						HideMoveOrderPointer();
+						ApplyMoveOrder(moveOrder);
 					} else {
-						//Show MovePointer
-						double pointerHeight = targetPanelSize.y * FolderSideEventWeight;
-						movePointer.Width = targetPanelSize.x;
-						if(moveOrder.target.type == PMItemType.Motion) {
-							movePointer.Height = pointerHeight;
-							switch (moveOrder.direction) {
-								case Direction.Top:
-									Canvas.SetTop(movePointer, panelRelativeTop - pointerHeight * 0.5f);
-									break;
-								case Direction.Bottom:
-									Canvas.SetTop(movePointer, panelRelativeTop + targetPanelSize.y - pointerHeight * 0.5f);
-									break;
-							}
-						} else {
-							switch (moveOrder.direction) {
-								case Direction.Top:
-									movePointer.Height = pointerHeight = targetPanelSize.y * FolderSideEventWeight;
-									Canvas.SetTop(movePointer, panelRelativeTop  - pointerHeight * 0.5f);
-									break;
-								case Direction.Bottom:
-									movePointer.Height = pointerHeight = targetPanelSize.y * FolderSideEventWeight;
-									Canvas.SetTop(movePointer, panelRelativeTop + targetPanelSize.y - pointerHeight * 0.5f);
-									break;
-								case Direction.Right:
-									movePointer.Height = pointerHeight = targetPanelSize.y * FolderMidEventWeight;
-									Canvas.SetTop(movePointer, panelRelativeTop + targetPanelSize.y * FolderSideEventWeight);
-									break;
-							}
-						}
-						MainWindow.MLItemMovePointer.Visibility = Visibility.Visible;
+						SetMoveOrderPointer(moveOrder);
 					}
-					GDebug.Log($"MoveOrder = {moveOrder.target.name} : {moveOrder.direction.ToString()}");
 				} else {
 					movePointer.Visibility = Visibility.Collapsed;
 				}
+
+				string selectedName = selectedItemSet.Count == 1 ? selectedItemSet.Select(i=>i.name).ToArray()[0] : $"{selectedItemSet.Count} Items";
+				SetMoveOrderCursorText(selectedName);
+				UpdateMoveOrderCursor();
 			}
-			MoveOrder GetCursorTarget() {
-				return GetCursorTargetRecursion(file.rootFolder);
+		}
 
-				MoveOrder GetCursorTargetRecursion(PMItemBase target) {
-					if (!target.IsRoot) {
-						Panel panel = target.view.Cast<PMItemView>().ContentPanel;
-						try {
-							float panelTop = panel.GetAbsolutePosition().y;
-							if (IsMouseOver(panel)) {
-								MoveOrder moveOrder = new MoveOrder(target);
-								if (target.type == PMItemType.Motion) {
-									float panelMid = panelTop + (float)panel.ActualHeight * 0.5f;
+		private void SetMoveOrderPointer(MoveOrder moveOrder) {
+			Rectangle moveOrderPointer = MainWindow.MoveOrderPointer;
+			PMItemView targetView = moveOrder.target.view.Cast<PMItemView>();
+			Panel targetContent = targetView.ContentContext;
+			Vector2 targetPanelSize = new Vector2((float)targetContent.ActualWidth, (float)targetContent.ActualHeight);
 
-									moveOrder.direction = MouseInput.AbsolutePosition.y < panelMid ? Direction.Top : Direction.Bottom;
-									return moveOrder;
-								} else {
-									float panelMidTop = panelTop + (float)panel.ActualHeight * FolderSideEventWeight;
-									float panelMidBot = panelTop + (float)panel.ActualHeight * FolderMidEventWeight;
+			float panelRelativeTop = (float)moveOrder.target.view.Cast<PMItemView>().TranslatePoint(new Point(), MainWindow.MLItemContext).Y;
 
-									if (MouseInput.AbsolutePosition.y < panelMidTop) {
-										moveOrder.direction = Direction.Top;
-									} else if (MouseInput.AbsolutePosition.y > panelMidBot) {
-										moveOrder.direction = Direction.Bottom;
-									} else {
-										moveOrder.direction = Direction.Right;
-									}
-									return moveOrder;
-								}
-							}
-						} catch(Exception ex) {
-							GDebug.Log(ex.ToString());
-						}
-					}
-					if (target.type != PMItemType.Motion) {
-						PMFolder folder = target as PMFolder;
-						for(int childI = 0; childI < folder.childList.Count; ++childI) {
-							MoveOrder moveOrder = GetCursorTargetRecursion(folder.childList[childI]);
-							if(moveOrder != null) {
-								return moveOrder;
-							}
-						}
-					}
-					return null;
+			double pointerHeight = targetPanelSize.y * FolderSideEventWeight;
+			moveOrderPointer.Width = targetPanelSize.x;
+			PMFolder parent = moveOrder.target.parent;
+			if (moveOrder.target.type == PMItemType.Motion) {
+				moveOrderPointer.Height = pointerHeight;
+				switch (moveOrder.direction) {
+					case Direction.Top:
+						Canvas.SetTop(moveOrderPointer, panelRelativeTop - pointerHeight * 0.5f);
+						break;
+					case Direction.Bottom:
+						Canvas.SetTop(moveOrderPointer, panelRelativeTop + targetPanelSize.y - pointerHeight * 0.5f);
+						break;
+				}
+			} else {
+				switch (moveOrder.direction) {
+					case Direction.Top:
+						moveOrderPointer.Height = pointerHeight = targetPanelSize.y * FolderSideEventWeight;
+						Canvas.SetTop(moveOrderPointer, panelRelativeTop - pointerHeight * 0.5f);
+						break;
+					case Direction.Bottom:
+						moveOrderPointer.Height = pointerHeight = targetPanelSize.y * FolderSideEventWeight;
+						Canvas.SetTop(moveOrderPointer, panelRelativeTop + targetPanelSize.y - pointerHeight * 0.5f);
+						break;
+					case Direction.Right:
+						moveOrderPointer.Height = pointerHeight = targetPanelSize.y;
+						Canvas.SetTop(moveOrderPointer, panelRelativeTop);
+						break;
 				}
 			}
-			bool IsMouseOver(Panel itemPanel) {
-				float panelTop = itemPanel.GetAbsolutePosition().y;
-				GDebug.Log($"{panelTop} , {MouseInput.AbsolutePosition.y}");
-				return MouseInput.AbsolutePosition.y > panelTop && MouseInput.AbsolutePosition.y < panelTop + itemPanel.ActualHeight;
+
+			float posX = 0f;
+			if(!moveOrder.target.IsRoot && !parent.IsRoot) {
+				posX = (float)parent.view.Cast<PMItemView>().ChildContext.TranslatePoint(new Point(), MainWindow.MLItemContext).X;
+			}
+			Canvas.SetLeft(moveOrderPointer, posX);
+
+			moveOrderPointer.Visibility = Visibility.Visible;
+		}
+		private void HideMoveOrderPointer() {
+			MainWindow.MoveOrderPointer.Visibility = Visibility.Collapsed;
+		}
+		private void SetMoveOrderCursorText(string text) {
+			MainWindow.MoveOrderCursor.SetNameText(text);
+		}
+		private void UpdateMoveOrderCursor() {
+			MainWindow.MoveOrderCursor.Visibility = MouseInput.LeftHold ? Visibility.Visible : Visibility.Collapsed;
+			MainWindow.MoveOrderCursor.Width = MainWindow.MLItemContext.ActualWidth;
+
+			float posY = MouseInput.AbsolutePosition.y - (float)MainWindow.MLItemContext.GetAbsolutePosition().y - (float)MainWindow.MoveOrderCursor.ActualHeight * 0.5f;
+			posY = Mathf.Clamp(posY, 0f, (float)file.rootFolder.view.Cast<PMItemView>().ChildContext.ActualHeight);
+			Canvas.SetTop(MainWindow.MoveOrderCursor, posY);
+		}
+		private bool ApplyMoveOrder(MoveOrder moveOrder) {
+			List<PMFolder> selectedFolderList = file.itemDict.Where(pair => pair.Value.IsFoldable && selectedItemSet.Contains(pair.Value)).Select(pair => pair.Value as PMFolder).ToList();
+
+			//검사
+			//최적화하면서 루프 돌 수 있지만, 코드의 가독성을 위해 성능을 희생한다.
+			//O(n^2) 의 시간복잡도
+			for (int i = 0; i < selectedFolderList.Count; ++i) {
+				PMFolder selectedFolder = selectedFolderList[i];
+				if (selectedFolder == moveOrder.target) {
+					return false;
+				}
+				if (ContainsChildRecursive(selectedFolder, moveOrder.target)) {
+					ToastMessage.Show("자신의 하위 폴더로 이동할 수 없습니다.");
+					return false;
+				}
+			}
+			//정렬
+			List<PMItemBase> orderedSelectedItemList = new List<PMItemBase>();
+			CollectSelectedItemsRecursive(file.rootFolder, orderedSelectedItemList);
+
+			//실행
+			foreach (PMItemBase selectedItem in orderedSelectedItemList) {
+				selectedItem.parent.childList.Remove(selectedItem);
+				PMItemView selectedItemView = selectedItem.view.Cast<PMItemView>();
+				selectedItemView.DetachParent();
+				if (moveOrder.direction == Direction.Right) {
+					PMFolder targetFolder = moveOrder.target.Cast<PMFolder>();
+					targetFolder.AddChild(selectedItem);
+					selectedItemView.SetParent(targetFolder.view.Cast<PMItemView>().ChildContext);
+				} else {
+					PMFolder targetFolder = moveOrder.target.parent;
+					int targetIndex = targetFolder.childList.IndexOf(moveOrder.target) +
+					(moveOrder.direction == Direction.Bottom ? 1 : 0);
+
+					targetFolder.InsertChild(targetIndex, selectedItem);
+					targetFolder.view.Cast<PMItemView>().ChildContext.Children.Insert(targetIndex, selectedItem.view.Cast<PMItemView>());
+				}
+			}
+			return true;
+		}
+
+
+		private MoveOrder GetMoveOrder() {
+			MoveOrder moveOrder = GetMoveOrderRecursion(file.rootFolder);
+
+			Panel rootPanel = file.rootFolder.view.Cast<PMItemView>().ChildContext;
+			float bottomY = rootPanel.GetAbsolutePosition(new Vector2(0f, (float)rootPanel.ActualHeight)).y;
+			if (moveOrder == null && MouseInput.AbsolutePosition.y > bottomY) {
+				moveOrder = new MoveOrder(file.rootFolder, Direction.Right);
+			}
+			return moveOrder;
+		}
+		private MoveOrder GetMoveOrderRecursion(PMItemBase target) {
+			//Check current
+			if (!target.IsRoot) {
+				Panel panel = target.view.Cast<PMItemView>().ContentPanel;
+				try {
+					if (IsMouseOverY(panel)) {
+						float panelTop = panel.GetAbsolutePosition().y;
+						MoveOrder moveOrder = new MoveOrder(target);
+						if (target.IsFoldable) {
+							float panelMidTop = panelTop + (float)panel.ActualHeight * FolderSideEventWeight;
+							float panelMidBot = panelTop + (float)panel.ActualHeight * FolderMidEventWeight;
+
+							if (MouseInput.AbsolutePosition.y < panelMidTop) {
+								moveOrder.direction = Direction.Top;
+							} else if (MouseInput.AbsolutePosition.y > panelMidBot) {
+								moveOrder.direction = target.Cast<PMFolder>().HasChild ? Direction.Right : Direction.Bottom;
+							} else {
+								moveOrder.direction = Direction.Right;
+							}
+							return moveOrder;
+						} else {
+							float panelMid = panelTop + (float)panel.ActualHeight * 0.5f;
+
+							//선택중인 모션아이템이면 피해서 오더를 설정한다.
+							if (selectedItemSet.Contains(moveOrder.target)) {
+								int index = moveOrder.target.parent.childList.IndexOf(moveOrder.target);
+								for (; ; ) {
+									if (selectedItemSet.Contains(moveOrder.target)) {
+										moveOrder.direction = Direction.Bottom;
+										if (index > 0) {
+											--index;
+											moveOrder.target = moveOrder.target.parent.childList[index];
+										} else {
+											//아래로 순회하면서 탐색
+											foreach (PMItemBase childItem in moveOrder.target.parent.childList) {
+												if (!selectedItemSet.Contains(childItem)) {
+													moveOrder.target = childItem;
+													moveOrder.direction = Direction.Top;
+													return moveOrder;
+												}
+											}
+											//없으면 상위 폴더에 넣는 오더로
+											moveOrder.target = moveOrder.target.parent;
+											moveOrder.direction = Direction.Right;
+											return moveOrder;
+										}
+									} else {
+										return moveOrder;
+									}
+								}
+							}
+							moveOrder.direction = MouseInput.AbsolutePosition.y < panelMid ? Direction.Top : Direction.Bottom;
+							return moveOrder;
+						}
+					}
+				} catch (Exception ex) {
+					GDebug.Log(ex.ToString());
+				}
+			}
+			//Recursive
+			if (target.IsFoldable) {
+				PMFolder folder = target as PMFolder;
+				for (int childI = 0; childI < folder.childList.Count; ++childI) {
+					MoveOrder moveOrder = GetMoveOrderRecursion(folder.childList[childI]);
+					if (moveOrder != null) {
+						return moveOrder;
+					}
+				}
+			}
+			return null;
+		}
+		private void CollectSelectedItemsRecursive(PMItemBase item, List<PMItemBase> resultList) {
+			if (selectedItemSet.Contains(item)) {
+				resultList.Add(item);
+			}
+
+			if (item.IsFoldable) {
+				foreach (PMItemBase child in item.Cast<PMFolder>().childList) {
+					CollectSelectedItemsRecursive(child, resultList);
+				}
 			}
 		}
 
 		public bool IsSelected(PMItemBase item) {
 			return selectedItemSet.Contains(item);
+		}
+		private bool IsMouseOverY(Panel itemPanel) {
+			float panelTop = itemPanel.GetAbsolutePosition().y;
+			return MouseInput.AbsolutePosition.y > panelTop && MouseInput.AbsolutePosition.y < panelTop + itemPanel.ActualHeight;
+		}
+		private bool ContainsChildRecursive(PMFolder parent, PMItemBase target) {
+			foreach (PMItemBase child in parent.childList) {
+				if (child == target) {
+					return true;
+				} else if (child.IsFoldable) {
+					if (ContainsChildRecursive(child as PMFolder, target)) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 	}
 }

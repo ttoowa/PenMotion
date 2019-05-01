@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:PendulumMotionEditor.Views.Items"
              mc:Ignorable="d" 
              d:DesignWidth="400">
-	<DockPanel Name="BackPanel" Background="#FF7C7C7C">
+	<DockPanel Name="BackPanel">
 		<Grid Name="ContentContext" Height="40" DockPanel.Dock="Top">
 			<DockPanel Name="ContentPanel" Background="#E0E0E0">
 				<Border DockPanel.Dock="Bottom" Height="1" Background="#B5B5B5" VerticalAlignment="Bottom"></Border>
@@ -21,7 +21,10 @@
 				<TextBox Name="NameEditText" BorderThickness="0" IsHitTestVisible="False" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" FontSize="14" Text="Name" TextOptions.TextHintingMode="Animated" VerticalAlignment="Center" Margin="6,0" Foreground="#FF343434" Height="30" VerticalContentAlignment="Center" BorderBrush="{x:Null}" SelectionBrush="#FFDAAF3C"/>
 			</DockPanel>
 		</Grid>
-		<StackPanel Name="ChildContext" DockPanel.Dock="Bottom" Margin="8, -2, 0, 0">
-		</StackPanel>
+		<Grid>
+			<Border Width="1" Background="#FF999999" HorizontalAlignment="Left"></Border>
+			<StackPanel Name="ChildContext" Margin="7, 0, 0, 0">
+			</StackPanel>
+		</Grid>
 	</DockPanel>
 </UserControl>

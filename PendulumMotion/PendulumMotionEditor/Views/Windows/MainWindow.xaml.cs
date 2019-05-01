@@ -24,6 +24,7 @@ using PendulumMotion.Component;
 using PendulumMotion.Items;
 using PendulumMotion.System;
 using PendulumMotionEditor.Views.Items;
+using PendulumMotionEditor.Views.FX;
 
 namespace PendulumMotionEditor.Views.Windows
 {
@@ -72,7 +73,8 @@ namespace PendulumMotionEditor.Views.Windows
 
 				Cursor = CursorStorage.cursor_default;
 				SetContentContextVisible(false);
-				MLItemMovePointer.Visibility = Visibility.Collapsed;
+				MoveOrderPointer.Visibility = Visibility.Collapsed;
+				MoveOrderCursor.Visibility = Visibility.Collapsed;
 				PreviewFpsEditText.textBox.SetOnlyIntInput();
 				PreviewSecondsEditText.textBox.SetOnlyFloatInput();
 				PreviewFpsEditText.textBox.Text = 60.ToString();
@@ -82,6 +84,7 @@ namespace PendulumMotionEditor.Views.Windows
 				previewLoopEngine.AddLoopAction(OnPreviewTick);
 
 				LoopEngine.AddGRoutine(UpdateItemPreviewRoutine());
+				LoopEngine.AddLoopAction(OnTick);
 			}
 			void RegisterEvents() {
 				Closing += OnClosing;
@@ -170,6 +173,15 @@ namespace PendulumMotionEditor.Views.Windows
 			}
 
 			previewWatch.Restart();
+		}
+		private void OnTick() {
+			if(MouseInput.LeftDown) {
+				Vector2 fxPos = MouseInput.AbsolutePosition - FxCanvas.GetAbsolutePosition();
+
+				ClickFx fx = new ClickFx();
+				fx.SetParent(FxCanvas);
+				fx.SetCanvasPosition(fxPos);
+			}
 		}
 		private void OnSizeChanged_EditPanel(object sender, SizeChangedEventArgs e) {
 			EditPanel.UpdateUI();

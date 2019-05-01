@@ -31,7 +31,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Release\API\</OutputPath>
+    <OutputPath>..\..\Release\API\</OutputPath>
     <DefineConstants>TRACE;Editor</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -78,6 +78,9 @@
     <Compile Include="Views\Components\MGEditPanel.xaml.cs">
       <DependentUpon>MGEditPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\FX\ClickFx.xaml.cs">
+      <DependentUpon>ClickFx.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Items\MoveOrder.cs" />
     <Compile Include="Views\Items\PMPointView.xaml.cs">
       <DependentUpon>PMPointView.xaml</DependentUpon>
@@ -110,10 +113,17 @@
       <DependentUpon>Button_NewFile.xaml</DependentUpon>
     </Compile>
     <Compile Include="Scripts\PMDManager.cs" />
+    <Compile Include="Views\Items\MoveOrderCursor.xaml.cs">
+      <DependentUpon>MoveOrderCursor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\ToastMessage.xaml.cs">
       <DependentUpon>ToastMessage.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\Components\MGEditPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FX\ClickFx.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -166,6 +176,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Resources\Image\Button_NewFile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Items\MoveOrderCursor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

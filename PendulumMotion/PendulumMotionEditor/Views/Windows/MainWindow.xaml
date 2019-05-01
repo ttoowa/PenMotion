@@ -10,7 +10,8 @@
         xmlns:local="clr-namespace:PendulumMotionEditor.Views.Windows"
         mc:Ignorable="d"
         Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450" Focusable="False">
-	<DockPanel>
+	<Grid>
+		<DockPanel>
 		<DockPanel.Resources>
 			<System:Double x:Key="SeparatorWidth">4</System:Double>
 			<SolidColorBrush x:Key="SeparatorColor" Color="#363636"></SolidColorBrush>
@@ -40,8 +41,12 @@
 		</DockPanel>
 		<Grid Background="#FF343434">
 			<TextBlock Text="파일을 생성해라 애.송.이." Foreground="#FF5D5D5D" FontFamily="/PendulumMotionEditor;component/Resources/Fonts/#KoPubDotum_Pro Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
-			<DockPanel Name="ContentContext" Visibility="Visible">
-				<DockPanel DockPanel.Dock="Left" Width="220" Background="#C7C7C7">
+			<Grid Name="ContentContext" Visibility="Visible">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="220"/>
+					<ColumnDefinition Width="1*"/>
+				</Grid.ColumnDefinitions>
+				<DockPanel Background="#C7C7C7" Grid.Column="0" MinWidth="170">
 					<StackPanel Name="ListControlContext" Orientation="Horizontal" DockPanel.Dock="Top" Height="45" Background="#F2F2F2">
 						<Border Width="6"></Border>
 						<Grid Name="MLCreateMotionButton" Background="#F0B871" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
@@ -67,7 +72,8 @@
 								<StackPanel Name="MLItemContext" Orientation="Vertical">
 								</StackPanel>
 								<Canvas>
-									<Rectangle Name="MLItemMovePointer" Width="100" Height="10" Fill="#7F3DEC9C"></Rectangle>
+									<Items:MoveOrderCursor x:Name="MoveOrderCursor" Opacity="1"></Items:MoveOrderCursor>
+									<Rectangle Name="MoveOrderPointer" Width="300" Height="10" Fill="#7F3167A8"></Rectangle>
 								</Canvas>
 							</Grid>
 						</ScrollViewer>
@@ -81,8 +87,8 @@
 						</Border>
 					</Grid>
 				</DockPanel>
-				<Border DockPanel.Dock="Left" Width="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}"></Border>
-				<DockPanel>
+				<GridSplitter Width="4" Background="{StaticResource SeparatorColor}" Foreground="{x:Null}"></GridSplitter>
+				<DockPanel Grid.Column="1" MinWidth="350">
 					<DockPanel DockPanel.Dock="Top" Height="45" Background="#E8E8E8">
 						<Components:SimpleTextbox x:Name="PreviewFpsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
 						<TextBlock DockPanel.Dock="Left" Text="FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
@@ -126,7 +132,9 @@
 						</Border>
 					</Grid>
 				</DockPanel>
-			</DockPanel>
+			</Grid>
 		</Grid>
 	</DockPanel>
+		<Canvas Name="FxCanvas" IsHitTestVisible="False" Focusable="False"/>
+	</Grid>
 </Window>

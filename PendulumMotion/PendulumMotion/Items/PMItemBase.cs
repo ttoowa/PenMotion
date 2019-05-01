@@ -9,6 +9,7 @@ using PendulumMotion.System;
 namespace PendulumMotion.Items {
 	public class PMItemBase {
 		public bool IsRoot => parent == null;
+		public bool IsFoldable => type == PMItemType.Folder || type == PMItemType.RootFolder;
 		public PMFile ownerFile;
 		public PMFolder parent;
 		public PMItemType type;
