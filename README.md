@@ -1,6 +1,7 @@
 # PendulumMotion
-모션그래프 에디터 & API
-
+MotionGraph Editor & API
+</br>
+</br>
 ## How to use Editor
 
 >#### On editing context
@@ -29,3 +30,7 @@ void UseMotion() {
   }
 }
 ```
+
+## Preview
+
+![](https://i.imgur.com/7m5raaT.gif)
