@@ -37,6 +37,7 @@ namespace PendulumMotionEditor.Views.Windows
 		private static GLoopEngine LoopEngine => Root.loopEngine;
 		private static CursorStorage CursorStorage => Root.cursorStorage;
 
+		private const float SeparatorWidthHalf = 2f;
 		private int PreviewFps => Mathf.Clamp(PreviewFpsEditText.textBox.Text.Parse2Int(60), 1, 1000);
 		private float PreviewSeconds => Mathf.Clamp(PreviewSecondsEditText.textBox.Text.Parse2Float(1f), 0.02f, 1000f);
 		private float previewTime;
@@ -46,6 +47,7 @@ namespace PendulumMotionEditor.Views.Windows
 		private GLoopEngine previewLoopEngine;
 		private Stopwatch previewWatch;
 		private float UpdateFPSTimer;
+		private Ellipse[] previewContinuum;
 		
 		public bool OnEditing => editingFile != null;
 		public EditableMotionFile editingFile;
@@ -71,6 +73,7 @@ namespace PendulumMotionEditor.Views.Windows
 				previewLoopEngine.MaxOverlapFrame = 3;
 				previewWatch = new Stopwatch();
 
+				CreatePreviewContinuum();
 				Cursor = CursorStorage.cursor_default;
 				SetContentContextVisible(false);
 				MoveOrderPointer.Visibility = Visibility.Collapsed;
@@ -81,10 +84,6 @@ namespace PendulumMotionEditor.Views.Windows
 				PreviewSecondsEditText.textBox.Text = 1.ToString();
 
 				previewLoopEngine.StartLoop();
-				previewLoopEngine.AddLoopAction(OnPreviewTick);
-
-				LoopEngine.AddGRoutine(UpdateItemPreviewRoutine());
-				LoopEngine.AddLoopAction(OnTick);
 			}
 			void RegisterEvents() {
 				Closing += OnClosing;
@@ -123,7 +122,11 @@ namespace PendulumMotionEditor.Views.Windows
 				MLRemoveButton.SetOnClick(OnClick_MLRemoveButton);
 				MLCopyButton.SetOnClick(OnClick_MLCopyButton);
 
+				previewLoopEngine.AddLoopAction(OnPreviewTick);
+				LoopEngine.AddGRoutine(UpdateItemPreviewRoutine());
+				LoopEngine.AddLoopAction(OnTick);
 			}
+			
 		}
 		private void OnClosing(object sender, CancelEventArgs e) {
 			if (!OnSaveMarked) {
@@ -131,7 +134,6 @@ namespace PendulumMotionEditor.Views.Windows
 			}
 		}
 		private void OnPreviewTick() {
-			const float SeparatorWidthHalf = 2f;
 			const float UpdateFPSTick = 0.5f;
 			const float OverTimeSec = 0.8f;
 
@@ -139,40 +141,45 @@ namespace PendulumMotionEditor.Views.Windows
 			float previewFps = PreviewFps;
 			float frameDelta = 1f / previewSec / previewFps;
 			float maxOverTime = OverTimeSec / previewSec;
-			//Simulate Time
-			previewTime += frameDelta;
-			if(previewTime > 1f + maxOverTime || previewTime < -maxOverTime) {
-				previewTime = -maxOverTime;
-			}
-			float actualTime = Mathf.Clamp01(previewTime);
-			float motionTime = EditPanel.OnEditing ? EditPanel.editingMotion.GetMotionValue(actualTime) : 0f;
+			float motionTime = GetMotionTimeWithSimulate();
 
-			//Update Radar
-			EditPanel.UpdatePreview(previewTime, maxOverTime);
-
-			//Update Position
-			double gridWidth = PreviewPositionGrid.ColumnDefinitions[1].ActualWidth;
-			double previewPos = gridWidth * motionTime - PreviewPositionShape.ActualWidth * 0.5f - SeparatorWidthHalf;
-			PreviewPositionShape.Margin = new Thickness(previewPos, 0d, 0d, 0d);
-
-			//Update Scale
-			PreviewScaleShape.RenderTransform = new ScaleTransform(motionTime, motionTime);
-
-			//Update TextInfos
-			previewWatch.Stop();
-			ActualFrameTextView.Text = $"({((int)(previewSec * previewFps))} Frame)";
-			float deltaMillisec = previewWatch.GetElapsedMilliseconds();
-			float deltaSec = deltaMillisec * 0.001f;
-			if (UpdateFPSTimer < 0f) {
-				if (deltaMillisec > 0.01f) {
-					UpdateFPSTimer = UpdateFPSTick;
-					ActualFPSTextView.Text = $"{(1f / deltaSec).ToString("0.0")} FPS";
-				}
-			} else {
-				UpdateFPSTimer -= deltaSec;
-			}
+			EditPanel.UpdatePlaybackRadar(previewTime, maxOverTime);
+			UpdatePositionShape();
+			UpdateScaleShape();
+			UpdateInfoTexts();
 
 			previewWatch.Restart();
+
+			float GetMotionTimeWithSimulate() {
+				previewTime += frameDelta;
+				if (previewTime > 1f + maxOverTime || previewTime < -maxOverTime) {
+					previewTime = -maxOverTime;
+				}
+				float actualTime = Mathf.Clamp01(previewTime);
+				return EditPanel.OnEditing ? EditPanel.editingMotion.GetMotionValue(actualTime) : 0f;
+			}
+			void UpdatePositionShape() {
+				double gridWidth = PreviewPositionGrid.ColumnDefinitions[1].ActualWidth;
+				double previewPos = gridWidth * motionTime - PreviewPositionShape.ActualWidth * 0.5f - SeparatorWidthHalf;
+				PreviewPositionShape.Margin = new Thickness(previewPos, 0d, 0d, 0d);
+			}
+			void UpdateScaleShape() {
+				PreviewScaleShape.RenderTransform = new ScaleTransform(motionTime, motionTime);
+			}
+			void UpdateInfoTexts() {
+				previewWatch.Stop();
+				ActualFrameTextView.Text = $"({((int)(previewSec * previewFps))} Frame)";
+				float deltaMillisec = previewWatch.GetElapsedMilliseconds();
+				float deltaSec = deltaMillisec * 0.001f;
+				if (UpdateFPSTimer < 0f) {
+					if (deltaMillisec > 0.01f) {
+						UpdateFPSTimer = UpdateFPSTick;
+						ActualFPSTextView.Text = $"{(1f / deltaSec).ToString("0.0")} FPS";
+					}
+				} else {
+					UpdateFPSTimer -= deltaSec;
+				}
+			}
 		}
 		private void OnTick() {
 			if(MouseInput.LeftDown) {
@@ -263,6 +270,65 @@ namespace PendulumMotionEditor.Views.Windows
 		}
 
 		//UI
+		public void SetContentContextVisible(bool show) {
+			ContentContext.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+		}
+
+		private void CreatePreviewContinuum() {
+			const int ContinuumResolution = 20;
+
+			previewContinuum = new Ellipse[ContinuumResolution];
+			for(int i=0; i<previewContinuum.Length;++i) {
+				Ellipse continuumElement = previewContinuum[i] = new Ellipse();
+
+				continuumElement.SetParent(PreviewPositionGrid);
+				continuumElement.Width = PreviewPositionShape.Width;
+				continuumElement.Height = PreviewPositionShape.Height;
+				continuumElement.Fill = PreviewPositionShape.Fill;
+				continuumElement.Stroke = PreviewPositionShape.Stroke;
+				continuumElement.StrokeThickness = PreviewPositionShape.StrokeThickness;
+				continuumElement.HorizontalAlignment = PreviewPositionShape.HorizontalAlignment;
+				continuumElement.Opacity = 0.2f;
+				Grid.SetColumn(continuumElement, Grid.GetColumn(PreviewPositionShape));
+				Grid.SetColumnSpan(continuumElement, Grid.GetColumnSpan(PreviewPositionShape));
+			}
+			UpdatePreviewContinuum();
+		}
+		public void UpdatePreviewContinuum() {
+			if (previewContinuum == null || !EditPanel.OnEditing)
+				return;
+
+			double gridWidth = PreviewPositionGrid.ColumnDefinitions[1].ActualWidth;
+
+			for (int i = 0; i < previewContinuum.Length; ++i) {
+				float linearTime = (float)i / (previewContinuum.Length - 1);
+				float motionTime = EditPanel.editingMotion.GetMotionValue(linearTime);
+
+				Ellipse continuumElement = previewContinuum[i];
+
+				continuumElement.Margin = new Thickness(motionTime * gridWidth - PreviewPositionShape.ActualWidth * 0.5f - SeparatorWidthHalf, 0f, 0f, 0f);
+			}
+		}
+		public void SetPreviewContinuumVisible(bool visible) {
+			if (previewContinuum == null)
+				return;
+
+			for(int i=0; i<previewContinuum.Length; ++i) {
+				previewContinuum[i].Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+			}
+		}
+
+		private void ClearEditingData() {
+			EditPanel.DetachMotion();
+			MLItemContext.Children.Clear();
+		}
+		public void ResetPreviewTime() {
+			previewTime = 0f;
+		}
+		public void ApplyPreviewFPS() {
+			previewLoopEngine.FPS = PreviewFps;
+		}
+
 		private IEnumerator UpdateItemPreviewRoutine() {
 			//UpdateItemPreview
 			int iterCounter = 0;
@@ -292,19 +358,6 @@ namespace PendulumMotionEditor.Views.Windows
 					}
 				}
 			}
-		}
-		private void ClearEditingData() {
-			EditPanel.DetachMotion();
-			MLItemContext.Children.Clear();
-		}
-		public void ResetPreviewTime() {
-			previewTime = 0f;
-		}
-		public void SetContentContextVisible(bool show) {
-			ContentContext.Visibility = show ? Visibility.Visible : Visibility.Hidden;
-		}
-		public void ApplyPreviewFPS() {
-			previewLoopEngine.FPS = PreviewFps;
 		}
 		private void UpdatePreviewFpsEditText() {
 			PreviewFpsEditText.textBox.Text = PreviewFps.ToString();

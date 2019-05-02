@@ -106,6 +106,10 @@ namespace PendulumMotionEditor.Views.Components {
 		private void OnTick() {
 			CheckCursorInteraction();
 		}
+		private void OnDataChanged() {
+			EditingFile.MarkUnsaved();
+			MainWindow.UpdatePreviewContinuum();
+		}
 		private void ResetEnv() {
 			displayZoom = 0.6f;
 			displayOffset = new PVector2();
@@ -185,6 +189,8 @@ namespace PendulumMotionEditor.Views.Components {
 			CreatePointViews();
 			UpdateUI();
 			PreviewContext.Visibility = Visibility.Visible;
+			MainWindow.SetPreviewContinuumVisible(true);
+			MainWindow.UpdatePreviewContinuum();
 		}
 		public void DetachMotion() {
 			editingMotion = null;
@@ -195,6 +201,7 @@ namespace PendulumMotionEditor.Views.Components {
 			HideSmartLineForX();
 			HideSmartLineForY();
 			PreviewContext.Visibility = Visibility.Collapsed;
+			MainWindow.SetPreviewContinuumVisible(false);
 		}
 
 		public void UpdateUI() {
@@ -205,7 +212,7 @@ namespace PendulumMotionEditor.Views.Components {
 			UpdateGraph();
 			UpdatePointViews();
 		}
-		public void UpdatePreview(float time, float maxOverTime) {
+		public void UpdatePlaybackRadar(float time, float maxOverTime) {
 			PlaybackRadar.Height = PreviewContext.ActualHeight;
 
 			PRect dGraphRect = DGraphRect;
@@ -375,24 +382,11 @@ namespace PendulumMotionEditor.Views.Components {
 						cursorOffset = GetCursorOffset(pointView, subHandleView) + new Vector2(PMPointView.SubHandleWidthHalf, PMPointView.SubHandleWidthHalf);
 						LoopEngine.AddLoopAction(OnDrag_PointSubHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 						LoopEngine.AddLoopAction(OnMouseUp_PointSubHandle, GLoopCycle.None, GWhen.MouseUpRemove);
-
-						EditingFile.MarkUnsaved();
 					}
 					void OnDrag_PointSubHandle() {
 						Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
-						//Vector2 pointViewPos = pointView.GetCanvasPosition();
 						Vector2 pointPosAbsolute = DisplayToNormal(cursorPos);
-
-						//Magnet
-						float? magnet;
-						magnet = FindMagnetForY(pointPosAbsolute.y, false, point);
-						if (magnet.HasValue) {
-							pointPosAbsolute.y = magnet.Value;
-						}
-						magnet = FindMagnetForX(pointPosAbsolute.x, false, point);
-						if (magnet.HasValue) {
-							pointPosAbsolute.x = magnet.Value;
-						}
+						FilterMagnet();
 						Vector2 pointPosRelative = pointPosAbsolute - point.mainPoint.ToVector2();
 
 						point.subPoints[subHandleIndex] = pointPosRelative.ToPVector2();
@@ -402,6 +396,19 @@ namespace PendulumMotionEditor.Views.Components {
 						editingMotion.view.Cast<PMItemView>().UpdatePreviewGraph(editingMotion);
 
 						SetSmartFollowText(pointPosRelative, NormalToDisplay(pointPosAbsolute));
+						OnDataChanged();
+
+						void FilterMagnet() {
+							float? result = null;
+							result = FindMagnetForY(pointPosAbsolute.y, false, point);
+							if (result.HasValue) {
+								pointPosAbsolute.y = result.Value;
+							}
+							result = FindMagnetForX(pointPosAbsolute.x, false, point);
+							if (result.HasValue) {
+								pointPosAbsolute.x = result.Value;
+							}
+						}
 					}
 					void OnMouseUp_PointSubHandle() {
 						HideSmartFollowText();
@@ -414,22 +421,11 @@ namespace PendulumMotionEditor.Views.Components {
 					cursorOffset = GetCursorOffset(PointContext, pointView);
 					LoopEngine.AddLoopAction(OnDrag_PointMainHandle, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 					LoopEngine.AddLoopAction(OnMouseUp_PointMainHandle, GLoopCycle.None, GWhen.MouseUpRemove);
-
-					EditingFile.MarkUnsaved();
 				}
 				void OnDrag_PointMainHandle() {
 					Vector2 cursorPos = MouseInput.GetRelativePosition(PointContext) + cursorOffset;
 					Vector2 pointPos = DisplayToNormal(cursorPos);
-					//Magnet
-					float? magnet;
-					magnet = FindMagnetForY(pointPos.y, true, point);
-					if (magnet.HasValue) {
-						pointPos.y = magnet.Value;
-					}
-					magnet = FindMagnetForX(pointPos.x, true, point);
-					if (magnet.HasValue) {
-						pointPos.x = magnet.Value;
-					}
+					FilterMagnet();
 
 					point.mainPoint = pointPos.ToPVector2();
 
@@ -438,6 +434,19 @@ namespace PendulumMotionEditor.Views.Components {
 					editingMotion.view.Cast<PMItemView>().UpdatePreviewGraph(editingMotion);
 
 					SetSmartFollowText(pointPos);
+					OnDataChanged();
+
+					void FilterMagnet() {
+						float? result = null;
+						result = FindMagnetForY(pointPos.y, true, point);
+						if (result.HasValue) {
+							pointPos.y = result.Value;
+						}
+						result = FindMagnetForX(pointPos.x, true, point);
+						if (result.HasValue) {
+							pointPos.x = result.Value;
+						}
+					}
 				}
 				void OnMouseUp_PointMainHandle() {
 					HideSmartFollowText();
