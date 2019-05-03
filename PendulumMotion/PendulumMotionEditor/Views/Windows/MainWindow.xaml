@@ -12,129 +12,131 @@
         Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450" Focusable="False">
 	<Grid>
 		<DockPanel>
-		<DockPanel.Resources>
-			<System:Double x:Key="SeparatorWidth">4</System:Double>
-			<SolidColorBrush x:Key="SeparatorColor" Color="#363636"></SolidColorBrush>
-			<SolidColorBrush x:Key="PreviewLineColor" Color="#ABABAB"></SolidColorBrush>
-			<System:Double x:Key="TitleButtonWidth">36</System:Double>
-			<Thickness x:Key="TitleButtonSpace" Right="2"></Thickness>
-			<Thickness x:Key="ListControlButtonSpace" Right="5"></Thickness>
-		</DockPanel.Resources>
-		<DockPanel DockPanel.Dock="Top" Name="TitleBar" Height="50">
-			<Border DockPanel.Dock="Top" Height="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}"></Border>
-			<Grid Background="#525252">
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0">
-					<Grid Name="TMNewFileButton" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource TitleButtonSpace}">
-						<Image:Button_NewFile Margin="6,6,0,0"/>
-						<Border/>
-					</Grid>
-					<Grid Name="TMOpenFileButton" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource TitleButtonSpace}">
-						<Image:Button_OpenFile Margin="6,4,0,0"/>
-						<Border/>
-					</Grid>
-					<Grid Name="TMSaveFileButton" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource TitleButtonSpace}">
-						<Image:Button_SaveFile Margin="6,3,0,0"/>
-						<Border/>
-					</Grid>
-				</StackPanel>
-			</Grid>
-		</DockPanel>
-		<Grid Background="#FF343434">
-			<TextBlock Text="파일을 생성해라 애.송.이." Foreground="#FF5D5D5D" FontFamily="/PendulumMotionEditor;component/Resources/Fonts/#KoPubDotum_Pro Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
-			<Grid Name="ContentContext" Visibility="Visible">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="220"/>
-					<ColumnDefinition Width="1*"/>
-				</Grid.ColumnDefinitions>
-				<DockPanel Background="#C7C7C7" Grid.Column="0" MinWidth="170">
-					<StackPanel Name="ListControlContext" Orientation="Horizontal" DockPanel.Dock="Top" Height="45" Background="#F2F2F2">
-						<Border Width="6"></Border>
-						<Grid Name="MLCreateMotionButton" Background="#F0B871" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-							<Image:Button_CreateMotion Margin="9,9,0,0"/>
+			<DockPanel.Resources>
+				<System:Double x:Key="SeparatorWidth">4</System:Double>
+				<SolidColorBrush x:Key="SeparatorColor" Color="#363636"></SolidColorBrush>
+				<SolidColorBrush x:Key="PreviewLineColor" Color="#ABABAB"></SolidColorBrush>
+				<System:Double x:Key="TitleButtonWidth">36</System:Double>
+				<Thickness x:Key="TitleButtonSpace" Right="2"></Thickness>
+				<Thickness x:Key="ListControlButtonSpace" Right="5"></Thickness>
+			</DockPanel.Resources>
+			<DockPanel DockPanel.Dock="Top" Name="TitleBar" Height="50">
+				<Border DockPanel.Dock="Top" Height="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}"></Border>
+				<Grid Background="#525252">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0">
+						<Grid Name="TMNewFileButton" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource TitleButtonSpace}">
+							<Image:Button_NewFile Margin="6,6,0,0"/>
 							<Border/>
 						</Grid>
-						<Grid Name="MLCreateFolderButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-							<Image:Button_CreateFolder Margin="9,9,0,0"/>
+						<Grid Name="TMOpenFileButton" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource TitleButtonSpace}">
+							<Image:Button_OpenFile Margin="6,4,0,0"/>
 							<Border/>
 						</Grid>
-						<Grid Name="MLRemoveButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-							<Image:Button_RemoveItem Margin="11,6,0,0"/>
-							<Border/>
-						</Grid>
-						<Grid Name="MLCopyButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-							<Image:Button_CopyMotion Margin="8,7,0,0"/>
+						<Grid Name="TMSaveFileButton" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource TitleButtonSpace}">
+							<Image:Button_SaveFile Margin="6,3,0,0"/>
 							<Border/>
 						</Grid>
 					</StackPanel>
-					<Grid>
-						<ScrollViewer VerticalScrollBarVisibility="Auto">
-							<Grid>
-								<StackPanel Name="MLItemContext" Orientation="Vertical">
-								</StackPanel>
-								<Canvas>
-									<Items:MoveOrderCursor x:Name="MoveOrderCursor" Opacity="1"></Items:MoveOrderCursor>
-									<Rectangle Name="MoveOrderPointer" Width="300" Height="10" Fill="#7F3167A8"></Rectangle>
+				</Grid>
+			</DockPanel>
+			<Grid Background="#FF343434">
+				<TextBlock Text="파일을 생성해라 애.송.이." Foreground="#FF5D5D5D" FontFamily="/PendulumMotionEditor;component/Resources/Fonts/#KoPubDotum_Pro Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+				<Grid Name="ContentContext" Visibility="Visible">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="220"/>
+						<ColumnDefinition Width="1*"/>
+					</Grid.ColumnDefinitions>
+					<DockPanel Background="#C7C7C7" Grid.Column="0" MinWidth="170">
+						<StackPanel Name="ListControlContext" Orientation="Horizontal" DockPanel.Dock="Top" Height="45" Background="#F2F2F2">
+							<Border Width="6"></Border>
+							<Grid Name="MLCreateMotionButton" Background="#F0B871" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
+								<Image:Button_CreateMotion Margin="9,9,0,0"/>
+								<Border/>
+							</Grid>
+							<Grid Name="MLCreateFolderButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
+								<Image:Button_CreateFolder Margin="9,9,0,0"/>
+								<Border/>
+							</Grid>
+							<Grid Name="MLRemoveButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
+								<Image:Button_RemoveItem Margin="11,6,0,0"/>
+								<Border/>
+							</Grid>
+							<Grid Name="MLCopyButton" Background="#BFBFBF" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
+								<Image:Button_CopyMotion Margin="8,7,0,0"/>
+								<Border/>
+							</Grid>
+						</StackPanel>
+						<Grid>
+							<ScrollViewer VerticalScrollBarVisibility="Auto">
+								<Grid>
+									<StackPanel Name="MLItemContext" Orientation="Vertical">
+									</StackPanel>
+									<Canvas>
+										<Items:MoveOrderCursor x:Name="MoveOrderCursor" Opacity="1"></Items:MoveOrderCursor>
+										<Rectangle Name="MoveOrderPointer" Width="300" Height="10" Fill="#7F3167A8"></Rectangle>
+									</Canvas>
+								</Grid>
+							</ScrollViewer>
+							<Border Height="6" VerticalAlignment="Top">
+								<Border.Background>
+									<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+										<GradientStop Color="#55000000" Offset="0"/>
+										<GradientStop Color="#00000000" Offset="1"/>
+									</LinearGradientBrush>
+								</Border.Background>
+							</Border>
+						</Grid>
+					</DockPanel>
+					<GridSplitter Width="4" Background="{StaticResource SeparatorColor}" Foreground="{x:Null}"></GridSplitter>
+					<DockPanel Grid.Column="1" MinWidth="350">
+						<DockPanel DockPanel.Dock="Top" Height="45" Background="#E8E8E8">
+							<Components:SimpleTextbox x:Name="PreviewFpsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
+							<TextBlock DockPanel.Dock="Left" Text="FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
+							<Components:SimpleTextbox x:Name="PreviewSecondsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
+							<TextBlock DockPanel.Dock="Left" Text="Sec" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
+							<TextBlock Name="ActualFrameTextView" DockPanel.Dock="Left" Text="(60 Frame)" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="10,0,0,12"></TextBlock>
+							<TextBlock Name="ActualFPSTextView" DockPanel.Dock="Right" Text="60 FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FFE2675B" VerticalAlignment="Bottom" Margin="0,0,12,12" HorizontalAlignment="Right"></TextBlock>
+						</DockPanel>
+						<Grid DockPanel.Dock="Top" Height="55" Background="#CCCCCC">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="8*"/>
+								<ColumnDefinition Width="2*"/>
+							</Grid.ColumnDefinitions>
+							<Grid Grid.Column="0" Grid.ColumnSpan="1" ClipToBounds="True">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="1*"/>
+									<ColumnDefinition Width="8*"/>
+									<ColumnDefinition Width="1*"/>
+								</Grid.ColumnDefinitions>
+								<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource PreviewLineColor}" HorizontalAlignment="Right" Grid.Column="0"></Border>
+								<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource PreviewLineColor}" HorizontalAlignment="Right" Grid.Column="1"></Border>
+								<TextBlock Margin="2,0,0,2" Grid.Column="0" Grid.ColumnSpan="2" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="{StaticResource PreviewLineColor}" VerticalAlignment="Bottom" Text="Position" HorizontalAlignment="Left" FontSize="20"></TextBlock>
+								<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}" HorizontalAlignment="Right" Grid.Column="2"></Border>
+								<Canvas Name="PreviewPositionCanvas" Grid.Column="1" Grid.ColumnSpan="1">
+									<Ellipse Name="PreviewPositionShape" Canvas.Top="8.5" Panel.ZIndex="1000" Width="38" Height="38" Grid.Column="1" Grid.ColumnSpan="3" Fill="White" Stroke="#FF6C6C6C" HorizontalAlignment="Left" VerticalAlignment="Center"></Ellipse>
 								</Canvas>
 							</Grid>
-						</ScrollViewer>
-						<Border Height="6" VerticalAlignment="Top">
-							<Border.Background>
-								<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-									<GradientStop Color="#55000000" Offset="0"/>
-									<GradientStop Color="#00000000" Offset="1"/>
-								</LinearGradientBrush>
-							</Border.Background>
-						</Border>
-					</Grid>
-				</DockPanel>
-				<GridSplitter Width="4" Background="{StaticResource SeparatorColor}" Foreground="{x:Null}"></GridSplitter>
-				<DockPanel Grid.Column="1" MinWidth="350">
-					<DockPanel DockPanel.Dock="Top" Height="45" Background="#E8E8E8">
-						<Components:SimpleTextbox x:Name="PreviewFpsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
-						<TextBlock DockPanel.Dock="Left" Text="FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
-						<Components:SimpleTextbox x:Name="PreviewSecondsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
-						<TextBlock DockPanel.Dock="Left" Text="Sec" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>
-						<TextBlock Name="ActualFrameTextView" DockPanel.Dock="Left" Text="(60 Frame)" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="10,0,0,12"></TextBlock>
-						<TextBlock Name="ActualFPSTextView" DockPanel.Dock="Right" Text="60 FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FFE2675B" VerticalAlignment="Bottom" Margin="0,0,12,12" HorizontalAlignment="Right"></TextBlock>
+							<Grid Grid.Column="1" Grid.ColumnSpan="1">
+								<TextBlock Margin="2" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="{StaticResource PreviewLineColor}" VerticalAlignment="Bottom" Text="Scale" HorizontalAlignment="Left" FontSize="20"></TextBlock>
+								<Rectangle Name="PreviewScaleShape" Width="35" Height="35" Fill="White" Stroke="#FF6C6C6C" RenderTransformOrigin="0.5,0.5"></Rectangle>
+							</Grid>
+						</Grid>
+						<Grid>
+							<Components:MGEditPanel x:Name="EditPanel">
+							</Components:MGEditPanel>
+							<Border Height="6" VerticalAlignment="Top">
+								<Border.Background>
+									<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+										<GradientStop Color="#55000000" Offset="0"/>
+										<GradientStop Color="#00000000" Offset="1"/>
+									</LinearGradientBrush>
+								</Border.Background>
+							</Border>
+						</Grid>
 					</DockPanel>
-					<Grid DockPanel.Dock="Top" Height="55" Background="#CCCCCC">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="8*"/>
-							<ColumnDefinition Width="2*"/>
-						</Grid.ColumnDefinitions>
-						<Grid Name="PreviewPositionGrid" Grid.Column="0" Grid.ColumnSpan="1">
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="1*"/>
-								<ColumnDefinition Width="8*"/>
-								<ColumnDefinition Width="1*"/>
-							</Grid.ColumnDefinitions>
-							<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource PreviewLineColor}" HorizontalAlignment="Right" Grid.Column="0"></Border>
-							<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource PreviewLineColor}" HorizontalAlignment="Right" Grid.Column="1"></Border>
-							<TextBlock Margin="2,0,0,2" Grid.Column="0" Grid.ColumnSpan="2" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="{StaticResource PreviewLineColor}" VerticalAlignment="Bottom" Text="Position" HorizontalAlignment="Left" FontSize="20"></TextBlock>
-							<Border Width="{StaticResource SeparatorWidth}" Background="{StaticResource SeparatorColor}" HorizontalAlignment="Right" Grid.Column="2"></Border>
-							<Ellipse Name="PreviewPositionShape" Width="38" Height="38" Grid.Column="1" Grid.ColumnSpan="3" Fill="White" Stroke="#FF6C6C6C" HorizontalAlignment="Left" VerticalAlignment="Center"></Ellipse>
-						</Grid>
-						<Grid Grid.Column="1" Grid.ColumnSpan="1">
-							<TextBlock Margin="2" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="{StaticResource PreviewLineColor}" VerticalAlignment="Bottom" Text="Scale" HorizontalAlignment="Left" FontSize="20"></TextBlock>
-							<Rectangle Name="PreviewScaleShape" Width="35" Height="35" Fill="White" Stroke="#FF6C6C6C" RenderTransformOrigin="0.5,0.5"></Rectangle>
-						</Grid>
-					</Grid>
-					<Grid>
-						<Components:MGEditPanel x:Name="EditPanel">
-						</Components:MGEditPanel>
-						<Border Height="6" VerticalAlignment="Top">
-							<Border.Background>
-								<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-									<GradientStop Color="#55000000" Offset="0"/>
-									<GradientStop Color="#00000000" Offset="1"/>
-								</LinearGradientBrush>
-							</Border.Background>
-						</Border>
-					</Grid>
-				</DockPanel>
+				</Grid>
 			</Grid>
-		</Grid>
-	</DockPanel>
+		</DockPanel>
 		<Canvas Name="FxCanvas" IsHitTestVisible="False" Focusable="False"/>
 	</Grid>
 </Window>
