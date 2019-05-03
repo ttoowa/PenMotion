@@ -9,9 +9,9 @@ MotionGraph Editor & API
 
 #### On editing context
 Panning</br>
-<kbd>Space</kbd> + <kbd>Mouse Left Drag</kbd> </br>
-Zoom</br>
 <kbd>Ctrl</kbd> + <kbd>Space</kbd> + <kbd>Mouse Left Drag</kbd> </br>
+Zoom</br>
+<kbd>Space</kbd> + <kbd>Mouse Left Drag</kbd> </br>
 </br>
 Add control point</br>
 <kbd>Ctrl</kbd> + <kbd>Mouse Left Click</kbd></br>
