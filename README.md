@@ -16,7 +16,7 @@ Zoom</br>
 Add control point</br>
 <kbd>Ctrl</kbd> + <kbd>Mouse Left Click</kbd></br>
 Remove control point</br>
-<kbd>Ctrl</kbd> + <kbd>Mouse Right Click</kbd>
+<kbd>Alt</kbd> + <kbd>Mouse Left Click</kbd>
 
 
 <br/><br/>
