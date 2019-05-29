@@ -4,11 +4,20 @@
 MotionGraph Editor & API
 
 <br/>
+
 ## How to use Editor
 
->#### On editing context
-><kbd>Ctrl</kbd> + <kbd>Left Click</kbd> Add control point.</br>
-><kbd>Ctrl</kbd> + <kbd>Right Click</kbd> Remove control point.
+#### On editing context
+Panning</br>
+<kbd>Space</kbd> + <kbd>Mouse Left Drag</kbd> </br>
+Zoom</br>
+<kbd>Ctrl</kbd> + <kbd>Space</kbd> + <kbd>Mouse Left Drag</kbd> </br>
+</br>
+Add control point</br>
+<kbd>Ctrl</kbd> + <kbd>Mouse Left Click</kbd></br>
+Remove control point</br>
+<kbd>Alt</kbd> + <kbd>Mouse Left Click</kbd>
+
 
 <br/><br/>
 ## How to use API
