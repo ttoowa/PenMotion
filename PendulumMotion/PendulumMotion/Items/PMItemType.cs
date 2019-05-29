@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace PendulumMotion.Items {
 	public enum PMItemType {
-		RootFolder,
 		Motion,
 		Folder,
 	}

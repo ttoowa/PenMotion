@@ -25,7 +25,7 @@ namespace PendulumMotionEditor.Views.Components {
 	/// <summary>
 	/// MGEditPanel.xaml에 대한 상호 작용 논리
 	/// </summary>
-	public partial class MGEditPanel : UserControl {
+	public partial class GraphEditPanel : UserControl {
 		private static Root Root => Root.Instance;
 		private static MainWindow MainWindow => Root.mainWindow;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
@@ -81,9 +81,9 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 		}
 
-		public MGEditPanel() {
+		public GraphEditPanel() {
 			InitializeComponent();
-			if (this.CheckDesignMode())
+			if (this.IsDesignMode())
 				return;
 			Loaded += OnLoaded;
 		}
@@ -113,6 +113,7 @@ namespace PendulumMotionEditor.Views.Components {
 			MainWindow.UpdatePreviewContinuum();
 		}
 		private void OnMouseDown_BackPanel(object sender, MouseButtonEventArgs e) {
+			Keyboard.ClearFocus();
 			if (KeyInput.GetKeyHold(WinKey.Space)) {
 				if (KeyInput.GetKeyHold(WinKey.LeftControl) || KeyInput.GetKeyHold(WinKey.RightControl)) {
 					LoopEngine.AddLoopAction(OnMouseDrag_BackPanel_ForZoom, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);

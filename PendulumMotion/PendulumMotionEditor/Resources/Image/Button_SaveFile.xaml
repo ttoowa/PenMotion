@@ -8,10 +8,9 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Canvas>
         <Canvas.Resources>
-            <SolidColorBrush Color="#DBDBDB" x:Key="FillColor"></SolidColorBrush>
+			<SolidColorBrush Color="#9C9C9C" x:Key="FillColor"></SolidColorBrush>
         </Canvas.Resources>
-        <Path Fill="{StaticResource FillColor}" Data="M23,29.7c0.3,0,0.5-0.2,0.5-0.5v-20c0-0.3-0.2-0.5-0.5-0.5H0.5C0.2,8.6,0,8.8,0,9.1v20c0,0.3,0.2,0.5,0.5,0.5
-		H23z"></Path>
-        <Path Fill="{StaticResource FillColor}" Data="M19.8,7V0H3.7v7H19.8z M13.2,2.3h3.3v2.4h-3.3V2.3z M6.1,2.3h3.3v2.4H6.1V2.3z"></Path>
-    </Canvas>
+		<Rectangle Fill="{StaticResource FillColor}" Margin="0, 8.7, 0, 0" Width="22.6" Height="19.4"></Rectangle>
+		<Path Fill="{StaticResource FillColor}" Data="M19,6.7V0H3.6v6.7H19z M12.7,2.2h3.2v2.3h-3.2V2.2z M5.8,2.2H9v2.3H5.8V2.2z"></Path>
+	</Canvas>
 </UserControl>

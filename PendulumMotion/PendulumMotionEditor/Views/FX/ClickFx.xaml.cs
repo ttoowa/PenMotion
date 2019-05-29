@@ -22,15 +22,15 @@ namespace PendulumMotionEditor.Views.FX {
 		private static Root Root => Root.Instance;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
 
-		private const float StartAlpha = 1f;
-		private const float TimeDelta = 0.1f;
+		private const float StartAlpha = 0.6f;
+		private const float TimeDelta = 0.05f;
 
 		private GLoopAction tickAction;
 		private float time;
 
 		public ClickFx() {
 			InitializeComponent();
-			if (this.CheckDesignMode())
+			if (this.IsDesignMode())
 				return;
 
 			FxGroup.Visibility = Visibility.Collapsed;
@@ -42,7 +42,7 @@ namespace PendulumMotionEditor.Views.FX {
 
 		private void OnTick() {
 			time += TimeDelta;
-			float motionTime = Mathf.Pow(time, 0.8f);
+			float motionTime = Mathf.Pow(time, 0.6f);
 			if(time >= 1f) {
 				time = 1f;
 				tickAction.StopAndDispose();

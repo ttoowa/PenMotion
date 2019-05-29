@@ -19,50 +19,50 @@ namespace PendulumMotion.Component {
 		public PMFolder rootFolder;
 
 
-		public PMFile() {
+		public PMFile(bool createRootFolder = true) {
 			itemDict = new Dictionary<string, PMItemBase>();
-			rootFolder = new PMFolder(this);
+			if(createRootFolder) {
+				rootFolder = new PMFolder(this);
+			}
 		}
 
 		public void Save(string filePath) {
 			JObject jRoot = new JObject();
 			jRoot.Add("Version", SystemInfo.Version);
 
-			//MotionTree
-			JObject jMotionTree = new JObject();
-			jRoot.Add("MotionTree", jMotionTree);
-			AddChildRecursive(jMotionTree, rootFolder);
+			AddItemRecursive(jRoot, rootFolder);
 
-			void AddChildRecursive(JObject jParent, PMFolder parent) {
-				for (int i=0; i< parent.childList.Count; ++i) {
-					PMItemBase child = parent.childList[i];
-					JObject jChild = new JObject();
-					jParent.Add(child.name, jChild);
-					jChild.Add("Type", child.type.ToString());
+			void AddItemRecursive(JObject jParent, PMItemBase item) {
+				JObject jItem = new JObject();
+				jParent.Add(item.IsRoot ? "RootFolder" : item.name, jItem);
+				jItem.Add("Type", item.type.ToString());
+				JObject jData = new JObject();
+				jItem.Add("Data", jData);
 
-					switch(child.type) {
-						case PMItemType.Motion:
-							SaveMotion(jChild, (PMMotion)child);
-							break;
-						case PMItemType.RootFolder:
-						case PMItemType.Folder:
-							AddChildRecursive(jChild, (PMFolder)child);
-							break;
-					}
+				if (item.type == PMItemType.Motion) {
+					SaveMotion(jData, item as PMMotion);
+				} else {
+					SaveFolder(jData, item as PMFolder);
 				}
 			}
-			void SaveMotion(JObject jChild, PMMotion motion) {
-				JArray jMotion = new JArray();
-				jChild.Add("Data", jMotion);
-
+			void SaveMotion(JObject jData, PMMotion motion) {
+				JArray jPoints = new JArray();
+				jData.Add("Point", jPoints);
+				
 				for (int pointI = 0; pointI < motion.pointList.Count; ++pointI) {
 					JArray jPoint = new JArray();
-					jMotion.Add(jPoint);
+					jPoints.Add(jPoint);
 
 					PMPoint point = motion.pointList[pointI];
 					jPoint.Add(point.mainPoint.ToString());
 					jPoint.Add(point.subPoints[0].ToString());
 					jPoint.Add(point.subPoints[1].ToString());
+				}
+			}
+			void SaveFolder(JObject jData, PMFolder folder) {
+				for (int i = 0; i < folder.childList.Count; ++i) {
+					PMItemBase childItem = folder.childList[i];
+					AddItemRecursive(jData, childItem);
 				}
 			}
 
@@ -75,7 +75,7 @@ namespace PendulumMotion.Component {
 			}
 		}
 		public static PMFile Load(string filePath) {
-			PMFile file = new PMFile();
+			PMFile file = new PMFile(false);
 			file.filePath = filePath;
 
 			string jsonString;
@@ -88,32 +88,29 @@ namespace PendulumMotion.Component {
 			JObject jRoot = JObject.Parse(jsonString);
 
 			//MotionTree
-			JObject jMotionTree = jRoot["MotionTree"] as JObject;
-			LoadItemRecursive(jMotionTree, file.rootFolder);
+			JObject jRootFolder = jRoot["RootFolder"] as JObject;
+			LoadItemRecursive(jRootFolder, null);
 
-			void LoadItemRecursive(JToken jParent, PMFolder parent) {
-				foreach(JToken jChildPropToken in jParent.Children()) {
-					JProperty jChildProp = jChildPropToken as JProperty;
-					JObject jChild = jChildProp.Value as JObject;
-					string childName = jChildProp.Name;
-					switch((PMItemType)Enum.Parse(typeof(PMItemType), jChild["Type"].ToString())) {
-						case PMItemType.Motion:
-							LoadMotion(parent, jChild, childName);
-							break;
-						case PMItemType.RootFolder:
-						case PMItemType.Folder:
-							LoadFolder(parent, jParent, jChild, childName);
-							break;
-					}
+			void LoadItemRecursive(JToken jItem, PMFolder parent) {
+				JToken jType = jItem["Type"];
+				string typeText = jType != null ? jType.ToString() : null;
+				string name = (jItem.Parent as JProperty).Name;
+
+				if (typeText == "Motion") {
+					LoadMotion(parent, jItem, name);
+				} else {
+					LoadFolder(parent, jItem, name);
 				}
 			}
-			void LoadMotion(PMFolder parent, JToken jChild, string name) {
-				JArray jMotion = jChild["Data"] as JArray;
+			void LoadMotion(PMFolder parent, JToken jItem, string name) {
+				JObject jData = jItem["Data"] as JObject;
+				JArray jPoints = jData["Point"] as JArray;
 
 				PMMotion motion = new PMMotion(file);
+				motion.parent = parent;
 				motion.name = name;
-				for (int pointI = 0; pointI < jMotion.Count; ++pointI) {
-					JArray jPoint = jMotion[pointI] as JArray;
+				foreach (JToken jPointToken in jPoints) {
+					JArray jPoint = jPointToken as JArray;
 
 					PMPoint point = new PMPoint(
 						PVector2.Parse(jPoint[0].ToObject<string>()),
@@ -125,13 +122,23 @@ namespace PendulumMotion.Component {
 
 				file.itemDict.Add(name, motion);
 			}
-			void LoadFolder(PMFolder parent, JToken jParent, JToken jFolder, string name) {
+			void LoadFolder(PMFolder parent, JToken jItem, string name) {
 				PMFolder folder = new PMFolder(file);
-				folder.name = name;
-				parent.childList.Add(folder);
-				LoadItemRecursive(jParent, folder);
+				folder.parent = parent;
+				if (parent == null) {
+					file.rootFolder = folder;
+				} else {
+					folder.name = name;
+					parent.childList.Add(folder);
 
-				file.itemDict.Add(name, folder);
+					file.itemDict.Add(name, folder);
+				}
+
+				JObject jData = jItem["Data"] as JObject;
+				foreach(JToken jChild in jData.Children()) {
+					JProperty jChildProp = jChild as JProperty;
+					LoadItemRecursive(jChildProp.Value, folder);
+				}
 			}
 
 			return file;

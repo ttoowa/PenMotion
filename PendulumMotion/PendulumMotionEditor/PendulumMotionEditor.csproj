@@ -43,8 +43,8 @@
     <Reference Include="Costura, Version=3.3.3.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.3.3.3\lib\net40\Costura.dll</HintPath>
     </Reference>
-    <Reference Include="GKit">
-      <HintPath>..\..\..\..\Library\GKit\WPF\GKit.dll</HintPath>
+    <Reference Include="GKit.WPF">
+      <HintPath>..\..\..\..\Library\GKit\GKit.WPF.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -52,6 +52,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -75,8 +76,11 @@
     <Compile Include="Scripts\System\Cursor\CursorStorage.cs" />
     <Compile Include="Scripts\Utility\WPFViewUtility.cs" />
     <Compile Include="Scripts\Utility\VectorUtility.cs" />
-    <Compile Include="Views\Components\MGEditPanel.xaml.cs">
-      <DependentUpon>MGEditPanel.xaml</DependentUpon>
+    <Compile Include="Views\Components\FileManagerBar.xaml.cs">
+      <DependentUpon>FileManagerBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Components\GraphEditPanel.xaml.cs">
+      <DependentUpon>GraphEditPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FX\ClickFx.xaml.cs">
       <DependentUpon>ClickFx.xaml</DependentUpon>
@@ -119,7 +123,11 @@
     <Compile Include="Views\Windows\ToastMessage.xaml.cs">
       <DependentUpon>ToastMessage.xaml</DependentUpon>
     </Compile>
-    <Page Include="Views\Components\MGEditPanel.xaml">
+    <Page Include="Views\Components\FileManagerBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Components\GraphEditPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

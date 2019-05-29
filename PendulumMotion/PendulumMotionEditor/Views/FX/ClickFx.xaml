@@ -7,13 +7,6 @@
              mc:Ignorable="d" 
              Width="0" Height="0" IsHitTestVisible="False" Focusable="False">
 	<Canvas Name="FxGroup" RenderTransformOrigin="0.5,0.5">
-		<Ellipse Width="100" Height="100" Margin="-50, -50, 0, 0" Opacity="0.2">
-			<Ellipse.Fill>
-				<RadialGradientBrush>
-					<GradientStop Offset="0"/>
-					<GradientStop Color="White" Offset="1"/>
-				</RadialGradientBrush>
-			</Ellipse.Fill>
-		</Ellipse>
+		<Ellipse Width="70" Height="70" Margin="-35, -35, 0, 0" Opacity="0.2" Fill="White"/>
 	</Canvas>
 </UserControl>

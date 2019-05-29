@@ -8,17 +8,16 @@
              d:DesignWidth="400">
 	<DockPanel Name="BackPanel">
 		<Grid Name="ContentContext" Height="40" DockPanel.Dock="Top">
-			<DockPanel Name="ContentPanel" Background="#E0E0E0">
-				<Border DockPanel.Dock="Bottom" Height="1" Background="#B5B5B5" VerticalAlignment="Bottom"></Border>
+			<DockPanel Name="ContentPanel" Background="#4F4F4F">
 				<Grid Name="MotionContent" DockPanel.Dock="Right">
-					<Canvas Name="PreviewGraphContext" Width="60" Height="32" Background="#FF63605C" ClipToBounds="True" HorizontalAlignment="Right" Margin="0,0,5,0"/>
+					<Canvas Name="PreviewGraphContext" Width="60" Height="32" Background="#FF595959" ClipToBounds="True" HorizontalAlignment="Right" Margin="0,0,5,0"/>
 				</Grid>
 				<Grid Name="FolderContent" DockPanel.Dock="Left" Visibility="Visible">
 					<Grid Name="FoldButton" Width="12" Height="20">
 						<Polygon Points="0,0 0,8 7,4" VerticalAlignment="Center" HorizontalAlignment="Right" Fill="#FF9E9E9E"/>
 					</Grid>
 				</Grid>
-				<TextBox Name="NameEditText" BorderThickness="0" IsHitTestVisible="False" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" FontSize="14" Text="Name" TextOptions.TextHintingMode="Animated" VerticalAlignment="Center" Margin="6,0" Foreground="#FF343434" Height="30" VerticalContentAlignment="Center" BorderBrush="{x:Null}" SelectionBrush="#FFDAAF3C"/>
+				<TextBox Name="NameEditText" BorderThickness="0" IsHitTestVisible="False" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" FontSize="14" Text="Name" TextOptions.TextHintingMode="Animated" VerticalAlignment="Center" Margin="6,0" Foreground="#FFF1F1F1" Height="30" VerticalContentAlignment="Center" BorderBrush="{x:Null}" SelectionBrush="#FFDAAF3C" Background="#FF383838"/>
 			</DockPanel>
 		</Grid>
 		<Grid>

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PendulumMotionEditor.Views"
              mc:Ignorable="d" 
-             d:DesignWidth="800" Height="27">
+             d:DesignWidth="800" Height="27" Background="#B3B3B3">
     <UserControl.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Template">
@@ -30,6 +30,6 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <TextBox Name="textBox" BorderBrush="#FFF1F1F1" SelectionBrush="#FFDAAF3C" Foreground="#FF343434" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Medium" FontSize="16" TextOptions.TextHintingMode="Animated" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+    <TextBox Name="textBox" BorderBrush="#FFF1F1F1" SelectionBrush="#FFDAAF3C" Foreground="#FF1B1B1B" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Medium" FontSize="16" TextOptions.TextHintingMode="Animated" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Background="{x:Null}" BorderThickness="0">
     </TextBox>
 </UserControl>

@@ -26,10 +26,10 @@ namespace PendulumMotionEditor.Views.Items {
 		private static GLoopEngine LoopEngine => Root.loopEngine;
 		private static CursorStorage CursorStorage => Root.cursorStorage;
 
-		private static SolidColorBrush DefaultBG = "E0E0E0".ToBrush();
-		private static SolidColorBrush SelectedBG = "EACB9E".ToBrush();
-		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
-		private static SolidColorBrush EditTextBG = "FFFFFF".ToBrush();
+		private static SolidColorBrush DefaultBG = "4F4F4F".ToBrush();
+		private static SolidColorBrush SelectedBG = "787878".ToBrush();
+		private static SolidColorBrush GraphLineColor = "A89676".ToBrush();
+		private static SolidColorBrush EditTextBG = "383838".ToBrush();
 		private const int GraphResolution = 16;
 
 		public PMItemBase ownerItem;
@@ -57,10 +57,6 @@ namespace PendulumMotionEditor.Views.Items {
 				case PMItemType.Folder:
 					ContentPanel.Children.Remove(MotionContent);
 					break;
-				case PMItemType.RootFolder:
-					BackPanel.Children.Remove(ContentContext);
-					ChildContext.Margin = new Thickness();
-					break;
 			}
 
 			void Init() {
@@ -70,7 +66,10 @@ namespace PendulumMotionEditor.Views.Items {
 				NameEditText.KeyDown += OnKeyDown_NameEditText;
 			}
 		}
-
+		public void SetRootFolder() {
+			BackPanel.Children.Remove(ContentContext);
+			ChildContext.Margin = new Thickness();
+		}
 		public void SetName(string name) {
 			NameEditText.Text = name;
 		}

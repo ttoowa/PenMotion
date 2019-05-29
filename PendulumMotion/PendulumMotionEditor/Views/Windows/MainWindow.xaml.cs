@@ -56,7 +56,7 @@ namespace PendulumMotionEditor.Views.Windows
 		public MainWindow()
 		{
 			InitializeComponent();
-			if (this.CheckDesignMode())
+			if (this.IsDesignMode())
 				return;
 
 			Root = new Root(this);
@@ -100,9 +100,6 @@ namespace PendulumMotionEditor.Views.Windows
 
 				//Button reaction
 				Grid[] btns = new Grid[] {
-					TMNewFileButton,
-					TMOpenFileButton,
-					TMSaveFileButton,
 					MLCreateMotionButton,
 					MLCreateFolderButton,
 					MLRemoveButton,
@@ -113,10 +110,10 @@ namespace PendulumMotionEditor.Views.Windows
 					btn.SetBtnColor((Border)btn.Children[btn.Children.Count - 1]);
 				}
 
-				//Topmenu button
-				TMNewFileButton.SetOnClick(OnClick_TMNewFileButton);
-				TMOpenFileButton.SetOnClick(OnClick_TMOpenFileButton);
-				TMSaveFileButton.SetOnClick(OnClick_TMSaveFileButton);
+				//FileManagerBar
+				FileManagerBar.OnClick_NewFileButton += OnClick_NewFileButton;
+				FileManagerBar.OnClick_OpenFileButton += OnClick_OpenFileButton;
+				FileManagerBar.OnClick_SaveFileButton += OnClick_SaveFileButton;
 
 				//Motionlist button
 				MLCreateMotionButton.SetOnClick(OnClick_MLCreateMotionButton);
@@ -187,30 +184,23 @@ namespace PendulumMotionEditor.Views.Windows
 				UpdatePreviewSecondsEditText();
 			}
 		}
-		private void OnClick_TMNewFileButton() {
-			if(OnEditing && editingFile.isUnsaved)
-				return;
-
-			if (OnSaveMarked) {
+		private void OnClick_NewFileButton() {
+			if(OnSaveMarked) {
 				ClearEditingData();
 				editingFile = new EditableMotionFile();
 				SetContentContextVisible(true);
 			}
 		}
-		private void OnClick_TMOpenFileButton() {
-			if (OnEditing && editingFile.isUnsaved)
-				return;
-
+		private void OnClick_OpenFileButton() {
 			if (OnSaveMarked) {
 				Dispatcher.BeginInvoke(new Action(() => {
-					ClearEditingData();
-					editingFile = EditableMotionFile.Load();
+					EditableMotionFile openedFile = EditableMotionFile.Load();
 
-					if (editingFile != null) {
+					if (openedFile != null) {
 						//Success
 						SetContentContextVisible(true);
 
-
+						this.editingFile = openedFile;
 						List<PMItemBase> rootItemList = editingFile.file.rootFolder.childList;
 						if (rootItemList.Count > 0) {
 							editingFile.SelectItemSingle(rootItemList[0]);
@@ -219,7 +209,7 @@ namespace PendulumMotionEditor.Views.Windows
 				}));
 			}
 		}
-		private void OnClick_TMSaveFileButton() {
+		private void OnClick_SaveFileButton() {
 			Dispatcher.BeginInvoke(new Action(()=> {
 				editingFile.Save();
 			}));
@@ -242,7 +232,7 @@ namespace PendulumMotionEditor.Views.Windows
 			editingFile.MarkUnsaved();
 		}
 		private void OnClick_MLCopyButton() {
-
+			editingFile.DuplicateSelectedMotion();
 
 			editingFile.MarkUnsaved();
 		}
@@ -250,6 +240,9 @@ namespace PendulumMotionEditor.Views.Windows
 		//UI
 		public void SetContentContextVisible(bool show) {
 			ContentContext.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+		}
+		public void SetCopyButtonEnable(bool enable) {
+			MLCopyButton.Opacity = enable ? 1f : 0.3f;
 		}
 
 		private void UpdatePreviewPositionShape(float motionTime) {
@@ -325,7 +318,7 @@ namespace PendulumMotionEditor.Views.Windows
 			}
 		}
 
-		private void ClearEditingData() {
+		public void ClearEditingData() {
 			EditPanel.DetachMotion();
 			MLItemContext.Children.Clear();
 		}

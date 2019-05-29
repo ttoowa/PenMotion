@@ -28,6 +28,16 @@ namespace PendulumMotionEditor {
 		private const float FolderSideEventWeight = 0.2f;
 		private const float FolderMidEventWeight = 1f - FolderSideEventWeight * 2f;
 
+		public bool OnDuplicatableState {
+			get {
+				if (selectedItemSet.Count == 1) {
+					foreach (PMItemBase selectedItem in selectedItemSet) {
+						return selectedItem.type == PMItemType.Motion;
+					}
+				}
+				return false;
+			}
+		}
 		public bool isUnsaved;
 		public PMFile file;
 
@@ -36,7 +46,7 @@ namespace PendulumMotionEditor {
 			get {
 				if (selectedItemSet.Count == 1) {
 					foreach (PMItemBase item in selectedItemSet) {
-						if (item.IsFoldable) {
+						if (item.IsFolder) {
 							return item.Cast<PMFolder>();
 						} else {
 							return item.parent;
@@ -57,11 +67,17 @@ namespace PendulumMotionEditor {
 		}
 		private void Init() {
 			selectedItemSet = new HashSet<PMItemBase>();
-			file.rootFolder.view = new PMItemView(file.rootFolder, PMItemType.RootFolder);
+			PMItemView rootFolderView = new PMItemView(file.rootFolder, PMItemType.Folder);
+			file.rootFolder.view = rootFolderView;
+			rootFolderView.SetRootFolder();
 			MainWindow.MLItemContext.Children.Add(file.rootFolder.view.Cast<PMItemView>());
 		}
 		public void Dispose() {
 			MainWindow.MLItemContext.Children.Remove(file.rootFolder.view.Cast<PMItemView>());
+		}
+
+		private void OnSelectItemChanged() {
+			MainWindow.SetCopyButtonEnable(OnDuplicatableState);
 		}
 
 		public bool Save() {
@@ -95,6 +111,8 @@ namespace PendulumMotionEditor {
 			bool? result = dialog.ShowDialog();
 
 			if (result != null && result.Value == true) {
+				MainWindow.ClearEditingData();
+
 				PMFile file = PMFile.Load(dialog.FileName);
 				EditableMotionFile editingFile = new EditableMotionFile(file);
 
@@ -103,7 +121,7 @@ namespace PendulumMotionEditor {
 				void CreateViewRecursive(PMFolder parentFolder) {
 					for (int childI = 0; childI < parentFolder.childList.Count; ++childI) {
 						PMItemBase item = parentFolder.childList[childI];
-						editingFile.InitItem(item, parentFolder);
+						editingFile.CreateView(item);
 
 						switch (item.type) {
 							case PMItemType.Folder:
@@ -142,15 +160,26 @@ namespace PendulumMotionEditor {
 			PMFolder parentFolder = SelectedParentFolder;
 			PMMotion motion = file.CreateMotionDefault(parentFolder);
 
-			InitItem(motion, parentFolder);
+			CreateView(motion);
 			return motion;
 		}
 		public PMFolder CreateFolder() {
 			PMFolder parentFolder = SelectedParentFolder;
 			PMFolder folder = file.CreateFolder(parentFolder);
 
-			InitItem(folder, parentFolder);
+			CreateView(folder);
 			return folder;
+		}
+		public PMItemView CreateView(PMItemBase item, bool setParent = true) {
+			PMItemView view = new PMItemView(item, item.type);
+			item.view = view;
+			view.SetName(item.name);
+			if(setParent) {
+				item.parent.view.Cast<PMItemView>().ChildContext.Children.Add(view);
+			}
+
+			RegisterItemEvent(item);
+			return view;
 		}
 		public void RemoveItem(PMItemBase item) {
 			item.view.Cast<PMItemView>().Parent.Cast<Panel>().Children.Remove(item.view.Cast<PMItemView>());
@@ -161,14 +190,6 @@ namespace PendulumMotionEditor {
 				RemoveItem(item);
 			}
 			UnselectItemAll();
-		}
-		private void InitItem(PMItemBase item, PMFolder parentFolder) {
-			PMItemView view = new PMItemView(item, item.type);
-			item.view = view;
-			view.SetName(item.name);
-			parentFolder.view.Cast<PMItemView>().ChildContext.Children.Add(view);
-
-			RegisterItemEvent(item);
 		}
 
 		public void SelectItemSingle(PMItemBase item) {
@@ -185,11 +206,14 @@ namespace PendulumMotionEditor {
 				MainWindow.EditPanel.DetachMotion();
 			}
 
+			OnSelectItemChanged();
 		}
 		public void UnselectItemSingle(PMItemBase item) {
 			item.view.Cast<PMItemView>().SetSelected(false);
 			selectedItemSet.Remove(item);
 			MainWindow.EditPanel.DetachMotion();
+
+			OnSelectItemChanged();
 		}
 		public void UnselectItemAll() {
 			foreach (PMItemBase item in selectedItemSet) {
@@ -197,6 +221,48 @@ namespace PendulumMotionEditor {
 			}
 			selectedItemSet.Clear();
 			MainWindow.EditPanel.DetachMotion();
+
+			OnSelectItemChanged();
+		}
+		
+		public void DuplicateSelectedMotion() {
+			if(selectedItemSet.Count == 1) {
+				foreach(PMItemBase refItem in selectedItemSet) {
+					if (refItem.type == PMItemType.Motion) {
+						PMMotion refMotion = refItem as PMMotion;
+
+						int index = refMotion.parent.childList.IndexOf(refItem) + 1;
+						PMMotion motion = PMMotion.CreateDefault(file);
+						motion.parent = refMotion.parent;
+						motion.pointList.Clear();
+						foreach(PMPoint refPoint in refMotion.pointList) {
+							PMPoint point = new PMPoint();
+							motion.AddPoint(point);
+
+							point.mainPoint = refPoint.mainPoint;
+							point.subPoints = refPoint.subPoints.ToArray();
+						}
+						string name = $"{refMotion.name}";
+						for(; ;) {
+							if (file.itemDict.ContainsKey(name)) {
+								name += "_Copy";
+							} else {
+								break;
+							}
+						}
+						motion.name = name;
+
+						file.itemDict.Add(motion.name, motion);
+						PMItemView view = CreateView(motion, false);
+
+						refMotion.parent.childList.Insert(index, motion);
+						refMotion.parent.view.Cast<PMItemView>().ChildContext.Children.Insert
+						(index, view);
+
+						SelectItemSingle(motion);
+					}
+				}
+			}
 		}
 
 		private void RegisterItemEvent(PMItemBase item) {
@@ -324,7 +390,7 @@ namespace PendulumMotionEditor {
 			Canvas.SetTop(MainWindow.MoveOrderCursor, posY);
 		}
 		private bool ApplyMoveOrder(MoveOrder moveOrder) {
-			List<PMFolder> selectedFolderList = file.itemDict.Where(pair => pair.Value.IsFoldable && selectedItemSet.Contains(pair.Value)).Select(pair => pair.Value as PMFolder).ToList();
+			List<PMFolder> selectedFolderList = file.itemDict.Where(pair => pair.Value.IsFolder && selectedItemSet.Contains(pair.Value)).Select(pair => pair.Value as PMFolder).ToList();
 
 			//검사
 			//최적화하면서 루프 돌 수 있지만, 코드의 가독성을 위해 성능을 희생한다.
@@ -383,7 +449,7 @@ namespace PendulumMotionEditor {
 					if (IsMouseOverY(panel)) {
 						float panelTop = panel.GetAbsolutePosition().y;
 						MoveOrder moveOrder = new MoveOrder(target);
-						if (target.IsFoldable) {
+						if (target.IsFolder) {
 							float panelMidTop = panelTop + (float)panel.ActualHeight * FolderSideEventWeight;
 							float panelMidBot = panelTop + (float)panel.ActualHeight * FolderMidEventWeight;
 
@@ -435,7 +501,7 @@ namespace PendulumMotionEditor {
 				}
 			}
 			//Recursive
-			if (target.IsFoldable) {
+			if (target.IsFolder) {
 				PMFolder folder = target as PMFolder;
 				for (int childI = 0; childI < folder.childList.Count; ++childI) {
 					MoveOrder moveOrder = GetMoveOrderRecursion(folder.childList[childI]);
@@ -451,7 +517,7 @@ namespace PendulumMotionEditor {
 				resultList.Add(item);
 			}
 
-			if (item.IsFoldable) {
+			if (item.IsFolder) {
 				foreach (PMItemBase child in item.Cast<PMFolder>().childList) {
 					CollectSelectedItemsRecursive(child, resultList);
 				}
@@ -469,7 +535,7 @@ namespace PendulumMotionEditor {
 			foreach (PMItemBase child in parent.childList) {
 				if (child == target) {
 					return true;
-				} else if (child.IsFoldable) {
+				} else if (child.IsFolder) {
 					if (ContainsChildRecursive(child as PMFolder, target)) {
 						return true;
 					}
