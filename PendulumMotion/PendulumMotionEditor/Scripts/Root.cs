@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GKit;
+using PendulumMotionEditor.Views.Context;
 using PendulumMotionEditor.Views.Windows;
 
 namespace PendulumMotionEditor {
@@ -13,15 +14,17 @@ namespace PendulumMotionEditor {
 		}
 
 		public readonly GLoopEngine loopEngine;
-		public readonly MainWindow mainWindow;
+		public readonly MotionEditorContext editorContext;
 		public readonly CursorStorage cursorStorage;
 
-		public Root(MainWindow mainWindow) {
+		public event Action OnLoopTick;
+
+		public Root(MotionEditorContext editorContext) {
 			Instance = this;
 
-			this.mainWindow = mainWindow;
+			this.editorContext = editorContext;
 			loopEngine = new GLoopEngine();
-			cursorStorage = new CursorStorage(mainWindow);
+			cursorStorage = new CursorStorage();
 
 
 			loopEngine.StartLoop();
@@ -30,7 +33,9 @@ namespace PendulumMotionEditor {
 		}
 
 		private void OnTick() {
-			mainWindow.ApplyPreviewFPS();
+			editorContext.ApplyPreviewFPS();
+
+			OnLoopTick?.Invoke();
 		}
 	}
 }

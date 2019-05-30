@@ -23,7 +23,7 @@ namespace PendulumMotionEditor.Views.Components {
 		public event Action OnClick_CreateItemButton;
 		public event Action OnClick_CreateFolderButton;
 		public event Action OnClick_CopyButton;
-		public event Action OnClick_RemvoeButton;
+		public event Action OnClick_RemoveButton;
 
 		public ListManagerBar() {
 			InitializeComponent();
@@ -46,10 +46,10 @@ namespace PendulumMotionEditor.Views.Components {
 				button.SetBtnColor(button.Children[button.Children.Count-1] as Border);
 			}
 
-			CreateItemButton.SetOnClick(() => { OnClick_CreateItemButton(); });
-			CreateFolderButton.SetOnClick(() => { OnClick_CreateFolderButton(); });
-			CopyButton.SetOnClick(() => { OnClick_CopyButton(); });
-			RemoveButton.SetOnClick(() => { OnClick_RemvoeButton(); });
+			CreateItemButton.SetOnClick(() => { OnClick_CreateItemButton?.Invoke(); });
+			CreateFolderButton.SetOnClick(() => { OnClick_CreateFolderButton?.Invoke(); });
+			CopyButton.SetOnClick(() => { OnClick_CopyButton?.Invoke(); });
+			RemoveButton.SetOnClick(() => { OnClick_RemoveButton?.Invoke(); });
 		}
 	}
 }

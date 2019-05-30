@@ -17,6 +17,7 @@ using PendulumMotion;
 using PendulumMotion.Component;
 using PendulumMotion.Items;
 using PendulumMotion.System;
+using PendulumMotionEditor.Views.Context;
 using PendulumMotionEditor.Views.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
@@ -27,10 +28,10 @@ namespace PendulumMotionEditor.Views.Components {
 	/// </summary>
 	public partial class GraphEditPanel : UserControl {
 		private static Root Root => Root.Instance;
-		private static MainWindow MainWindow => Root.mainWindow;
+		private static MotionEditorContext EditorContext => Root.editorContext;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
 		private static CursorStorage CursorStorage => Root.cursorStorage;
-		private static EditableMotionFile EditingFile => MainWindow.editingFile;
+		private static EditableMotionFile EditingFile => EditorContext.editingFile;
 
 		public bool OnEditing => editingMotion != null;
 		public PMMotion editingMotion;
@@ -110,7 +111,7 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		private void OnDataChanged() {
 			EditingFile.MarkUnsaved();
-			MainWindow.UpdatePreviewContinuum();
+			EditorContext.UpdatePreviewContinuum();
 		}
 		private void OnMouseDown_BackPanel(object sender, MouseButtonEventArgs e) {
 			Keyboard.ClearFocus();
@@ -224,8 +225,8 @@ namespace PendulumMotionEditor.Views.Components {
 			CreatePointViews();
 			UpdateUI();
 			PreviewContext.Visibility = Visibility.Visible;
-			MainWindow.SetPreviewContinuumVisible(true);
-			MainWindow.UpdatePreviewContinuum();
+			EditorContext.SetPreviewContinuumVisible(true);
+			EditorContext.UpdatePreviewContinuum();
 		}
 		public void DetachMotion() {
 			editingMotion = null;
@@ -236,7 +237,7 @@ namespace PendulumMotionEditor.Views.Components {
 			HideSmartLineForX();
 			HideSmartLineForY();
 			PreviewContext.Visibility = Visibility.Collapsed;
-			MainWindow.SetPreviewContinuumVisible(false);
+			EditorContext.SetPreviewContinuumVisible(false);
 		}
 
 		public void UpdateUI() {

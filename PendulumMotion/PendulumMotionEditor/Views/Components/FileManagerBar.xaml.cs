@@ -22,10 +22,10 @@ namespace PendulumMotionEditor.Views.Components {
 		public event Action OnClick_CreateFileButton;
 		public event Action OnClick_OpenFileButton;
 		public event Action OnClick_SaveFileButton;
-
+		
 		public FileManagerBar() {
 			InitializeComponent();
-
+			
 			if(this.IsDesignMode())
 				return;
 
@@ -42,9 +42,9 @@ namespace PendulumMotionEditor.Views.Components {
 				buttons[i].SetBtnColor();
 			}
 
-			CreateFileButton.SetOnClick(()=> { OnClick_CreateFileButton(); });
-			OpenFileButton.SetOnClick(()=> { OnClick_OpenFileButton(); });
-			SaveFileButton.SetOnClick(()=> { OnClick_SaveFileButton(); });
+			CreateFileButton.SetOnClick(()=> { OnClick_CreateFileButton?.Invoke(); });
+			OpenFileButton.SetOnClick(()=> { OnClick_OpenFileButton?.Invoke(); });
+			SaveFileButton.SetOnClick(()=> { OnClick_SaveFileButton?.Invoke(); });
 		}
 
 	}

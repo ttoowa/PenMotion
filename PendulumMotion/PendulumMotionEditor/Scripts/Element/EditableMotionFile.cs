@@ -14,6 +14,7 @@ using PendulumMotion.Component;
 using PendulumMotion.Items;
 using PendulumMotion.System;
 using PendulumMotionEditor.Views.Components;
+using PendulumMotionEditor.Views.Context;
 using PendulumMotionEditor.Views.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
@@ -22,7 +23,7 @@ using GKit.Security;
 namespace PendulumMotionEditor {
 	public class EditableMotionFile : IDisposable {
 		private static Root Root => Root.Instance;
-		private static MainWindow MainWindow => Root.mainWindow;
+		private static MotionEditorContext EditorContext => Root.editorContext;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
 
 		private const float FolderSideEventWeight = 0.2f;
@@ -70,14 +71,14 @@ namespace PendulumMotionEditor {
 			PMItemView rootFolderView = new PMItemView(file.rootFolder, PMItemType.Folder);
 			file.rootFolder.view = rootFolderView;
 			rootFolderView.SetRootFolder();
-			MainWindow.MLItemContext.Children.Add(file.rootFolder.view.Cast<PMItemView>());
+			EditorContext.MLItemContext.Children.Add(file.rootFolder.view.Cast<PMItemView>());
 		}
 		public void Dispose() {
-			MainWindow.MLItemContext.Children.Remove(file.rootFolder.view.Cast<PMItemView>());
+			EditorContext.MLItemContext.Children.Remove(file.rootFolder.view.Cast<PMItemView>());
 		}
 
 		private void OnSelectItemChanged() {
-			MainWindow.SetCopyButtonEnable(OnDuplicatableState);
+			EditorContext.SetCopyButtonEnable(OnDuplicatableState);
 		}
 
 		public bool Save() {
@@ -111,7 +112,7 @@ namespace PendulumMotionEditor {
 			bool? result = dialog.ShowDialog();
 
 			if (result != null && result.Value == true) {
-				MainWindow.ClearEditingData();
+				EditorContext.ClearEditingData();
 
 				PMFile file = PMFile.Load(dialog.FileName);
 				EditableMotionFile editingFile = new EditableMotionFile(file);
@@ -136,7 +137,7 @@ namespace PendulumMotionEditor {
 				return null;
 			}
 		}
-		public bool ShowSaveMessage() {
+		public bool CheckSave() {
 			if (isUnsaved) {
 				MessageBoxResult result = MessageBox.Show("저장되지 않았습니다. 저장하시겠습니까?", "저장", MessageBoxButton.YesNoCancel);
 				switch (result) {
@@ -200,10 +201,10 @@ namespace PendulumMotionEditor {
 			item.view.Cast<PMItemView>().SetSelected(true);
 			selectedItemSet.Add(item);
 			if (item.type == PMItemType.Motion) {
-				MainWindow.EditPanel.AttachMotion(item.Cast<PMMotion>());
-				MainWindow.ResetPreviewTime();
+				EditorContext.EditPanel.AttachMotion(item.Cast<PMMotion>());
+				EditorContext.ResetPreviewTime();
 			} else {
-				MainWindow.EditPanel.DetachMotion();
+				EditorContext.EditPanel.DetachMotion();
 			}
 
 			OnSelectItemChanged();
@@ -211,7 +212,7 @@ namespace PendulumMotionEditor {
 		public void UnselectItemSingle(PMItemBase item) {
 			item.view.Cast<PMItemView>().SetSelected(false);
 			selectedItemSet.Remove(item);
-			MainWindow.EditPanel.DetachMotion();
+			EditorContext.EditPanel.DetachMotion();
 
 			OnSelectItemChanged();
 		}
@@ -220,7 +221,7 @@ namespace PendulumMotionEditor {
 				item.view.Cast<PMItemView>().SetSelected(false);
 			}
 			selectedItemSet.Clear();
-			MainWindow.EditPanel.DetachMotion();
+			EditorContext.EditPanel.DetachMotion();
 
 			OnSelectItemChanged();
 		}
@@ -311,7 +312,7 @@ namespace PendulumMotionEditor {
 					return;
 
 				MoveOrder moveOrder = GetMoveOrder();
-				Rectangle movePointer = MainWindow.MoveOrderPointer;
+				Rectangle movePointer = EditorContext.MoveOrderPointer;
 				if (moveOrder != null) {
 					if (!MouseInput.LeftHold) {
 						HideMoveOrderPointer();
@@ -330,12 +331,12 @@ namespace PendulumMotionEditor {
 		}
 
 		private void SetMoveOrderPointer(MoveOrder moveOrder) {
-			Rectangle moveOrderPointer = MainWindow.MoveOrderPointer;
+			Rectangle moveOrderPointer = EditorContext.MoveOrderPointer;
 			PMItemView targetView = moveOrder.target.view.Cast<PMItemView>();
 			Panel targetContent = targetView.ContentContext;
 			Vector2 targetPanelSize = new Vector2((float)targetContent.ActualWidth, (float)targetContent.ActualHeight);
 
-			float panelRelativeTop = (float)moveOrder.target.view.Cast<PMItemView>().TranslatePoint(new Point(), MainWindow.MLItemContext).Y;
+			float panelRelativeTop = (float)moveOrder.target.view.Cast<PMItemView>().TranslatePoint(new Point(), EditorContext.MLItemContext).Y;
 
 			double pointerHeight = targetPanelSize.y * FolderSideEventWeight;
 			moveOrderPointer.Width = targetPanelSize.x;
@@ -369,25 +370,25 @@ namespace PendulumMotionEditor {
 
 			float posX = 0f;
 			if(!moveOrder.target.IsRoot && !parent.IsRoot) {
-				posX = (float)parent.view.Cast<PMItemView>().ChildContext.TranslatePoint(new Point(), MainWindow.MLItemContext).X;
+				posX = (float)parent.view.Cast<PMItemView>().ChildContext.TranslatePoint(new Point(), EditorContext.MLItemContext).X;
 			}
 			Canvas.SetLeft(moveOrderPointer, posX);
 
 			moveOrderPointer.Visibility = Visibility.Visible;
 		}
 		private void HideMoveOrderPointer() {
-			MainWindow.MoveOrderPointer.Visibility = Visibility.Collapsed;
+			EditorContext.MoveOrderPointer.Visibility = Visibility.Collapsed;
 		}
 		private void SetMoveOrderCursorText(string text) {
-			MainWindow.MoveOrderCursor.SetNameText(text);
+			EditorContext.MoveOrderCursor.SetNameText(text);
 		}
 		private void UpdateMoveOrderCursor() {
-			MainWindow.MoveOrderCursor.Visibility = MouseInput.LeftHold ? Visibility.Visible : Visibility.Collapsed;
-			MainWindow.MoveOrderCursor.Width = MainWindow.MLItemContext.ActualWidth;
+			EditorContext.MoveOrderCursor.Visibility = MouseInput.LeftHold ? Visibility.Visible : Visibility.Collapsed;
+			EditorContext.MoveOrderCursor.Width = EditorContext.MLItemContext.ActualWidth;
 
-			float posY = MouseInput.AbsolutePosition.y - (float)MainWindow.MLItemContext.GetAbsolutePosition().y - (float)MainWindow.MoveOrderCursor.ActualHeight * 0.5f;
+			float posY = MouseInput.AbsolutePosition.y - (float)EditorContext.MLItemContext.GetAbsolutePosition().y - (float)EditorContext.MoveOrderCursor.ActualHeight * 0.5f;
 			posY = Mathf.Clamp(posY, 0f, (float)file.rootFolder.view.Cast<PMItemView>().ChildContext.ActualHeight);
-			Canvas.SetTop(MainWindow.MoveOrderCursor, posY);
+			Canvas.SetTop(EditorContext.MoveOrderCursor, posY);
 		}
 		private bool ApplyMoveOrder(MoveOrder moveOrder) {
 			List<PMFolder> selectedFolderList = file.itemDict.Where(pair => pair.Value.IsFolder && selectedItemSet.Contains(pair.Value)).Select(pair => pair.Value as PMFolder).ToList();
