@@ -8,7 +8,7 @@
         xmlns:Image="clr-namespace:PendulumMotionEditor.Resources.Image"
         xmlns:Items="clr-namespace:PendulumMotionEditor.Views.Items"
 		xmlns:Components="clr-namespace:PendulumMotionEditor.Views.Components"
-		xmlns:Context="clr-namespace:PendulumMotionEditor.Views.Context"
+		xmlns:Context="clr-namespace:PendulumMotionEditor.Views.Contexts"
         mc:Ignorable="d"
         Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PendulumMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450" Focusable="False">
 	<Grid>

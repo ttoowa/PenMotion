@@ -17,16 +17,16 @@ using PendulumMotion;
 using PendulumMotion.Component;
 using PendulumMotion.Items;
 using PendulumMotion.System;
-using PendulumMotionEditor.Views.Context;
+using PendulumMotionEditor.Views.Contexts;
 using PendulumMotionEditor.Views.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
 
-namespace PendulumMotionEditor.Views.Components {
+namespace PendulumMotionEditor.Views.Contexts {
 	/// <summary>
 	/// MGEditPanel.xaml에 대한 상호 작용 논리
 	/// </summary>
-	public partial class GraphEditPanel : UserControl {
+	public partial class GraphEditContext : UserControl {
 		private static Root Root => Root.Instance;
 		private static MotionEditorContext EditorContext => Root.editorContext;
 		private static GLoopEngine LoopEngine => Root.loopEngine;
@@ -82,7 +82,7 @@ namespace PendulumMotionEditor.Views.Components {
 			}
 		}
 
-		public GraphEditPanel() {
+		public GraphEditContext() {
 			InitializeComponent();
 			if (this.IsDesignMode())
 				return;

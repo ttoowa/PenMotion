@@ -23,7 +23,7 @@ using PendulumMotionEditor.Views.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
 
-namespace PendulumMotionEditor.Views.Context {
+namespace PendulumMotionEditor.Views.Contexts {
 	/// <summary>
 	/// MotionEditorContext.xaml에 대한 상호 작용 논리
 	/// </summary>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GKit;
-using PendulumMotionEditor.Views.Context;
+using PendulumMotionEditor.Views.Contexts;
 using PendulumMotionEditor.Views.Windows;
 
 namespace PendulumMotionEditor {
