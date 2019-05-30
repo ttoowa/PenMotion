@@ -445,11 +445,11 @@ namespace PendulumMotionEditor.Views.Components {
 
 						void FilterMagnet() {
 							float? result = null;
-							result = FindMagnetForY(pointPosAbsolute.y, false, point);
+							result = FindMagnetForY(pointPosAbsolute.y, true, null);
 							if (result.HasValue) {
 								pointPosAbsolute.y = result.Value;
 							}
-							result = FindMagnetForX(pointPosAbsolute.x, false, point);
+							result = FindMagnetForX(pointPosAbsolute.x, true, null);
 							if (result.HasValue) {
 								pointPosAbsolute.x = result.Value;
 							}
@@ -608,6 +608,7 @@ namespace PendulumMotionEditor.Views.Components {
 					return magnet;
 				}
 			}
+			GDebug.Log(magnetList.Count);
 			HideSmartLineForY();
 			return null;
 		}

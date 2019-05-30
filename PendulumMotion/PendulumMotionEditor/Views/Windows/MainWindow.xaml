@@ -21,7 +21,7 @@
 				<Thickness x:Key="ListControlButtonSpace" Right="5"></Thickness>
 			</DockPanel.Resources>
 			<DockPanel DockPanel.Dock="Top" Name="TitleBar">
-				<Components:FileManagerBar x:Name="FileManagerBar"></Components:FileManagerBar>
+				<Components:FileManagerBar x:Name="FileManagerBar"/>
 			</DockPanel>
 			<Grid Background="#FF343434">
 				<TextBlock Text="파일을 생성해라 애.송.이." Foreground="#FF5D5D5D" FontFamily="/PendulumMotionEditor;component/Resources/Fonts/#KoPubDotum_Pro Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
@@ -31,38 +31,33 @@
 						<ColumnDefinition Width="1*"/>
 					</Grid.ColumnDefinitions>
 					<DockPanel Background="#3B3B3B" Grid.Column="0" MinWidth="170">
-						<StackPanel Name="ListControlContext" Orientation="Horizontal" DockPanel.Dock="Top" Height="45" Background="#FF454545">
-							<Border Width="6"></Border>
-							<Grid Name="MLCreateMotionButton" Background="#FFB38D61" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-								<Image:Button_CreateMotion Margin="9,9,0,0"/>
-								<Border/>
-							</Grid>
-							<Grid Name="MLCreateFolderButton" Background="DimGray" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-								<Image:Button_CreateFolder Margin="9,9,0,0"/>
-								<Border/>
-							</Grid>
-							<Grid Name="MLRemoveButton" Background="DimGray" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-								<Image:Button_RemoveItem Margin="11,6,0,0"/>
-								<Border/>
-							</Grid>
-							<Grid Name="MLCopyButton" Background="DimGray" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-								<Image:Button_CopyMotion Margin="8,7,0,0"/>
-								<Border/>
-							</Grid>
-						</StackPanel>
-						<ScrollViewer VerticalScrollBarVisibility="Auto">
-							<Grid>
-								<StackPanel Name="MLItemContext" Orientation="Vertical">
-								</StackPanel>
-								<Canvas>
-									<Items:MoveOrderCursor x:Name="MoveOrderCursor" Opacity="1"></Items:MoveOrderCursor>
-									<Rectangle Name="MoveOrderPointer" Width="300" Height="10" Fill="#7F3167A8"></Rectangle>
-								</Canvas>
-							</Grid>
-						</ScrollViewer>
+						<Components:ContentTitle DockPanel.Dock="Top">
+							<UserControl.Resources>
+								<System:String x:Key="TitleText" >Motions</System:String>
+							</UserControl.Resources>
+						</Components:ContentTitle>
+						<Components:ListManagerBar x:Name="MLManagerBar" DockPanel.Dock="Top" Height="45" Background="#FF454545">
+							
+						</Components:ListManagerBar>
+						<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
+								<Grid>
+									<StackPanel Name="MLItemContext" Orientation="Vertical">
+									</StackPanel>
+									<Canvas>
+										<Items:MoveOrderCursor x:Name="MoveOrderCursor" Opacity="1"></Items:MoveOrderCursor>
+										<Rectangle Name="MoveOrderPointer" Width="300" Height="10" Fill="#7F3167A8"></Rectangle>
+									</Canvas>
+								</Grid>
+							</ScrollViewer>
+						
 					</DockPanel>
 					<GridSplitter Width="4" Background="{StaticResource SeparatorColor}" Foreground="{x:Null}"></GridSplitter>
 					<DockPanel Grid.Column="1" MinWidth="350">
+						<Components:ContentTitle DockPanel.Dock="Top">
+							<UserControl.Resources>
+								<System:String x:Key="TitleText" >Graph Editor</System:String>
+							</UserControl.Resources>
+						</Components:ContentTitle>
 						<DockPanel DockPanel.Dock="Top" Height="45" Background="#FF454545">
 							<Components:SimpleTextbox x:Name="PreviewFpsEditText" DockPanel.Dock="Left" Width="60" Margin="8,0" TextOptions.TextHintingMode="Fixed"></Components:SimpleTextbox>
 							<TextBlock DockPanel.Dock="Left" Text="FPS" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" Foreground="#FF959595" VerticalAlignment="Bottom" Margin="0,0,0,12"></TextBlock>

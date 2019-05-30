@@ -98,28 +98,16 @@ namespace PendulumMotionEditor.Views.Windows
 				PreviewSecondsEditText.KeyDown += OnKeyDown_PreviewSecondsEditText;
 				PreviewSecondsEditText.textBox.MaxLength = TimeTextBoxMaxLength;
 
-				//Button reaction
-				Grid[] btns = new Grid[] {
-					MLCreateMotionButton,
-					MLCreateFolderButton,
-					MLRemoveButton,
-					MLCopyButton,
-				};
-				for(int i=0; i<btns.Length; ++i) {
-					Grid btn = btns[i];
-					btn.SetBtnColor((Border)btn.Children[btn.Children.Count - 1]);
-				}
-
 				//FileManagerBar
-				FileManagerBar.OnClick_NewFileButton += OnClick_NewFileButton;
+				FileManagerBar.OnClick_CreateFileButton += OnClick_NewFileButton;
 				FileManagerBar.OnClick_OpenFileButton += OnClick_OpenFileButton;
 				FileManagerBar.OnClick_SaveFileButton += OnClick_SaveFileButton;
 
 				//Motionlist button
-				MLCreateMotionButton.SetOnClick(OnClick_MLCreateMotionButton);
-				MLCreateFolderButton.SetOnClick(OnClick_MLCreateFolderButton);
-				MLRemoveButton.SetOnClick(OnClick_MLRemoveButton);
-				MLCopyButton.SetOnClick(OnClick_MLCopyButton);
+				MLManagerBar.OnClick_CreateItemButton += OnClick_ML_CreateItemButton;
+				MLManagerBar.OnClick_CreateFolderButton += OnClick_ML_CreateFolderButton;
+				MLManagerBar.OnClick_CopyButton += OnClick_ML_CopyButton;
+				MLManagerBar.OnClick_RemvoeButton += OnClick_ML_RemoveButton;
 
 				previewLoopEngine.AddLoopAction(OnPreviewTick);
 				LoopEngine.AddGRoutine(UpdateItemPreviewRoutine());
@@ -214,24 +202,24 @@ namespace PendulumMotionEditor.Views.Windows
 				editingFile.Save();
 			}));
 		}
-		private void OnClick_MLCreateMotionButton() {
+		private void OnClick_ML_CreateItemButton() {
 			PMMotion motion = editingFile.CreateMotion();
 			editingFile.SelectItemSingle(motion);
 
 			editingFile.MarkUnsaved();
 		}
-		private void OnClick_MLCreateFolderButton() {
+		private void OnClick_ML_CreateFolderButton() {
 			PMFolder folder = editingFile.CreateFolder();
 			editingFile.SelectItemSingle(folder);
 
 			editingFile.MarkUnsaved();
 		}
-		private void OnClick_MLRemoveButton() {
+		private void OnClick_ML_RemoveButton() {
 			editingFile.RemoveSelectedItems();
 
 			editingFile.MarkUnsaved();
 		}
-		private void OnClick_MLCopyButton() {
+		private void OnClick_ML_CopyButton() {
 			editingFile.DuplicateSelectedMotion();
 
 			editingFile.MarkUnsaved();
@@ -242,7 +230,7 @@ namespace PendulumMotionEditor.Views.Windows
 			ContentContext.Visibility = show ? Visibility.Visible : Visibility.Hidden;
 		}
 		public void SetCopyButtonEnable(bool enable) {
-			MLCopyButton.Opacity = enable ? 1f : 0.3f;
+			MLManagerBar.CopyButton.Opacity = enable ? 1f : 0.3f;
 		}
 
 		private void UpdatePreviewPositionShape(float motionTime) {

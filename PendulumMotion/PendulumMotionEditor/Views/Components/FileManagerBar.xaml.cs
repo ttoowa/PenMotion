@@ -19,7 +19,7 @@ namespace PendulumMotionEditor.Views.Components {
 	/// FileManager.xaml에 대한 상호 작용 논리
 	/// </summary>
 	public partial class FileManagerBar : UserControl {
-		public event Action OnClick_NewFileButton;
+		public event Action OnClick_CreateFileButton;
 		public event Action OnClick_OpenFileButton;
 		public event Action OnClick_SaveFileButton;
 
@@ -33,7 +33,7 @@ namespace PendulumMotionEditor.Views.Components {
 		}
 		private void RegisterEvents() {
 			Grid[] buttons = new Grid[] {
-				NewFileButton,
+				CreateFileButton,
 				OpenFileButton,
 				SaveFileButton,
 			};
@@ -42,7 +42,7 @@ namespace PendulumMotionEditor.Views.Components {
 				buttons[i].SetBtnColor();
 			}
 
-			NewFileButton.SetOnClick(()=> { OnClick_NewFileButton(); });
+			CreateFileButton.SetOnClick(()=> { OnClick_CreateFileButton(); });
 			OpenFileButton.SetOnClick(()=> { OnClick_OpenFileButton(); });
 			SaveFileButton.SetOnClick(()=> { OnClick_SaveFileButton(); });
 		}

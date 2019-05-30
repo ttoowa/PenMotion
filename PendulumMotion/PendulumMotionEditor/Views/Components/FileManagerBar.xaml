@@ -14,7 +14,7 @@
 	</UserControl.Resources>
 	<Grid Background="#FF242424">
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0">
-			<Grid Name="NewFileButton" Width="{StaticResource ButtonWidth}" Height="{StaticResource ButtonWidth}" Margin="{StaticResource ButtonSpace}">
+			<Grid Name="CreateFileButton" Width="{StaticResource ButtonWidth}" Height="{StaticResource ButtonWidth}" Margin="{StaticResource ButtonSpace}">
 				<Image:Button_NewFile Margin="6,6,0,0"/>
 				<Border/>
 			</Grid>

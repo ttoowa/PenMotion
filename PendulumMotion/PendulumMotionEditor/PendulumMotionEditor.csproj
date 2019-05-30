@@ -76,11 +76,17 @@
     <Compile Include="Scripts\System\Cursor\CursorStorage.cs" />
     <Compile Include="Scripts\Utility\WPFViewUtility.cs" />
     <Compile Include="Scripts\Utility\VectorUtility.cs" />
+    <Compile Include="Views\Components\ContentTitle.xaml.cs">
+      <DependentUpon>ContentTitle.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Components\FileManagerBar.xaml.cs">
       <DependentUpon>FileManagerBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Components\GraphEditPanel.xaml.cs">
       <DependentUpon>GraphEditPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Components\ListManagerBar.xaml.cs">
+      <DependentUpon>ListManagerBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FX\ClickFx.xaml.cs">
       <DependentUpon>ClickFx.xaml</DependentUpon>
@@ -123,11 +129,19 @@
     <Compile Include="Views\Windows\ToastMessage.xaml.cs">
       <DependentUpon>ToastMessage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\Components\ContentTitle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Components\FileManagerBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Components\GraphEditPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Components\ListManagerBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
