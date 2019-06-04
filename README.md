@@ -47,3 +47,7 @@ void UseMotion() {
 ## Preview
 
 ![](https://i.imgur.com/7m5raaT.gif)
+
+Design changed
+
+![](https://i.imgur.com/OsbqKGA.png)
