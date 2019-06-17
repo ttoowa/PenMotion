@@ -22,6 +22,7 @@ using PendulumMotionEditor.Views.Components;
 using PendulumMotionEditor.Views.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
+using GKit.WPF;
 
 namespace PendulumMotionEditor.Views.Contexts {
 	/// <summary>

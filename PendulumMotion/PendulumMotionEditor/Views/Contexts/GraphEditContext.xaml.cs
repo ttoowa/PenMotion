@@ -21,6 +21,7 @@ using PendulumMotionEditor.Views.Contexts;
 using PendulumMotionEditor.Views.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
+using GKit.WPF;
 
 namespace PendulumMotionEditor.Views.Contexts {
 	/// <summary>
@@ -169,7 +170,7 @@ namespace PendulumMotionEditor.Views.Contexts {
 					SetCursor(CursorStorage.cursor_remove);
 					cursorChanged = true;
 
-					if (MouseInput.LeftDown) {
+					if (MouseInput.Left.Down) {
 						RemovePoint(cursorOverPoint);
 
 						UpdatePointViews();
@@ -186,7 +187,7 @@ namespace PendulumMotionEditor.Views.Contexts {
 						SetSmartLineForX(cursorPos.x);
 						cursorChanged = true;
 
-						if (MouseInput.LeftDown) {
+						if (MouseInput.Left.Down) {
 							CreatePoint(cursorPos, rightIndex);
 
 							UpdatePointViews();
@@ -198,7 +199,7 @@ namespace PendulumMotionEditor.Views.Contexts {
 					HideSmartLineForX();
 				}
 			}
-			if (KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.LeftHold) {
+			if (KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.Left.Hold) {
 				HideSmartLineForX();
 			}
 			if (!cursorChanged) {

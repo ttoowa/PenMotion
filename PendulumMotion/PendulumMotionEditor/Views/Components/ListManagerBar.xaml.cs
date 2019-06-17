@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GKit;
+using GKit.WPF;
 
 namespace PendulumMotionEditor.Views.Components {
 	/// <summary>
@@ -34,22 +35,10 @@ namespace PendulumMotionEditor.Views.Components {
 			RegisterEvents();
 		}
 		private void RegisterEvents() {
-			Grid[] buttons = new Grid[] {
-				CreateItemButton,
-				CreateFolderButton,
-				CopyButton,
-				RemoveButton,
-			};
-
-			for (int i = 0; i < buttons.Length; ++i) {
-				Grid button = buttons[i];
-				button.SetBtnColor(button.Children[button.Children.Count-1] as Border);
-			}
-
-			CreateItemButton.SetOnClick(() => { OnClick_CreateItemButton?.Invoke(); });
-			CreateFolderButton.SetOnClick(() => { OnClick_CreateFolderButton?.Invoke(); });
-			CopyButton.SetOnClick(() => { OnClick_CopyButton?.Invoke(); });
-			RemoveButton.SetOnClick(() => { OnClick_RemoveButton?.Invoke(); });
+			CreateItemButton.Click += (object sender, RoutedEventArgs e) => { OnClick_CreateItemButton?.Invoke(); };
+			CreateFolderButton.Click += (object sender, RoutedEventArgs e) => { OnClick_CreateFolderButton?.Invoke(); };
+			CopyButton.Click += (object sender, RoutedEventArgs e) => { OnClick_CopyButton?.Invoke(); };
+			RemoveButton.Click += (object sender, RoutedEventArgs e) => { OnClick_RemoveButton?.Invoke(); };
 		}
 	}
 }

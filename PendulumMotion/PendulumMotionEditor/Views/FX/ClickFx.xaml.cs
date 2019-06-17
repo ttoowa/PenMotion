@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GKit;
+using GKit.WPF;
 
 namespace PendulumMotionEditor.Views.FX {
 	/// <summary>
@@ -45,7 +46,7 @@ namespace PendulumMotionEditor.Views.FX {
 			float motionTime = Mathf.Pow(time, 0.6f);
 			if(time >= 1f) {
 				time = 1f;
-				tickAction.StopAndDispose();
+				tickAction.Stop();
 			}
 
 			float alpha = (1f - motionTime) * StartAlpha;

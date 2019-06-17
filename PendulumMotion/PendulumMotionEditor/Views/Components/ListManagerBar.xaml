@@ -7,28 +7,31 @@
 			 xmlns:Image="clr-namespace:PendulumMotionEditor.Resources.Image"
 			 xmlns:System="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignWidth="800" Height="45">
 	<UserControl.Resources>
-		<System:Double x:Key="TitleButtonWidth">36</System:Double>
-		<Thickness x:Key="ListControlButtonSpace" Right="5"></Thickness>
+		<Style x:Key="DefaultButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+			<Setter Property="Width" Value="36"/>
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="Margin" Value="3, 5"/>
+			<Setter Property="Background" Value="DimGray"/>
+		</Style>
+		<Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource DefaultButton}">
+			<Setter Property="Background" Value="#FFB38D61"/>
+		</Style>
 	</UserControl.Resources>
-	<StackPanel Name="ListControlContext" Orientation="Horizontal" DockPanel.Dock="Top" Height="45" Background="#FF454545">
+	<StackPanel Name="ListControlContext" Orientation="Horizontal" DockPanel.Dock="Top" Background="#FF454545">
 		<Border Width="6"></Border>
-		<Grid Name="CreateItemButton" Background="#FFB38D61" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-			<Image:Button_CreateMotion Margin="9,9,0,0"/>
-			<Border/>
-		</Grid>
-		<Grid Name="CreateFolderButton" Background="DimGray" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-			<Image:Button_CreateFolder Margin="9,9,0,0"/>
-			<Border/>
-		</Grid>
-		<Grid Name="RemoveButton" Background="DimGray" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-			<Image:Button_RemoveItem Margin="11,6,0,0"/>
-			<Border/>
-		</Grid>
-		<Grid Name="CopyButton" Background="DimGray" Width="{StaticResource TitleButtonWidth}" Height="{StaticResource TitleButtonWidth}" Margin="{StaticResource ListControlButtonSpace}">
-			<Image:Button_CopyMotion Margin="8,7,0,0"/>
-			<Border/>
-		</Grid>
+		<Button Name="CreateItemButton" Style="{StaticResource AccentButton}" VerticalAlignment="Bottom">
+			<Image:Button_CreateMotion Style="{StaticResource ButtonImage}"/>
+		</Button>
+		<Button Name="CreateFolderButton" Style="{StaticResource DefaultButton}">
+			<Image:Button_CreateFolder Style="{StaticResource ButtonImage}"/>
+		</Button>
+		<Button Name="RemoveButton" Style="{StaticResource DefaultButton}">
+			<Image:Button_RemoveItem Style="{StaticResource ButtonImage}"/>
+		</Button>
+		<Button Name="CopyButton" Style="{StaticResource DefaultButton}">
+			<Image:Button_CopyMotion Style="{StaticResource ButtonImage}"/>
+		</Button>
 	</StackPanel>
 </UserControl>

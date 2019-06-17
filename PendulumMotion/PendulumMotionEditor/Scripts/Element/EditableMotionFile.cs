@@ -19,6 +19,7 @@ using PendulumMotionEditor.Views.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
 using GKit.Security;
+using GKit.WPF;
 
 namespace PendulumMotionEditor {
 	public class EditableMotionFile : IDisposable {
@@ -292,7 +293,7 @@ namespace PendulumMotionEditor {
 			}
 			IEnumerator OnMouseDrag_ItemContentPanel() {
 				for (; ; ) {
-					if (!MouseInput.LeftHold) {
+					if (!MouseInput.Left.Hold) {
 						SelectItemSingle(item);
 						yield break;
 					}
@@ -314,7 +315,7 @@ namespace PendulumMotionEditor {
 				MoveOrder moveOrder = GetMoveOrder();
 				Rectangle movePointer = EditorContext.MoveOrderPointer;
 				if (moveOrder != null) {
-					if (!MouseInput.LeftHold) {
+					if (!MouseInput.Left.Hold) {
 						HideMoveOrderPointer();
 						ApplyMoveOrder(moveOrder);
 					} else {
@@ -383,7 +384,7 @@ namespace PendulumMotionEditor {
 			EditorContext.MoveOrderCursor.SetNameText(text);
 		}
 		private void UpdateMoveOrderCursor() {
-			EditorContext.MoveOrderCursor.Visibility = MouseInput.LeftHold ? Visibility.Visible : Visibility.Collapsed;
+			EditorContext.MoveOrderCursor.Visibility = MouseInput.Left.Hold ? Visibility.Visible : Visibility.Collapsed;
 			EditorContext.MoveOrderCursor.Width = EditorContext.MLItemContext.ActualWidth;
 
 			float posY = MouseInput.AbsolutePosition.y - (float)EditorContext.MLItemContext.GetAbsolutePosition().y - (float)EditorContext.MoveOrderCursor.ActualHeight * 0.5f;

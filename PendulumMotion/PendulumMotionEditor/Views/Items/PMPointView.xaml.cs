@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GKit;
+using GKit.WPF;
 
 namespace PendulumMotionEditor.Views.Items
 {
@@ -54,13 +55,13 @@ namespace PendulumMotionEditor.Views.Items
 			RegisterEvent();
 
 			void RegisterEvent() {
-				SetBtnColor(MainHandleView);
+				SetButtonReaction(MainHandleView);
 				for(int subI=0; subI<SubHandleViews.Length; ++subI) {
-					SetBtnColor(SubHandleViews[subI]);
+					SetButtonReaction(SubHandleViews[subI]);
 				}
 			}
-			void SetBtnColor(Grid button) {
-				button.SetBtnColor((Shape)button.Children[button.Children.Count - 1], 0.3f);
+			void SetButtonReaction(Grid button) {
+				button.SetButtonReaction((Shape)button.Children[button.Children.Count - 1], 0.3f);
 			}
 		}
 	}

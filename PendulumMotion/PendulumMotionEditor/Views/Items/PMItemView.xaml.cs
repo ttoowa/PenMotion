@@ -16,6 +16,7 @@ using PendulumMotion.Component;
 using PendulumMotion.Items;
 using PendulumMotionEditor.Views.Windows;
 using GKit;
+using GKit.WPF;
 
 namespace PendulumMotionEditor.Views.Items {
 	/// <summary>
@@ -113,7 +114,7 @@ namespace PendulumMotionEditor.Views.Items {
 		private void UnregisterFocusedLoopAction() {
 			if (focusedLoopAction == null)
 				return;
-			focusedLoopAction.StopAndDispose();
+			focusedLoopAction.Stop();
 			focusedLoopAction = null;
 		}
 		private void OnNameEditComplete() {
@@ -127,7 +128,7 @@ namespace PendulumMotionEditor.Views.Items {
 			}
 		}
 		private void OnFocusedTick() {
-			if(MouseInput.LeftDown && !NameEditText.IsMouseOver && !ContentPanel.IsMouseOver) {
+			if(MouseInput.Left.Down && !NameEditText.IsMouseOver && !ContentPanel.IsMouseOver) {
 				SetNameEditTextVisible(false);
 			}
 		}

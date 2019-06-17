@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GKit;
+using GKit.WPF;
 
 namespace PendulumMotionEditor.Views.Components {
 	/// <summary>
@@ -32,19 +33,9 @@ namespace PendulumMotionEditor.Views.Components {
 			RegisterEvents();
 		}
 		private void RegisterEvents() {
-			Grid[] buttons = new Grid[] {
-				CreateFileButton,
-				OpenFileButton,
-				SaveFileButton,
-			};
-
-			for(int i=0; i<buttons.Length; ++i) {
-				buttons[i].SetBtnColor();
-			}
-
-			CreateFileButton.SetOnClick(()=> { OnClick_CreateFileButton?.Invoke(); });
-			OpenFileButton.SetOnClick(()=> { OnClick_OpenFileButton?.Invoke(); });
-			SaveFileButton.SetOnClick(()=> { OnClick_SaveFileButton?.Invoke(); });
+			CreateFileButton.Click += (object sender, RoutedEventArgs e) => { OnClick_CreateFileButton?.Invoke(); };
+			OpenFileButton.Click += (object sender, RoutedEventArgs e) => { OnClick_OpenFileButton?.Invoke(); };
+			SaveFileButton.Click += (object sender, RoutedEventArgs e) => { OnClick_SaveFileButton?.Invoke(); };
 		}
 
 	}

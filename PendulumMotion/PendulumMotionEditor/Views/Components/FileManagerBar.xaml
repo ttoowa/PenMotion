@@ -9,23 +9,23 @@
              mc:Ignorable="d" 
              d:DesignWidth="800" Height="50">
 	<UserControl.Resources>
-		<System:Double x:Key="ButtonWidth">36</System:Double>
-		<Thickness x:Key="ButtonSpace" Right="2"></Thickness>
+		<Style x:Key="DefaultButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+			<Setter Property="Width" Value="36"/>
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="Margin" Value="2"/>
+		</Style>
 	</UserControl.Resources>
 	<Grid Background="#FF242424">
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0">
-			<Grid Name="CreateFileButton" Width="{StaticResource ButtonWidth}" Height="{StaticResource ButtonWidth}" Margin="{StaticResource ButtonSpace}">
-				<Image:Button_NewFile Margin="6,6,0,0"/>
-				<Border/>
-			</Grid>
-			<Grid Name="OpenFileButton" Width="{StaticResource ButtonWidth}" Height="{StaticResource ButtonWidth}" Margin="{StaticResource ButtonSpace}">
-				<Image:Button_OpenFile Margin="6,4,0,0"/>
-				<Border/>
-			</Grid>
-			<Grid Name="SaveFileButton" Width="{StaticResource ButtonWidth}" Height="{StaticResource ButtonWidth}" Margin="{StaticResource ButtonSpace}">
-				<Image:Button_SaveFile Margin="6,3,0,0"/>
-				<Border/>
-			</Grid>
+			<Button Name="CreateFileButton" Style="{StaticResource DefaultButton}">
+				<Image:Button_NewFile Style="{StaticResource ButtonImage}"/>
+			</Button>
+			<Button Name="OpenFileButton" Style="{StaticResource DefaultButton}">
+				<Image:Button_OpenFile Style="{StaticResource ButtonImage}"/>
+			</Button>
+			<Button Name="SaveFileButton" Style="{StaticResource DefaultButton}">
+				<Image:Button_SaveFile Style="{StaticResource ButtonImage}"/>
+			</Button>
 		</StackPanel>
 	</Grid>
 </UserControl>

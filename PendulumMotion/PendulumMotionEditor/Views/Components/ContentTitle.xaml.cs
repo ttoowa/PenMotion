@@ -18,6 +18,16 @@ namespace PendulumMotionEditor.Views.Components {
 	/// ContentPanel.xaml에 대한 상호 작용 논리
 	/// </summary>
 	public partial class ContentTitle : UserControl {
+		public string TitleText {
+			get {
+				return (string)GetValue(TitleTextProperty);
+			} set {
+				SetValue(TitleTextProperty, value);
+			}
+		}
+
+		public static readonly DependencyProperty TitleTextProperty = DependencyProperty.Register(nameof(TitleText), typeof(string), typeof(ContentTitle), new PropertyMetadata(string.Empty));
+
 		public ContentTitle() {
 			InitializeComponent();
 		}

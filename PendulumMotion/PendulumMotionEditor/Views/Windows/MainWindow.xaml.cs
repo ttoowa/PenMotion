@@ -19,6 +19,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using GKit;
+using GKit.WPF;
 using PendulumMotion;
 using PendulumMotion.Component;
 using PendulumMotion.Items;
@@ -74,7 +75,7 @@ namespace PendulumMotionEditor.Views.Windows
 			}
 		}
 		private void OnTick() {
-			if (MouseInput.LeftDown) {
+			if (MouseInput.Left.Down) {
 				Vector2 fxPos = MouseInput.AbsolutePosition - FxCanvas.GetAbsolutePosition();
 
 				ClickFx fx = new ClickFx();
