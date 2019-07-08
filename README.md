@@ -1,6 +1,6 @@
 <img src="https://i.imgur.com/ORpZ51h.png" width="256" height="256">
 
-# PendulumMotion
+# PenMotion
 MotionGraph Editor & API
 
 <br/>
