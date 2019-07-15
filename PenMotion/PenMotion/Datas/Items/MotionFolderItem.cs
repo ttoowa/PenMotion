@@ -4,26 +4,35 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PendulumMotion.Components.Items {
+namespace PenMotion.Datas.Items {
 	public class MotionFolderItem : MotionItemBase {
 
 		public bool HasChild => childList.Count > 0;
 		public List<MotionItemBase> childList;
 
+		public delegate void ChildInsertedDelegate(int index, MotionItemBase childItem);
+		public event ChildInsertedDelegate ChildInserted;
+
+		public delegate void ChildRemovedDelegate(MotionItemBase childItem);
+		public event ChildRemovedDelegate ChildRemoved;
+
 		internal MotionFolderItem(MotionFile ownerFile) : base(ownerFile, MotionItemType.Folder) {
 			childList = new List<MotionItemBase>();
 		}
 		public void AddChild(MotionItemBase child) {
-			childList.Add(child);
-			child.parent = this;
+			InsertChild(childList.Count, child);
 		}
 		public void InsertChild(int index, MotionItemBase child) {
 			childList.Insert(index, child);
-			child.parent = this;
+			child.Parent = this;
+
+			ChildInserted?.Invoke(index, child);
 		}
 		public void RemoveChild(MotionItemBase child) {
 			childList.Remove(child);
-			child.parent = null;
+			child.Parent = null;
+
+			ChildRemoved?.Invoke(child);
 		}
 	}
 }

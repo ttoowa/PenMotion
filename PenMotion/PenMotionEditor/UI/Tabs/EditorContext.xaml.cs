@@ -15,8 +15,8 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 using GKit;
 using GKit.WPF;
-using PendulumMotion.Components;
-using PendulumMotion.System;
+using PenMotion.Datas;
+using PenMotion.System;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class EditorContext : UserControl {
@@ -46,14 +46,11 @@ namespace PenMotionEditor.UI.Tabs {
 
 			InitializeComponent();
 
-			Init();
-			RegisterEvents();
-		}
-		private void Init() {
 			InitMembers();
 			InitTabs();
 			RegisterEvents();
 		}
+
 		private void InitTabs() {
 			MotionTab.Init(this);
 			GraphEditorTab.Init(this);
@@ -62,6 +59,8 @@ namespace PenMotionEditor.UI.Tabs {
 		private void InitMembers() {
 			LoopEngine = new GLoopEngine();
 			CursorStorage = new CursorStorage();
+
+			IsSaved = true;
 
 			LoopEngine.StartLoop();
 		}
@@ -76,6 +75,8 @@ namespace PenMotionEditor.UI.Tabs {
 
 			CloseFile(false);
 			EditingFile = new MotionFile();
+
+			RegisterFileEvents(EditingFile);
 			return true;
 		}
 		public bool OpenFile(bool checkSaved = true) {
@@ -87,8 +88,14 @@ namespace PenMotionEditor.UI.Tabs {
 				return false;
 
 			CloseFile(false);
-			EditingFile = MotionFile.Load(filePath);
-			//TODO : View도 Sync 해줘야 한다..
+			EditingFile = new MotionFile(false);
+
+			RegisterFileEvents(EditingFile);
+
+			EditingFile.Load(filePath);
+
+			MotionTab.UpdateItemPreviews();
+
 			return true;
 		}
 		public bool SaveFile() {
@@ -102,11 +109,19 @@ namespace PenMotionEditor.UI.Tabs {
 			return true;
 		}
 		public bool CloseFile(bool checkSaved = true) {
+			if (!OnEditing)
+				return true;
 			if (checkSaved && !ShowSaveQuestion())
 				return false;
 
+			UnregisterFileEvents(EditingFile);
+
 			MotionTab.ClearItems();
 			GraphEditorTab.DetachMotion();
+			EditingFile = null;
+
+			FileClosed();
+
 			return true;
 		}
 
@@ -136,9 +151,26 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 		}
 
+		private void RegisterFileEvents(MotionFile file) {
+			file.ItemCreated += MotionTab.EditingFile_ItemCreated;
+			file.ItemRemoved += MotionTab.EditingFile_ItemRemoved;
+
+			MotionTab.EditingFile_ItemCreated(EditingFile.rootFolder, null);
+		}
+		private void UnregisterFileEvents(MotionFile file) {
+			file.ItemCreated -= MotionTab.EditingFile_ItemCreated;
+			file.ItemRemoved -= MotionTab.EditingFile_ItemRemoved;
+
+			MotionTab.EditingFile_ItemRemoved(EditingFile.rootFolder, null);
+		}
+		
 		//Events
 		private void OnTick() {
 			//ApplyPreviewFPS();
+		}
+		private void FileOpened() {
+		}
+		private void FileClosed() {
 		}
 		
 		private string GetSaveFilename() {

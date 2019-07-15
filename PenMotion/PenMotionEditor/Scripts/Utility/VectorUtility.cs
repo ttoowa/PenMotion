@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PendulumMotion.System;
+using PenMotion.System;
 using GKit;
 
 namespace PenMotionEditor {

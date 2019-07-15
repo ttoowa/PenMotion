@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PendulumMotion.System {
+namespace PenMotion.System {
 	public static class SystemInfo {
 		public const string Version = "2.0";
 	}

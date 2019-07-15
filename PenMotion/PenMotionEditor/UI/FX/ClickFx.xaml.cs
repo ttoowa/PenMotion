@@ -24,9 +24,6 @@ namespace PenMotionEditor.UI.FX {
 		private const float StartAlpha = 0.6f;
 		private const float TimeDelta = 0.05f;
 
-		private GLoopAction tickAction;
-		private float time;
-
 		public ClickFx() {
 			InitializeComponent();
 			if (this.IsDesignMode())
@@ -39,9 +36,19 @@ namespace PenMotionEditor.UI.FX {
 		}
 
 		private void StartMotion() {
-			DoubleAnimation anim = new DoubleAnimation(0f, 1f, new Duration(TimeSpan.FromMilliseconds(600)));
-			anim.Completed += Anim_Completed;
-			BeginAnimation(ScaleTransform.ScaleXProperty, anim);
+			const float Duration = 400;
+
+			QuinticEase ease = new QuinticEase() {
+				EasingMode = EasingMode.EaseOut,
+			};
+			DoubleAnimation alphaAnim = new DoubleAnimation(0.3f, 0f, new Duration(TimeSpan.FromMilliseconds(Duration)));
+			DoubleAnimation scaleAnim = new DoubleAnimation(0.8f, 1f, new Duration(TimeSpan.FromMilliseconds(Duration)));
+			scaleAnim.Completed += Anim_Completed;
+			alphaAnim.EasingFunction = ease;
+			scaleAnim.EasingFunction = ease;
+
+			FxGroup.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnim);
+			FxGroup.BeginAnimation(Canvas.OpacityProperty, alphaAnim);
 		}
 
 		private void Anim_Completed(object sender, EventArgs e) {

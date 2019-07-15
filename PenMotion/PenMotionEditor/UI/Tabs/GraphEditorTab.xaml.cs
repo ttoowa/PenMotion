@@ -13,11 +13,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using PendulumMotion;
-using PendulumMotion.Components;
-using PendulumMotion.Components.Items;
-using PendulumMotion.Components.Items.Elements;
-using PendulumMotion.System;
+using PenMotion;
+using PenMotion.Datas;
+using PenMotion.Datas.Items;
+using PenMotion.Datas.Items.Elements;
+using PenMotion.System;
 using PenMotionEditor.UI.Items;
 using PenMotionEditor.UI.Items.Elements;
 using PenMotionEditor.UI.Tabs;
@@ -26,21 +26,27 @@ using GKit;
 using GKit.WPF;
 
 namespace PenMotionEditor.UI.Tabs {
+/// <summary>
+/// MotionItem을 Attach할 때 MotionPointView들을 생성하고, Detach할 때 MotionPointView들을 제거합니다.
+/// </summary>
 	public partial class GraphEditorTab : UserControl {
 		private EditorContext EditorContext;
 		private GLoopEngine LoopEngine => EditorContext.LoopEngine;
 		private PreviewTab PreviewTab => EditorContext.PreviewTab;
+		private MotionTab MotionTab => EditorContext.MotionTab;
 		private CursorStorage CursorStorage => EditorContext.CursorStorage;
 
 		private const float WidthRatio = 1.777f;
 		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
 
 		//Datas
-		public bool OnEditing => EditingMotionItemView != null;
-		public MotionItemView EditingMotionItemView {
-			get; set;
+		public bool OnEditing => EditingMotionData != null;
+		public MotionItem EditingMotionData {
+			get; private set;
 		}
-		public MotionItem EditingMotionData => EditingMotionItemView.Data;
+
+		private List<MotionPointView> pointViewList;
+		private Dictionary<MotionPoint, MotionPointView> dataToViewDict;
 
 		private Vector2 cursorPosMemory;
 
@@ -98,6 +104,8 @@ namespace PenMotionEditor.UI.Tabs {
 			RegisterEvents();
 		}
 		private void InitMembers() {
+			pointViewList = new List<MotionPointView>();
+			dataToViewDict = new Dictionary<MotionPoint, MotionPointView>();
 		}
 		private void InitUI() {
 			CreateGrid();
@@ -109,27 +117,33 @@ namespace PenMotionEditor.UI.Tabs {
 			LoopEngine.AddLoopAction(OnTick);
 
 			SizeChanged += OnSizeChanged;
-			GridContext.MouseDown += OnMouseDown_BackPanel;
+			GridContext.MouseDown += BackPanel_MouseDown;
+		}
+		private void ResetEnv() {
+			displayZoom = 0.6f;
+			displayOffset = new PVector2();
 		}
 
+		//Events
 		private void OnTick() {
 			CheckCursorInteraction();
 		}
 		private void OnSizeChanged(object sender, SizeChangedEventArgs e) {
-			UpdateUI();
+			UpdateUiAll();
 		}
-		private void OnMouseDown_BackPanel(object sender, MouseButtonEventArgs e) {
+
+		private void BackPanel_MouseDown(object sender, MouseButtonEventArgs e) {
 			Keyboard.ClearFocus();
 			if (KeyInput.GetKeyHold(WinKey.Space)) {
 				if (KeyInput.GetKeyHold(WinKey.LeftControl) || KeyInput.GetKeyHold(WinKey.RightControl)) {
-					LoopEngine.AddLoopAction(OnMouseDrag_BackPanel_ForZoom, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
+					LoopEngine.AddLoopAction(BackPanel_MouseDrag_ForZoom, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 				} else {
-					LoopEngine.AddLoopAction(OnMouseDrag_BackPanel_ForPanning, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
+					LoopEngine.AddLoopAction(BackPanel_MouseDrag_ForPanning, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 				}
 				cursorPosMemory = MouseInput.AbsolutePosition;
 			}
 		}
-		private void OnMouseDrag_BackPanel_ForPanning() {
+		private void BackPanel_MouseDrag_ForPanning() {
 			const float MaxOffset = 320f;
 
 			Vector2 cursorDelta = MouseInput.AbsolutePosition - cursorPosMemory;
@@ -138,9 +152,9 @@ namespace PenMotionEditor.UI.Tabs {
 			displayOffset += cursorDelta.ToPVector2() / displayZoom * 0.5f;
 			displayOffset = BMath.Clamp(displayOffset.ToVector2(), -MaxOffset, MaxOffset).ToPVector2();
 
-			UpdateUI();
+			UpdateUiAll();
 		}
-		private void OnMouseDrag_BackPanel_ForZoom() {
+		private void BackPanel_MouseDrag_ForZoom() {
 			const float MinZoom = 0.3f;
 			const float MaxZoom = 1.5f;
 
@@ -149,117 +163,83 @@ namespace PenMotionEditor.UI.Tabs {
 			displayZoom += cursorDelta.x * 0.001f;
 			displayZoom = Mathf.Clamp(displayZoom, MinZoom, MaxZoom);
 
-			UpdateUI();
+			UpdateUiAll();
 		}
 
-		private void ResetEnv() {
-			displayZoom = 0.6f;
-			displayOffset = new PVector2();
+		private void MotionItem_PointInserted(int index, MotionPoint point) {
+			MotionPointView view = CreatePointViewFromData(point);
+
+			//Add to collection
+			pointViewList.Insert(index, view);
+			dataToViewDict.Add(point, view);
+
+			//Update UI
+			UpdateGraphLine();
+
+			EditorContext.MarkUnsaved();
+		}
+		private void MotionItem_PointRemoved(MotionPoint point) {
+
+			MotionPointView view = dataToViewDict[point];
+			RemovePointView(view);
+
+			//Remove from collection
+			pointViewList.Remove(view);
+			dataToViewDict.Remove(point);
+
+			view.Dispose();
+
+			//Update UI
+			UpdateGraphLine();
+
+			EditorContext.MarkUnsaved();
+
 		}
 
-		private void CheckCursorInteraction() {
-			const float InteractionThreshold = 0.02f;
-
-			if (!OnEditing)
-				return;
-
-			bool cursorChanged = false;
-			MotionPointView cursorOverPoint;
-			int cursorOverPointIndex = -1;
-			FindCursorOverPoint(out cursorOverPoint, out cursorOverPointIndex);
-
-			if (KeyInput.GetKeyHold(WinKey.LeftAlt)) {
-				//Remove mode
-				if (cursorOverPoint != null && cursorOverPointIndex > 0 && cursorOverPointIndex < EditingMotionData.pointList.Count - 1) {
-					SetCursor(CursorStorage.cursor_remove);
-					cursorChanged = true;
-
-					if (MouseInput.Left.Down) {
-						RemovePointViewWithUpdate(cursorOverPoint);
-					}
-				}
-			} else if (KeyInput.GetKeyHold(WinKey.LeftControl) && cursorOverPoint == null) {
-				Vector2 cursorPos = DisplayToNormal(MouseInput.GetRelativePosition(PointCanvas));
-				if (!KeyInput.GetKeyHold(WinKey.Space) && cursorPos.x > 0f && cursorPos.x < 1f) {
-					//Add mode
-
-					int index = EditingMotionItemView.Data.GetRightPointIndex(cursorPos.x);
-					if (index > 0) {
-						SetCursor(CursorStorage.cursor_add);
-						SetSmartLineForX(cursorPos.x);
-						cursorChanged = true;
-
-						if (MouseInput.Left.Down) {
-							CreatePointWithUpdate(index, cursorPos);
-						}
-					}
-				} else {
-					HideSmartLineForX();
-				}
-			}
-			if (KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.Left.Hold) {
-				HideSmartLineForX();
-			}
-			if (!cursorChanged) {
-				SetCursor(CursorStorage.cursor_default);
-			}
-		}
-		private void FindCursorOverPoint(out MotionPointView cursorOverPoint, out int cursorOverIndex) {
-			cursorOverPoint = null;
-			cursorOverIndex = -1;
-			for (int handleI = 0; handleI < EditingMotionItemView.pointList.Count; ++handleI) {
-				MotionPointView point = EditingMotionItemView.pointList[handleI];
-				if (point.MainHandleView.IsMouseOver) {
-					cursorOverIndex = handleI;
-					cursorOverPoint = point;
-				}
-			}
-		}
-
-		public void AttachMotion(MotionItemView motionItemView) {
+		//MotionItem
+		public void AttachMotion(MotionItem motionItem) {
 			DetachMotion();
+			EditingMotionData = motionItem;
 
-			EditingMotionItemView = motionItemView;
+			//Register events
+			motionItem.PointInserted += MotionItem_PointInserted;
+			motionItem.PointRemoved += MotionItem_PointRemoved;
 
-			CreatePointsFromData(motionItemView.Data);
-			UpdateUI();
+			//Load data
+			for (int i = 0; i < motionItem.pointList.Count; ++i) {
+				MotionItem_PointInserted(i, motionItem.pointList[i]);
+			}
+
+			UpdateUiAll();
+
+			//Update preview
 			PreviewContext.Visibility = Visibility.Visible;
-
 			PreviewTab.SetPositionContinuumVisible(true);
 			PreviewTab.UpdatePositionContinuum();
 		}
 		public void DetachMotion() {
-			EditingMotionItemView = null;
 
 			ResetEnv();
 			ClearPointViews();
 
+			//Unregister events
+			if(OnEditing) {
+				EditingMotionData.PointInserted -= MotionItem_PointInserted;
+				EditingMotionData.PointRemoved -= MotionItem_PointRemoved;
+			}
+
+			//Update UI
 			SetGraphVisible(false);
 			HideSmartFollowText();
 			HideSmartLineForX();
 			HideSmartLineForY();
 			PreviewContext.Visibility = Visibility.Collapsed;
 
+			EditingMotionData = null;
+
 			PreviewTab.SetPositionContinuumVisible(false);
 		}
 
-		public void UpdateUI() {
-			if (!OnEditing)
-				return;
-
-			UpdateGrid();
-			UpdateGraph();
-			UpdatePointViews();
-		}
-		public void UpdatePlaybackRadar(float time, float maxOverTime) {
-			PlaybackRadar.Height = PreviewContext.ActualHeight;
-
-			PRect dGraphRect = DGraphRect;
-			float x = dGraphRect.xMin + dGraphRect.Width * time;
-			float overTime = time > 0f ? Mathf.Max(0f, time - 1f) : -time;
-			PlaybackRadar.Opacity = 1f - overTime / maxOverTime;
-			Canvas.SetLeft(PlaybackRadar, x - PlaybackRadar.Width);
-		}
 
 		//Grid
 		private void CreateGrid() {
@@ -336,13 +316,13 @@ namespace PenMotionEditor.UI.Tabs {
 		private void SetGraphVisible(bool visible) {
 			GraphContext.Visibility = visible ? Visibility.Visible : Visibility.Hidden;
 		}
-		public void UpdateGraph() {
+		public void UpdateGraphLine() {
 			SetGraphVisible(true);
 
 			PVector2 dGraph01Size = DGraph01Size;
 			PRect dGraphRect = DGraphRect;
 
-			//Inside lines
+			//Update Inside lines
 			for (int graphLineI = 0; graphLineI < graphLines.Length; ++graphLineI) {
 				float motionValue = GetLineMotionValue(graphLineI);
 				float nextMotionValue = GetLineMotionValue(graphLineI + 1);
@@ -359,74 +339,161 @@ namespace PenMotionEditor.UI.Tabs {
 				}
 			}
 
-			//Outside lines
+			//Update Outside lines
 			float outsideLeftY = NormalToDisplayY(EditingMotionData.GetMotionValue(0f));
 			float outsideRightY = NormalToDisplayY(EditingMotionData.GetMotionValue(1f));
 			outsideLines[0].SetLinePosition(new Vector2(Mathf.Min(dGraphRect.xMin, 0f), outsideLeftY), new Vector2(dGraphRect.xMin, outsideLeftY));
 			outsideLines[1].SetLinePosition(new Vector2(dGraphRect.xMax, outsideRightY), new Vector2(Mathf.Max(dGraphRect.xMax, (float)GraphContext.ActualWidth), outsideRightY));
 		}
 
-		//Point
-		//TODO : View 함수들을 View클래스 안으로 집어넣자..
-		private void CreatePointsFromData(MotionItem motionItem) {
+		//PointViews
+		private MotionPointView CreatePointViewFromData(MotionPoint motionPoint) {
+			MotionPointView view = new MotionPointView(EditorContext, motionPoint);
+			PointCanvas.Children.Add(view);
 
+			//MainPoint
+			view.Data_MainPointChanged(motionPoint.MainPoint);
+
+			//SubPoints
+			for(int i=0; i<motionPoint.SubPoints.Length; ++i) {
+				view.Data_SubPointChanged(i, motionPoint.SubPoints[i]);
+			}
+
+			return view;
 		}
-		private void CreatePointWithUpdate(int index, Vector2 cursorPos) {
-			CreatePointView(index, cursorPos);
-
-			UpdatePointViews();
-			UpdateGraph();
-
-			EditorContext.MarkUnsaved();
+		private void RemovePointView(MotionPointView motionPointView) {
+			PointCanvas.Children.Remove(motionPointView);
 		}
-		private void CreatePointView(int index, Vector2 cursorPos) {
-			MotionPointView prevPointView = EditingMotionItemView.pointList[index - 1];
-			MotionPointView nextPointView = EditingMotionItemView.pointList[index];
-			float prevNextDeltaX = nextPointView.Data.mainPoint.x - prevPointView.Data.mainPoint.x;
-			float prevDeltaX = cursorPos.x - prevPointView.Data.mainPoint.x;
-			float nextDeltaX = nextPointView.Data.mainPoint.x - cursorPos.x;
+		private void ClearPointViews() {
+			foreach(MotionPointView pointView in pointViewList) {
+				pointView.Dispose();
+			}
 
-			MotionPointView pointView = new MotionPointView(EditorContext);
+			PointCanvas.Children.Clear();
+			dataToViewDict.Clear();
+		}
 
-			float mainPointX = cursorPos.x;
-			float subPoint0X = cursorPos.x - prevDeltaX * 0.5f;
-			float subPoint1X = cursorPos.x + nextDeltaX * 0.5f;
-			pointView.Data.mainPoint = new PVector2(mainPointX, EditingMotionData.GetMotionValue(mainPointX));
-			PVector2 subPoint0 = new PVector2(subPoint0X, EditingMotionData.GetMotionValue(subPoint0X)) - pointView.Data.mainPoint;
-			PVector2 subPoint1 = new PVector2(subPoint1X, EditingMotionData.GetMotionValue(subPoint1X)) - pointView.Data.mainPoint;
+		//Points // 이거 MotionItem 으로 옮기자
+		private void CreatePointWithInterpolation(int index, Vector2 position) {
+			//Collect prev, next points
+			MotionPointView prevPointView = pointViewList[index - 1];
+			MotionPointView nextPointView = pointViewList[index];
+			float prevNextDeltaX = nextPointView.Data.MainPoint.x - prevPointView.Data.MainPoint.x;
+			float prevDeltaX = position.x - prevPointView.Data.MainPoint.x;
+			float nextDeltaX = nextPointView.Data.MainPoint.x - position.x;
+
+			MotionPoint point = new MotionPoint();
+
+			//Set data
+			float mainPointX = position.x;
+			float subPoint0X = position.x - prevDeltaX * 0.5f;
+			float subPoint1X = position.x + nextDeltaX * 0.5f;
+			PVector2 subPoint0 = new PVector2(subPoint0X, EditingMotionData.GetMotionValue(subPoint0X)) - point.MainPoint;
+			PVector2 subPoint1 = new PVector2(subPoint1X, EditingMotionData.GetMotionValue(subPoint1X)) - point.MainPoint;
+			point.SetSubPoint(0, subPoint0);
+			point.SetSubPoint(1, subPoint1);
+
 			//망한 방법이다. 나중에 고치자.
 			//Vector2 averageVector = GetAverageVector(subPoint0.ToVector2(), subPoint1.ToVector2());
 			//point.subPoints[0] = (averageVector * subPoint0.magnitude).ToPVector2();
 			//point.subPoints[1] = (-averageVector * subPoint1.magnitude).ToPVector2();
-			pointView.Data.subPoints[0] = subPoint0;
-			pointView.Data.subPoints[1] = subPoint1;
 
-			prevPointView.Data.subPoints[1] *= prevDeltaX * 0.5f / prevNextDeltaX;
-			nextPointView.Data.subPoints[0] *= nextDeltaX * 0.5f / prevNextDeltaX;
+			//Apply
+			point.SetMainPoint(new PVector2(mainPointX, EditingMotionData.GetMotionValue(mainPointX)));
+			prevPointView.Data.SubPoints[1] *= prevDeltaX * 0.5f / prevNextDeltaX;
+			nextPointView.Data.SubPoints[0] *= nextDeltaX * 0.5f / prevNextDeltaX;
 
-			EditingMotionData.InsertPoint(index, pointView.Data);
+			EditingMotionData.InsertPoint(index, point);
 		}
-		private void RemovePointViewWithUpdate(MotionPointView point) {
-			RemovePointView(point);
 
-			UpdatePointViews();
-			UpdateGraph();
+		//UI
+		public void UpdateUiAll() {
+			if (!OnEditing)
+				return;
 
-			EditorContext.MarkUnsaved();
+			UpdateGrid();
+			UpdateGraphLine();
+			UpdateAllPoints();
 		}
-		private void RemovePointView(MotionPointView pointView) {
-			EditingMotionItemView.RemovePoint(pointView);
+		public void UpdatePlaybackRadar(float time, float maxOverTime) {
+			PlaybackRadar.Height = PreviewContext.ActualHeight;
+
+			PRect dGraphRect = DGraphRect;
+			float x = dGraphRect.xMin + dGraphRect.Width * time;
+			float overTime = time > 0f ? Mathf.Max(0f, time - 1f) : -time;
+			PlaybackRadar.Opacity = 1f - overTime / maxOverTime;
+			Canvas.SetLeft(PlaybackRadar, x - PlaybackRadar.Width);
 		}
-		private void ClearPointViews() {
-			PointCanvas.Children.Clear();
-		}
-		private void UpdatePointViews() {
-			for (int pointI = 0; pointI < EditingMotionItemView.pointList.Count; ++pointI) {
-				EditingMotionItemView.pointList[pointI].Update();
+		private void UpdateAllPoints() {
+			foreach (MotionPointView view in pointViewList) {
+				view.Update();
 			}
 		}
 
-		//SmartUI
+		private void CheckCursorInteraction() {
+			//코드 꼴이 말이 아니다. 으아아악
+			//언젠가 리팩토링 할 것.
+
+			const float InteractionThreshold = 0.02f;
+
+			if (!OnEditing)
+				return;
+
+			bool cursorChanged = false;
+			MotionPointView cursorOverPoint;
+			int cursorOverPointIndex = -1;
+			FindCursorOverPoint(out cursorOverPoint, out cursorOverPointIndex);
+
+			if (KeyInput.GetKeyHold(WinKey.LeftAlt)) {
+				//Remove mode
+				if (cursorOverPoint != null && cursorOverPointIndex > 0 && cursorOverPointIndex < pointViewList.Count - 1) {
+					SetCursor(CursorStorage.cursor_remove);
+					cursorChanged = true;
+
+					if (MouseInput.Left.Down) {
+						EditingMotionData.RemovePoint(cursorOverPoint.Data);
+					}
+				}
+			} else if (KeyInput.GetKeyHold(WinKey.LeftControl) && cursorOverPoint == null) {
+				Vector2 cursorPos = DisplayToNormal(MouseInput.GetRelativePosition(PointCanvas));
+				if (!KeyInput.GetKeyHold(WinKey.Space) && cursorPos.x > 0f && cursorPos.x < 1f) {
+					//Add mode
+
+					int index = EditingMotionData.GetRightPointIndex(cursorPos.x);
+					if (index > 0) {
+						SetCursor(CursorStorage.cursor_add);
+						SetSmartLineForX(cursorPos.x);
+						cursorChanged = true;
+
+						if (MouseInput.Left.Down) {
+							CreatePointWithInterpolation(index, cursorPos);
+						}
+					}
+				} else {
+					HideSmartLineForX();
+				}
+			}
+			if (KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.Left.Hold) {
+				HideSmartLineForX();
+			}
+			if (!cursorChanged) {
+				SetCursor(CursorStorage.cursor_default);
+			}
+		}
+		private void FindCursorOverPoint(out MotionPointView cursorOverPoint, out int cursorOverIndex) {
+			cursorOverPoint = null;
+			cursorOverIndex = -1;
+			for (int handleI = 0; handleI < pointViewList.Count; ++handleI) {
+				MotionPointView pointView = pointViewList[handleI];
+
+				if (pointView.MainHandleView.IsMouseOver) {
+					cursorOverIndex = handleI;
+					cursorOverPoint = pointView;
+					break;
+				}
+			}
+		}
+
 		public void SetSmartFollowText(Vector2 dataPosition) {
 			SetSmartFollowText(dataPosition, NormalToDisplay(dataPosition));
 		}
@@ -471,9 +538,9 @@ namespace PenMotionEditor.UI.Tabs {
 				1f,
 			};
 			if (findMainPoints) {
-				foreach (MotionPointView pointView in EditingMotionItemView.pointList) {
+				foreach (MotionPointView pointView in pointViewList) {
 					if (pointView != exclusivePoint) {
-						magnetList.Add(pointView.Data.mainPoint.x);
+						magnetList.Add(pointView.Data.MainPoint.x);
 					}
 				}
 			}
@@ -493,9 +560,9 @@ namespace PenMotionEditor.UI.Tabs {
 				1f,
 			};
 			if (findMainPoints) {
-				foreach (MotionPointView point in EditingMotionItemView.pointList) {
+				foreach (MotionPointView point in pointViewList) {
 					if (point != exclusivePoint) {
-						magnetList.Add(point.Data.mainPoint.y);
+						magnetList.Add(point.Data.MainPoint.y);
 					}
 				}
 			}
@@ -545,7 +612,7 @@ namespace PenMotionEditor.UI.Tabs {
 		}
 
 		private float GetMotionTime(float linearTime) {
-			return OnEditing ? EditingMotionItemView.Data.Cast<MotionItem>().GetMotionValue(linearTime) : 0f;
+			return OnEditing ? EditingMotionData.Cast<MotionItem>().GetMotionValue(linearTime) : 0f;
 		}
 	}
 }

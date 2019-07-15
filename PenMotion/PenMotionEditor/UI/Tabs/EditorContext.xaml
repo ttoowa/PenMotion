@@ -4,49 +4,44 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 
-			 xmlns:Ad="clr-namespace:Xceed.Wpf.AvalonDock;assembly=Xceed.Wpf.AvalonDock"
+			 xmlns:Ad="http://schemas.xceed.com/wpf/xaml/avalondock"
 			 xmlns:AdConverters="clr-namespace:Xceed.Wpf.AvalonDock.Converters;assembly=Xceed.Wpf.AvalonDock"
-			 xmlns:AdLayout="clr-namespace:Xceed.Wpf.AvalonDock.Layout;assembly=Xceed.Wpf.AvalonDock"
-			 xmlns:AdCtrls="clr-namespace:Xceed.Wpf.AvalonDock.Controls;assembly=Xceed.Wpf.AvalonDock"
 			 xmlns:AdThemes="clr-namespace:Bgoon.AvalonDockTheme;assembly=Bgoon.AvalonDockThemes"
 
 			 xmlns:Tabs="clr-namespace:PenMotionEditor.UI.Tabs"
-
-             mc:Ignorable="d" 
+			 mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+	<Grid>
 		<!--Editor Context-->
 		<Ad:DockingManager x:Name="dockManager" Grid.Row="1">
 			<Ad:DockingManager.Theme>
 				<AdThemes:FlatDarkTheme/>
 			</Ad:DockingManager.Theme>
 
-			<AdLayout:LayoutRoot>
-				<AdLayout:LayoutPanel Orientation="Horizontal">
+			<Ad:LayoutRoot>
+				<Ad:LayoutPanel Orientation="Horizontal">
 					<!--Tab 1-->
-					<AdLayout:LayoutDocumentPaneGroup DockWidth="1*">
-						<AdLayout:LayoutDocumentPane>
-							<AdLayout:LayoutAnchorable Title="Motion">
+					<Ad:LayoutAnchorablePaneGroup x:Name="AdMotionTab" DockWidth="200px">
+						<Ad:LayoutAnchorablePane>
+							<Ad:LayoutAnchorable Title="Motion" CanDockAsTabbedDocument="True" CanAutoHide="False">
 								<Tabs:MotionTab x:Name="MotionTab"/>
-							</AdLayout:LayoutAnchorable>
-						</AdLayout:LayoutDocumentPane>
-					</AdLayout:LayoutDocumentPaneGroup>
+							</Ad:LayoutAnchorable>
+						</Ad:LayoutAnchorablePane>
+					</Ad:LayoutAnchorablePaneGroup>
 
 					<!--Tab 2-->
-					<AdLayout:LayoutDocumentPaneGroup Orientation="Vertical" DockWidth="3*">
-						<AdLayout:LayoutDocumentPane DockHeight="128">
-							<AdLayout:LayoutAnchorable Title="Preview">
-								<Tabs:PreviewTab x:Name="PreviewTab"/>
-							</AdLayout:LayoutAnchorable>
-						</AdLayout:LayoutDocumentPane>
-						<AdLayout:LayoutDocumentPane DockHeight="1*">
-							<AdLayout:LayoutAnchorable Title="GraphEditor">
-								<Tabs:GraphEditorTab x:Name="GraphEditorTab"/>
-							</AdLayout:LayoutAnchorable>
-						</AdLayout:LayoutDocumentPane>
-					</AdLayout:LayoutDocumentPaneGroup>
-				</AdLayout:LayoutPanel>
-			</AdLayout:LayoutRoot>
+					<Ad:LayoutAnchorablePaneGroup x:Name="AdGraphEditTab" Orientation="Vertical" DockWidth="3*">
+						<Ad:LayoutAnchorablePane>
+							<Ad:LayoutAnchorable Title="GraphEditor" CanAutoHide="False">
+								<DockPanel>
+									<Tabs:PreviewTab DockPanel.Dock="Top" x:Name="PreviewTab"/>
+									<Tabs:GraphEditorTab x:Name="GraphEditorTab"/>
+								</DockPanel>
+							</Ad:LayoutAnchorable>
+						</Ad:LayoutAnchorablePane>
+					</Ad:LayoutAnchorablePaneGroup>
+				</Ad:LayoutPanel>
+			</Ad:LayoutRoot>
 		</Ad:DockingManager>
 	</Grid>
 </UserControl>

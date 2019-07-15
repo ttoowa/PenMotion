@@ -15,19 +15,18 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GKit;
 using GKit.WPF;
-using PendulumMotion.Components.Items;
+using PenMotion.Datas.Items;
 using PenMotionEditor.UI.Items;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class PreviewTab : UserControl {
 		private EditorContext EditorContext;
 		private GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
-		private MotionItemView EditingMotionItemView => GraphEditorTab.EditingMotionItemView;
-		private MotionItem EditingMotionData => EditingMotionItemView.Data;
+		private MotionItem EditingMotionData => GraphEditorTab.EditingMotionData;
 
 		private const float SeparatorWidthHalf = 2f;
 
-		private int PreviewFps => Mathf.Clamp(FpsEditText.Text.Parse2Int(60), 1, 1000);
+		private int PreviewFps => Mathf.Clamp(FpsEditText.Text.Parse2Int(60), 1, 500);
 		private float PreviewSeconds => Mathf.Clamp(SecondsEditText.Text.Parse2Float(1f), 0.02f, 1000f);
 		private float ActualPreviewTime => Mathf.Clamp01(previewTime);
 		private float previewTime;
@@ -49,7 +48,7 @@ namespace PenMotionEditor.UI.Tabs {
 		}
 		private void InitMembers() {
 			previewLoopEngine = new GLoopEngine(registInput: false);
-			previewLoopEngine.MaxOverlapFrame = 3;
+			previewLoopEngine.MaxOverlapFrame = 1;
 			previewWatch = new Stopwatch();
 
 			previewLoopEngine.StartLoop();
@@ -72,15 +71,26 @@ namespace PenMotionEditor.UI.Tabs {
 
 		}
 
+		//Events
 		private void OnPreviewTick() {
 			const float OverTimeSec = 0.8f;
 
+			if (!GraphEditorTab.OnEditing) {
+				PositionCanvas.Visibility = Visibility.Hidden;
+				ScaleShape.Visibility = Visibility.Hidden;
+				return;
+			}
+			PositionCanvas.Visibility = Visibility.Visible;
+			ScaleShape.Visibility = Visibility.Visible;
+
+
 			float previewSec = PreviewSeconds;
-			float previewFps = PreviewFps;
-			float frameDelta = 1f / previewSec / previewFps;
+			int previewFps = PreviewFps;
 			float maxOverTime = OverTimeSec / previewSec;
 
-			SimulateTime(ref previewTime, frameDelta, maxOverTime);
+			SetFPS(previewFps);
+
+			SimulateTime(ref previewTime, previewSec, maxOverTime);
 			float motionTime = EditingMotionData.GetMotionValue(ActualPreviewTime);
 
 			GraphEditorTab.UpdatePlaybackRadar(previewTime, maxOverTime);
@@ -89,6 +99,9 @@ namespace PenMotionEditor.UI.Tabs {
 			UpdateInfoTexts(previewSec, previewFps);
 		}
 		private void PositionCanvas_OnSizeChanged(object sender, SizeChangedEventArgs e) {
+			if (!GraphEditorTab.OnEditing)
+				return;
+
 			float motionTime = EditingMotionData.GetMotionValue(ActualPreviewTime);
 
 			UpdatePositionContinuum();
@@ -111,8 +124,9 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 		}
 
-		private void SimulateTime(ref float previewTime, float frameDelta, float maxOverTime) {
-			previewTime += frameDelta;
+		//Time
+		private void SimulateTime(ref float previewTime, float previewSec, float maxOverTime) {
+			previewTime += previewLoopEngine.DeltaSeconds / previewSec;
 			if (previewTime > 1f + maxOverTime || previewTime < -maxOverTime) {
 				previewTime = -maxOverTime;
 			}
@@ -120,10 +134,11 @@ namespace PenMotionEditor.UI.Tabs {
 		public void ResetPreviewTime() {
 			previewTime = 0f;
 		}
-		public void ApplyPreviewFPS() {
-			previewLoopEngine.FPS = PreviewFps;
+		public void SetFPS(int fps) {
+			previewLoopEngine.FPS = fps;
 		}
 
+		//Update shapes
 		private void UpdatePositionShape(float motionTime) {
 
 			double gridWidth = PositionCanvas.ActualWidth;
@@ -135,6 +150,7 @@ namespace PenMotionEditor.UI.Tabs {
 			ScaleShape.RenderTransform = new ScaleTransform(motionTime, motionTime);
 		}
 
+		//Update infos
 		private void UpdateFpsEditText() {
 			FpsEditText.Text = PreviewFps.ToString();
 		}
@@ -181,8 +197,9 @@ namespace PenMotionEditor.UI.Tabs {
 			UpdatePositionContinuum();
 		}
 		public void UpdatePositionContinuum() {
-			if (previewContinuum == null || !GraphEditorTab.OnEditing)
+			if (previewContinuum == null || !GraphEditorTab.OnEditing) {
 				return;
+			}
 
 			double gridWidth = PositionCanvas.ActualWidth;
 

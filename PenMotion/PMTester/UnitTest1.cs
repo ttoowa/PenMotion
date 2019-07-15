@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PendulumMotion;
-using PendulumMotion.Component;
-using PendulumMotion.Items;
-using PendulumMotion.System;
+using PenMotion;
+using PenMotion.Component;
+using PenMotion.Items;
+using PenMotion.System;
 
 namespace PMTester {
 	[TestClass]

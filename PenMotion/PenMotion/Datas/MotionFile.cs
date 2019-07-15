@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using PendulumMotion.System;
+using PenMotion.System;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,20 +8,26 @@ using System.Text;
 using System.Windows;
 using Microsoft;
 using Microsoft.Win32;
-using PendulumMotion.Components.Items;
-using PendulumMotion.Components.Items.Elements;
+using PenMotion.Datas.Items;
+using PenMotion.Datas.Items.Elements;
 
-namespace PendulumMotion.Components {
+namespace PenMotion.Datas {
 	public class MotionFile
 	{
-		public string filePath;
 		public bool IsFilePathAvailable =>!string.IsNullOrEmpty(filePath);
+		public string filePath;
+
 		public Dictionary<string, MotionItemBase> itemDict;
+
 		public MotionFolderItem rootFolder;
 
+		public delegate void MotionItemDelegate(MotionItemBase item, MotionFolderItem parentFolder);
+		public event MotionItemDelegate ItemCreated;
+		public event MotionItemDelegate ItemRemoved;
 
 		public MotionFile(bool createRootFolder = true) {
 			itemDict = new Dictionary<string, MotionItemBase>();
+
 			if(createRootFolder) {
 				rootFolder = new MotionFolderItem(this);
 			}
@@ -35,12 +41,12 @@ namespace PendulumMotion.Components {
 
 			void AddItemRecursive(JObject jParent, MotionItemBase item) {
 				JObject jItem = new JObject();
-				jParent.Add(item.IsRoot ? "RootFolder" : item.name, jItem);
-				jItem.Add("Type", item.type.ToString());
+				jParent.Add(item.IsRoot ? "RootFolder" : item.Name, jItem);
+				jItem.Add("Type", item.Type.ToString());
 				JObject jData = new JObject();
 				jItem.Add("Data", jData);
 
-				if (item.type == MotionItemType.Motion) {
+				if (item.Type == MotionItemType.Motion) {
 					SaveMotion(jData, item as MotionItem);
 				} else {
 					SaveFolder(jData, item as MotionFolderItem);
@@ -55,9 +61,9 @@ namespace PendulumMotion.Components {
 					jPoints.Add(jPoint);
 
 					MotionPoint point = motion.pointList[pointI];
-					jPoint.Add(point.mainPoint.ToString());
-					jPoint.Add(point.subPoints[0].ToString());
-					jPoint.Add(point.subPoints[1].ToString());
+					jPoint.Add(point.MainPoint.ToString());
+					jPoint.Add(point.SubPoints[0].ToString());
+					jPoint.Add(point.SubPoints[1].ToString());
 				}
 			}
 			void SaveFolder(JObject jData, MotionFolderItem folder) {
@@ -75,9 +81,8 @@ namespace PendulumMotion.Components {
 				}
 			}
 		}
-		public static MotionFile Load(string filePath) {
-			MotionFile file = new MotionFile(false);
-			file.filePath = filePath;
+		public void Load(string filePath) {
+			this.filePath = filePath;
 
 			string jsonString;
 			using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
@@ -92,6 +97,7 @@ namespace PendulumMotion.Components {
 			JObject jRootFolder = jRoot["RootFolder"] as JObject;
 			LoadItemRecursive(jRootFolder, null);
 
+
 			void LoadItemRecursive(JToken jItem, MotionFolderItem parent) {
 				JToken jType = jItem["Type"];
 				string typeText = jType != null ? jType.ToString() : null;
@@ -103,13 +109,14 @@ namespace PendulumMotion.Components {
 					LoadFolder(parent, jItem, name);
 				}
 			}
+
 			void LoadMotion(MotionFolderItem parent, JToken jItem, string name) {
 				JObject jData = jItem["Data"] as JObject;
 				JArray jPoints = jData["Point"] as JArray;
 
-				MotionItem motion = new MotionItem(file);
-				motion.parent = parent;
-				motion.name = name;
+				MotionItem motion = CreateMotionEmpty(parent);
+				motion.SetName(name);
+
 				foreach (JToken jPointToken in jPoints) {
 					JArray jPoint = jPointToken as JArray;
 
@@ -117,22 +124,16 @@ namespace PendulumMotion.Components {
 						PVector2.Parse(jPoint[0].ToObject<string>()),
 						PVector2.Parse(jPoint[1].ToObject<string>()),
 						PVector2.Parse(jPoint[2].ToObject<string>()));
-					motion.pointList.Add(point);
+					motion.AddPoint(point);
 				}
-				parent.childList.Add(motion);
-
-				file.itemDict.Add(name, motion);
 			}
 			void LoadFolder(MotionFolderItem parent, JToken jItem, string name) {
-				MotionFolderItem folder = new MotionFolderItem(file);
-				folder.parent = parent;
+				MotionFolderItem folder = CreateFolder(parent);
+				
 				if (parent == null) {
-					file.rootFolder = folder;
+					rootFolder = folder;
 				} else {
-					folder.name = name;
-					parent.childList.Add(folder);
-
-					file.itemDict.Add(name, folder);
+					folder.SetName(name);
 				}
 
 				JObject jData = jItem["Data"] as JObject;
@@ -141,8 +142,6 @@ namespace PendulumMotion.Components {
 					LoadItemRecursive(jChildProp.Value, folder);
 				}
 			}
-
-			return file;
 		}
 
 		public float GetMotionValue(string motionId, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
@@ -165,45 +164,60 @@ namespace PendulumMotion.Components {
 				);
 		}
 
-		public MotionItem CreateMotionDefault(MotionFolderItem parentFolder = null) {
-			if (parentFolder == null)
-				parentFolder = rootFolder;
-
-			MotionItem motion = MotionItem.CreateDefault(this);
-			motion.parent = parentFolder;
-			motion.name = GetNewName(MotionItemType.Motion);
-			parentFolder.childList.Add(motion);
-			itemDict.Add(motion.name, motion);
+		public MotionItem CreateMotionDefault(MotionFolderItem parentFolder = null, string name = null) {
+			MotionItem motion = CreateMotionEmpty(parentFolder, name);
+			MotionItem.CreateDefault(motion);
 
 			return motion;
 		}
-		public MotionItem CreateMotionEmpty(MotionFolderItem parentFolder = null) {
+		public MotionItem CreateMotionEmpty(MotionFolderItem parentFolder = null, string name = null) {
 			if (parentFolder == null)
 				parentFolder = rootFolder;
+			if(string.IsNullOrEmpty(name))
+				name = GetNewName(MotionItemType.Motion);
 
 			MotionItem motion = new MotionItem(this);
-			motion.parent = parentFolder;
-			motion.name = GetNewName(MotionItemType.Motion);
-			parentFolder.childList.Add(motion);
-			itemDict.Add(motion.name, motion);
+
+			ItemCreated?.Invoke(motion, parentFolder);
+
+			parentFolder.AddChild(motion);
+			motion.SetName(name);
 
 			return motion;
 		}
-		public MotionFolderItem CreateFolder(MotionFolderItem parentFolder = null) {
+		public MotionFolderItem CreateFolder(MotionFolderItem parentFolder = null, string name = null) {
 			if (parentFolder == null)
 				parentFolder = rootFolder;
+			if (string.IsNullOrEmpty(name))
+				name = GetNewName(MotionItemType.Folder);
 
 			MotionFolderItem folder = new MotionFolderItem(this);
-			folder.parent = parentFolder;
-			folder.name = GetNewName(MotionItemType.Folder);
-			parentFolder.childList.Add(folder);
-			itemDict.Add(folder.name, folder);
+
+			ItemCreated?.Invoke(folder, parentFolder);
+
+			if(parentFolder != null) {
+				parentFolder.AddChild(folder);
+			}
+			folder.SetName(name);
 
 			return folder;
 		}
 		public void RemoveItem(MotionItemBase item) {
-			item.parent.childList.Remove(item);
-			itemDict.Remove(item.name);
+			if(item.Type == MotionItemType.Folder) {
+				//메세지 띄우기
+
+				MotionFolderItem folderItem = (MotionFolderItem)item;
+				foreach(MotionItemBase childItem in folderItem.childList.ToList()) {
+					RemoveItem(childItem);
+				}
+			}
+
+			MotionFolderItem parentFolder = item.Parent;
+
+			item.Parent.childList.Remove(item);
+			itemDict.Remove(item.Name);
+
+			ItemRemoved?.Invoke(item, parentFolder);
 		}
 
 		public MotionItem GetMotion(string motionId) {
@@ -214,7 +228,7 @@ namespace PendulumMotion.Components {
 				throw new KeyNotFoundException("Not exist motion.");
 			}
 			MotionItemBase item = itemDict[motionId];
-			if (item.type != MotionItemType.Motion) {
+			if (item.Type != MotionItemType.Motion) {
 				throw new TypeLoadException("Item isn't Motion type.");
 			}
 			return item as MotionItem;

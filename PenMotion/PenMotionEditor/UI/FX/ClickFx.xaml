@@ -5,12 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PenMotionEditor.UI.FX"
              mc:Ignorable="d" 
-             Width="0" Height="0" IsHitTestVisible="False" Focusable="False">
+             Width="0" Height="0" IsHitTestVisible="False" Focusable="False" RenderTransformOrigin="0.5,0.5">
 	<Canvas Name="FxGroup" RenderTransformOrigin="0.5,0.5">
 		<Canvas.RenderTransform>
-			<ScaleTransform ScaleX="1" ScaleY="{Binding ScaleX}">
+			<ScaleTransform ScaleX="1" ScaleY="{Binding Path=ScaleX, RelativeSource={RelativeSource Self}}">
 			</ScaleTransform>
 		</Canvas.RenderTransform>
-		<Ellipse Width="70" Height="70" Margin="-35, -35, 0, 0" Opacity="0.2" Fill="White"/>
+		<Ellipse Width="40" Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
+			Margin="-20, -20, 0, 0" Opacity="0.2" Fill="White"/>
 	</Canvas>
 </UserControl>

@@ -14,7 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GKit;
 using GKit.WPF;
-using PendulumMotion.Components.Items.Elements;
+using PenMotion.Datas.Items.Elements;
+using PenMotion.System;
 using PenMotionEditor.UI.Tabs;
 
 namespace PenMotionEditor.UI.Items.Elements
@@ -22,11 +23,12 @@ namespace PenMotionEditor.UI.Items.Elements
 	/// <summary>
 	/// MGHandle.xaml에 대한 상호 작용 논리
 	/// </summary>
-	public partial class MotionPointView : UserControl
+	public partial class MotionPointView : UserControl, IDisposable
 	{
 		private EditorContext EditorContext;
 		private GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
-		private MotionItemView EditingMotionItemView => GraphEditorTab.EditingMotionItemView;
+		private MotionTab MotionTab => EditorContext.MotionTab;
+		private PreviewTab PreviewTab => EditorContext.PreviewTab;
 		private GLoopEngine LoopEngine => EditorContext.LoopEngine;
 
 		public const float DefaultSubOffset = 0.3f;
@@ -38,7 +40,7 @@ namespace PenMotionEditor.UI.Items.Elements
 		private const float MaxHandleRange = 2f;
 
 		public MotionPoint Data {
-			get; set;
+			get; private set;
 		}
 
 		public Grid MainHandleView {
@@ -51,15 +53,24 @@ namespace PenMotionEditor.UI.Items.Elements
 			get; private set;
 		}
 
-		public event Action DataChanged;
-
 		//Event memory
 		private Vector2 cursorOffset;
 
-		public MotionPointView(EditorContext editorContext)
+		public MotionPointView() {
+			//For designer
+			InitializeComponent();
+		}
+		public MotionPointView(EditorContext editorContext, MotionPoint data)
 		{
 			InitializeComponent();
 
+			this.EditorContext = editorContext;
+			this.Data = data;
+
+			InitViews();
+			RegisterEvent();
+		}
+		private void InitViews() {
 			MainHandleView = this.MainHandle;
 			SubHandleViews = new Grid[] {
 				SubHandle0,
@@ -69,34 +80,47 @@ namespace PenMotionEditor.UI.Items.Elements
 				SubLine0,
 				SubLine1,
 			};
-
-			RegisterEvent();
 		}
 		private void RegisterEvent() {
+			//Button reaction
 			SetButtonReaction(MainHandleView);
 			for (int subI = 0; subI < SubHandleViews.Length; ++subI) {
 				SetButtonReaction(SubHandleViews[subI]);
 			}
-		}
-		private void SetButtonReaction(Grid button) {
-			button.SetButtonReaction((Shape)button.Children[button.Children.Count - 1], 0.3f);
-		}
 
-		private void RegisterPointEvent(MotionPointView pointView) {
-
-			Vector2 cursorOffset = new Vector2();
-
-			pointView.MainHandleView.MouseDown += MainHandle_OnMouseDown;
-			for (int subI = 0; subI < pointView.SubHandleViews.Length; ++subI) {
+			//Mouse events
+			MainHandleView.MouseDown += MainHandle_OnMouseDown;
+			for (int subI = 0; subI < SubHandleViews.Length; ++subI) {
 				int subHandleIndex = subI;
 
-				pointView.SubHandleViews[subI].MouseDown += (object sender, MouseButtonEventArgs e) => {
+				SubHandleViews[subI].MouseDown += (object sender, MouseButtonEventArgs e) => {
 					if (e.ChangedButton != MouseButton.Left)
 						return;
 
 					SubHandle_OnMouseDown(subHandleIndex);
 				};
 			}
+
+			//Data changed
+			Data.MainPointChanged += Data_MainPointChanged;
+			Data.SubPointChanged += Data_SubPointChanged;
+		}
+		public void Dispose() {
+			Data.MainPointChanged -= Data_MainPointChanged;
+			Data.SubPointChanged -= Data_SubPointChanged;
+		}
+
+		//Events
+		//PointChanged
+		internal void Data_MainPointChanged(PVector2 position) {
+			UpdateWithOtherUI();
+		}
+		internal void Data_SubPointChanged(int index, PVector2 position) {
+			UpdateWithOtherUI();
+		}
+
+		private void SetButtonReaction(Grid button) {
+			button.SetButtonReaction((Shape)button.Children[button.Children.Count - 1], 0.3f);
 		}
 
 		private void MainHandle_OnMouseDown(object sender, MouseButtonEventArgs e) {
@@ -113,15 +137,9 @@ namespace PenMotionEditor.UI.Items.Elements
 			pointPos = BMath.Clamp(pointPos, -MaxHandleRange + 1f, MaxHandleRange);
 			FilterMagnet();
 
-			Data.mainPoint = pointPos.ToPVector2();
-
-			//TODO : 이벤트 드라이븐으로 바꾸기
-			GraphEditorTab.UpdateGraph();
-			Update();
-			EditingMotionItemView.UpdatePreviewGraph();
+			Data.SetMainPoint(pointPos.ToPVector2());
 
 			GraphEditorTab.SetSmartFollowText(pointPos);
-			DataChanged?.Invoke();
 
 			void FilterMagnet() {
 				float? result = null;
@@ -152,17 +170,11 @@ namespace PenMotionEditor.UI.Items.Elements
 			Vector2 pointPosAbsolute = GraphEditorTab.DisplayToNormal(cursorPos);
 			pointPosAbsolute = BMath.Clamp(pointPosAbsolute, -MaxHandleRange + 1f, MaxHandleRange);
 			FilterMagnet();
-			Vector2 pointPosRelative = pointPosAbsolute - Data.mainPoint.ToVector2();
+			Vector2 pointPosRelative = pointPosAbsolute - Data.MainPoint.ToVector2();
 
-			Data.subPoints[index] = pointPosRelative.ToPVector2();
-
-			GraphEditorTab.UpdateGraph();
-			Update();
-			EditingMotionItemView.UpdatePreviewGraph();
+			Data.SetSubPoint(index, pointPosRelative.ToPVector2());
 
 			GraphEditorTab.SetSmartFollowText(pointPosRelative, GraphEditorTab.NormalToDisplay(pointPosAbsolute));
-
-			DataChanged?.Invoke();
 
 			void FilterMagnet() {
 				float? result = null;
@@ -183,18 +195,23 @@ namespace PenMotionEditor.UI.Items.Elements
 		}
 
 		public void Update() {
-			Vector2 dPointPos = GraphEditorTab.NormalToDisplay(Data.mainPoint.ToVector2());
+			Vector2 dPointPos = GraphEditorTab.NormalToDisplay(Data.MainPoint.ToVector2());
 			this.SetCanvasPosition(dPointPos);
 
-			for (int subI = 0; subI < Data.subPoints.Length; ++subI) {
+			for (int subI = 0; subI < Data.SubPoints.Length; ++subI) {
 				Grid subHandleView = SubHandleViews[subI];
 				Line subLineView = SubLineViews[subI];
 
-				Vector2 dSubPoint = GraphEditorTab.NormalToDisplay((Data.subPoints[subI] + Data.mainPoint).ToVector2()) - dPointPos;
+				Vector2 dSubPoint = GraphEditorTab.NormalToDisplay((Data.SubPoints[subI] + Data.MainPoint).ToVector2()) - dPointPos;
 				subHandleView.SetCanvasPosition(dSubPoint - new Vector2(SubHandleWidthHalf, SubHandleWidthHalf));
 				subLineView.SetLinePosition(new Vector2(), dSubPoint);
-
 			}
+		}
+		private void UpdateWithOtherUI() {
+			Update();
+			GraphEditorTab.UpdateGraphLine();
+			PreviewTab.UpdatePositionContinuum();
+			MotionTab.DataToViewDict[GraphEditorTab.EditingMotionData].Cast<MotionItemView>().UpdatePreviewGraph();
 		}
 
 		private Vector2 GetCursorOffset(Visual context, UIElement element) {

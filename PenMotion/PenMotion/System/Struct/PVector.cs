@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace PendulumMotion.System {
+namespace PenMotion.System {
 	public struct PVector2 {
 		public float x, y;
 
@@ -13,6 +13,10 @@ namespace PendulumMotion.System {
 			this.x = x;
 			this.y = y;
 		}
+
+		public static PVector2 Zero => new PVector2();
+		public static PVector2 One => new PVector2(1f, 1f);
+
 		public float magnitude {
 			get {
 				return (float)Math.Sqrt(x * x + y * y);
@@ -58,7 +62,6 @@ namespace PendulumMotion.System {
 				return new PVector2(x * lengthInv, y * lengthInv);
 			}
 		}
-
 
 		public static bool operator ==(PVector2 left, PVector2 right) {
 			return left.x == right.x && left.y == right.y;
@@ -124,6 +127,9 @@ namespace PendulumMotion.System {
 			this.y = y;
 			this.z = z;
 		}
+
+		public static PVector3 Zero => new PVector3();
+		public static PVector3 One => new PVector3(1f, 1f, 1f);
 
 		public override string ToString() {
 			return x.ToString("0.000") + ", " + y.ToString("0.000") + ", " + z.ToString("0.000");

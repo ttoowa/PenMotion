@@ -13,8 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using PendulumMotion.Components;
-using PendulumMotion.Components.Items;
+using PenMotion.Datas;
+using PenMotion.Datas.Items;
 using GKit;
 using GKit.WPF;
 using PenMotionEditor.UI.Tabs;
@@ -34,17 +34,12 @@ namespace PenMotionEditor.UI.Items {
 		private static SolidColorBrush SelectedBG = "787878".ToBrush();
 		private static SolidColorBrush EditTextBG = "383838".ToBrush();
 		
-		public bool IsRoot => ParentItemView == null;
 		public MotionItemType Type {
 			get; private set;
 		}
 
 		public MotionItemBase Data {
 			get; set;
-		}
-
-		public MotionFolderItemView ParentItemView {
-			get; protected set;
 		}
 
 		private GLoopAction focusedLoopAction;
@@ -65,25 +60,10 @@ namespace PenMotionEditor.UI.Items {
 			SetNameTextBoxEditable(false);
 		}
 		private void RegisterEvent() {
-			NameTextBox.KeyDown += NameEditText_OnKeyDown;
-			ContentPanel.MouseDown += ItemContentPanel_OnMouseDown;
+			NameTextBox.KeyDown += NameEditText_KeyDown;
+			ContentPanel.MouseDown += ItemContentPanel_MouseDown;
 		}
-
-		public void DetachParent() {
-			if(ParentItemView != null) {
-				ParentItemView.RemoveChild(this);
-			}
-		}
-
-		public bool SetName(string name) {
-			bool result = Data.Rename(name);
-			UpdateNameTextBox();
-			return result;
-		}
-		public void SetSelected(bool selected) {
-			ContentPanel.Background = selected ? SelectedBG : DefaultBG;
-		}
-		public void SetNameTextBoxEditable(bool editable) {
+		private void SetNameTextBoxEditable(bool editable) {
 			if (editable) {
 				NameTextBox_StartEdit();
 			} else {
@@ -91,11 +71,17 @@ namespace PenMotionEditor.UI.Items {
 			}
 		}
 
-		private void UpdateNameTextBox() {
-			NameTextBox.Text = Data.name;
+		public void SetSelected(bool selected) {
+			ContentPanel.Background = selected ? SelectedBG : DefaultBG;
 		}
 
 		//Event
+		//DataChanged
+		internal void Data_NameChanged(string oldName, string newName) {
+			NameTextBox.Text = Data.Name;
+		}
+
+		//NameText
 		private void NameTextBox_StartEdit() {
 			NameTextBox.Background = EditTextBG;
 			NameTextBox.Cursor = Cursors.IBeam;
@@ -120,37 +106,41 @@ namespace PenMotionEditor.UI.Items {
 
 			string newName = FilterName(NameTextBox.Text);
 
-			if (!Data.Rename(newName)) {
-				ToastMessage.Show("이미 존재하거나 올바르지 않은 이름입니다.");
+			if (Data != null) {
+				if (!Data.SetName(newName)) {
+					ToastMessage.Show("이미 존재하거나 올바르지 않은 이름입니다.");
+				}
 			}
-			UpdateNameTextBox();
 		}
 		private void OnFocusedTick() {
 			if(MouseInput.Left.Down && !NameTextBox.IsMouseOver && !ContentPanel.IsMouseOver) {
 				SetNameTextBoxEditable(false);
 			}
 		}
-		private void NameEditText_OnKeyDown(object sender, KeyEventArgs e) {
+		private void NameEditText_KeyDown(object sender, KeyEventArgs e) {
 			if(e.Key == Key.Return) {
 				SetNameTextBoxEditable(false);
 				Keyboard.ClearFocus();
 			}
 		}
+		//Mouse
+		private void ItemContentPanel_MouseDown(object sender, MouseButtonEventArgs e) {
+			if (e.ChangedButton != MouseButton.Left)
+				return;
 
-		private void ItemContentPanel_OnMouseDown(object sender, MouseButtonEventArgs e) {
 			if (e.ClickCount == 1) {
 				if (KeyInput.GetKeyHold(WinKey.LeftControl) || KeyInput.GetKeyHold(WinKey.RightControl)) {
 					//Ctrl 단독 선택 추가/제거
-					if (MotionTab.IsSelected(this)) {
-						MotionTab.UnselectItemSingle(this);
+					if (MotionTab.IsSelected(Data)) {
+						MotionTab.UnselectItemSingle(Data);
 					} else {
-						MotionTab.SelectItemAdd(this);
+						MotionTab.SelectItemAdd(Data);
 					}
 				} else if (KeyInput.GetKeyHold(WinKey.LeftShift) || KeyInput.GetKeyHold(WinKey.RightShift)) {
 					//Shift 드래그 선택
 				} else {
 					//일반 클릭
-					LoopEngine.AddGRoutine(ItemContentPanel_OnMouseDrag());
+					LoopEngine.AddGRoutine(ItemContentPanel_MouseDrag());
 				}
 			} else if (e.ClickCount == 2) {
 				//더블클릭
@@ -161,24 +151,26 @@ namespace PenMotionEditor.UI.Items {
 			}
 			e.Handled = true;
 		}
-		private IEnumerator ItemContentPanel_OnMouseDrag() {
+		private IEnumerator ItemContentPanel_MouseDrag() {
 			for (; ; ) {
 				if (!MouseInput.Left.Hold) {
-					MotionTab.SelectItemSingle(this);
+					//Just click
+					MotionTab.SelectItemSingle(Data);
 					yield break;
 				}
 				if (!IsMouseOverY(ContentPanel)) {
-					if (!MotionTab.IsSelected(this)) {
-						MotionTab.SelectItemSingle(this);
+					//Move item
+					if (!MotionTab.IsSelected(Data)) {
+						MotionTab.SelectItemSingle(Data);
 					}
-					LoopEngine.AddLoopAction(ItemContentPanel_OnMouseDrag_ForMove, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
+					LoopEngine.AddLoopAction(ItemContentPanel_MouseDrag_ForMove, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 					yield break;
 				}
 
 				yield return new GWait(GTimeUnit.Frame, 1);
 			}
 		}
-		private void ItemContentPanel_OnMouseDrag_ForMove() {
+		private void ItemContentPanel_MouseDrag_ForMove() {
 			if (MotionTab.selectedItemSet.Count == 0)
 				return;
 

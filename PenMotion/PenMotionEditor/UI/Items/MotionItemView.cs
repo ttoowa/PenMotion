@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using GKit;
-using PendulumMotion.Components.Items;
-using PendulumMotion.Components.Items.Elements;
+using PenMotion.Datas.Items;
+using PenMotion.Datas.Items.Elements;
 using PenMotionEditor.UI.Tabs;
 using PenMotionEditor.UI.Items.Elements;
 
@@ -26,50 +26,12 @@ namespace PenMotionEditor.UI.Items {
 		}
 
 		private Line[] graphLines;
-		public List<MotionPointView> pointList;
 
-		public MotionItemView(EditorContext editorContext, bool createDefault = true) : base(editorContext, MotionItemType.Motion) {
+		public MotionItemView(EditorContext editorContext, MotionItem data) : base(editorContext, MotionItemType.Motion) {
 			ContentPanel.Children.Remove(FolderContent);
-
-			pointList = new List<MotionPointView>();
 			CreatePreviewGraph();
 
-			if(createDefault) {
-				Data = EditingFile.CreateMotionDefault();
-			} else {
-				Data = EditingFile.CreateMotionEmpty();
-			}
-
-			CreatePointViewsFromData();
-		}
-
-		public void ClearPointViews() {
-			if (pointList == null)
-				return;
-
-			pointList.Clear();
-		}
-		public void CreatePointViewsFromData() {
-			pointList = new List<MotionPointView>();
-
-			foreach(MotionPoint point in Data.pointList) {
-				MotionPointView pointView = new MotionPointView(EditorContext);
-				pointView.Data = point;
-				//TODO : View 동기화 해줄 것
-
-				pointList.Add(pointView);
-			}
-		}
-		public void InsertPoint(int index, Vector2 position) {
-			MotionPointView pointView = new MotionPointView(EditorContext);
-			pointList.Insert(index, pointView);
-
-			Data.InsertPoint(index, pointView.Data);
-		}
-		public void RemovePoint(MotionPointView pointView) {
-			pointList.Remove(pointView);
-
-			Data.RemovePoint(pointView.Data);
+			Data = data;
 		}
 
 		//PreviewGraph
@@ -89,8 +51,9 @@ namespace PenMotionEditor.UI.Items {
 			}
 		}
 		public void UpdatePreviewGraph() {
-			float previewRectWidth = (float)PreviewGraphContext.ActualWidth;
-			float previewRectHeight = (float)PreviewGraphContext.ActualHeight;
+			float previewRectWidth = (float)PreviewGraphContext.Width;
+			float previewRectHeight = (float)PreviewGraphContext.Height;
+
 			for (int graphLineI = 0; graphLineI < graphLines.Length; ++graphLineI) {
 				float motionValue = GetMotionValue(graphLineI);
 				float nextMotionValue = GetMotionValue(graphLineI + 1);

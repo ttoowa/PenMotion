@@ -197,12 +197,6 @@
     <Folder Include="Scripts\Element\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PenMotion\PenMotion.csproj">
-      <Project>{91981f2b-f18b-4f4b-8822-075a572a7cac}</Project>
-      <Name>PenMotion</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Image\Icon.ico" />
     <Resource Include="Resources\Image\Icon.png" />
   </ItemGroup>
@@ -214,6 +208,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Cursor_Remove.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PenMotion\PenMotion.csproj">
+      <Project>{91981f2b-f18b-4f4b-8822-075a572a7cac}</Project>
+      <Name>PenMotion</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

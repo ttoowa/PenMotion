@@ -9,7 +9,7 @@
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/PendulumMotionEditor;component/Resources/Style/Global.xaml"/>
+				<ResourceDictionary Source="/PenMotionEditor;component/Resources/Style/Global.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 			<Style x:Key="OptionText" TargetType="TextBox" BasedOn="{StaticResource FlatTextBox}">
 				<Setter Property="Background" Value="#FF303030"/>
@@ -65,7 +65,7 @@
 		</DockPanel>
 
 		<!--PreviewPanel-->
-		<Grid DockPanel.Dock="Top" Height="55" Background="#FF3B3B3B">
+		<Grid Name="PreviewGrid" DockPanel.Dock="Top" Height="55" Background="#FF3B3B3B">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="8*"/>
 				<ColumnDefinition Width="2*"/>

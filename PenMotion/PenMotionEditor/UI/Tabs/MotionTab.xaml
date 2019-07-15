@@ -14,7 +14,7 @@
 	<UserControl.Resources>
 	</UserControl.Resources>
 
-	<DockPanel Background="#3B3B3B" Grid.Column="0" MinWidth="170" Margin="0,0,4,0">
+	<DockPanel Background="#3B3B3B" Grid.Column="0" MinWidth="170">
 		<GComponents:ListManagerBar x:Name="ControlBar" DockPanel.Dock="Top" Height="45" Background="#FF454545"/>
 		<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
 			<Grid>

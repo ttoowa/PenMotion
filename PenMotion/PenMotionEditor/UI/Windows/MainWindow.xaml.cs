@@ -20,10 +20,10 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 using GKit;
 using GKit.WPF;
-using PendulumMotion;
-using PendulumMotion.Components;
-using PendulumMotion.Components.Items;
-using PendulumMotion.System;
+using PenMotion;
+using PenMotion.Datas;
+using PenMotion.Datas.Items;
+using PenMotion.System;
 using PenMotionEditor.UI.Items;
 using PenMotionEditor.UI.FX;
 
@@ -61,7 +61,9 @@ namespace PenMotionEditor.UI.Windows
 
 		private void OnClosing(object sender, CancelEventArgs e) {
 			if (!EditorContext.IsSaved) {
-				e.Cancel = true;
+				if(!EditorContext.ShowSaveQuestion()) {
+					e.Cancel = true;
+				}
 			}
 		}
 		private void OnTick() {
@@ -74,24 +76,17 @@ namespace PenMotionEditor.UI.Windows
 			}
 		}
 		private void NewFileButton_OnClick() {
-			if(EditorContext.IsSaved) {
-				EditorContext.CreateFile();
+			if (EditorContext.CreateFile()) {
 				SetContentContextVisible(true);
 			}
 		}
 		private void OpenFileButton_OnClick() {
-			if (EditorContext.IsSaved) {
-				Dispatcher.Invoke(new Action(() => {
-					if(EditorContext.OpenFile()) {
-						SetContentContextVisible(true);
-					}
-				}));
+			if(EditorContext.OpenFile()) {
+				SetContentContextVisible(true);
 			}
 		}
 		private void SaveFileButton_OnClick() {
-			Dispatcher.Invoke(new Action(()=> {
-				EditorContext.SaveFile();
-			}));
+			EditorContext.SaveFile();
 		}
 
 		public void CreateNewFile() {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PendulumMotion.System {
+namespace PenMotion.System {
 	public static class PSpline {
 		public static PVector2 Bezier3(float t, PVector2 p0, PVector2 p1, PVector2 p2, PVector2 p3) {
 			float t2 = t * t;

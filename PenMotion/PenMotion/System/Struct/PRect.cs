@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PendulumMotion.System {
+namespace PenMotion.System {
 	public struct PRect {
 		public float xMin;
 		public float xMax;

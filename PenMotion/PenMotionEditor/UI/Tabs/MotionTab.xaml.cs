@@ -14,15 +14,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using PendulumMotion;
-using PendulumMotion.Components;
-using PendulumMotion.Components.Items;
-using PendulumMotion.System;
+using PenMotion;
+using PenMotion.Datas;
+using PenMotion.Datas.Items;
+using PenMotion.System;
 using PenMotionEditor.UI.Items;
 using PenMotionEditor.UI.Windows;
 using GKit;
 using GKit.WPF;
-using PendulumMotion.Components.Items.Elements;
+using PenMotion.Datas.Items.Elements;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class MotionTab : UserControl {
@@ -35,9 +35,11 @@ namespace PenMotionEditor.UI.Tabs {
 		private const float FolderSideEventWeight = 0.2f;
 		private const float FolderMidEventWeight = 1f - FolderSideEventWeight * 2f;
 
-		public List<MotionItemBaseView> motionItemList;
-
 		public MotionFolderItemView RootFolderView {
+			get; private set;
+		}
+		private List<MotionItemBase> itemList;
+		public Dictionary<MotionItemBase, MotionItemBaseView> DataToViewDict {
 			get; private set;
 		}
 
@@ -47,7 +49,7 @@ namespace PenMotionEditor.UI.Tabs {
 				if (selectedItemSet.Count == 0)
 					return false;
 
-				foreach (MotionItemBaseView item in selectedItemSet) {
+				foreach (MotionItemBase item in selectedItemSet) {
 					if (item.Type == MotionItemType.Motion)
 						return true;
 				}
@@ -55,19 +57,19 @@ namespace PenMotionEditor.UI.Tabs {
 				return false;
 			}
 		}
-		public HashSet<MotionItemBaseView> selectedItemSet;
-		public MotionFolderItemView SelectedItemParent {
+		public HashSet<MotionItemBase> selectedItemSet;
+		public MotionFolderItem SelectedItemParent {
 			get {
 				if (selectedItemSet.Count == 1) {
-					foreach (MotionItemBaseView item in selectedItemSet) {
+					foreach (MotionItemBase item in selectedItemSet) {
 						if (item.Type == MotionItemType.Folder) {
-							return item.Cast<MotionFolderItemView>();
+							return item.Cast<MotionFolderItem>();
 						} else {
-							return item.ParentItemView;
+							return item.Parent;
 						}
 					}
 				}
-				return RootFolderView;
+				return RootFolderView.Data;
 			}
 		}
 
@@ -82,8 +84,10 @@ namespace PenMotionEditor.UI.Tabs {
 			RegisterEvents();
 		}
 		private void InitMembers() {
-			motionItemList = new List<MotionItemBaseView>();
+			itemList = new List<MotionItemBase>();
+			DataToViewDict = new Dictionary<MotionItemBase, MotionItemBaseView>();
 
+			selectedItemSet = new HashSet<MotionItemBase>();
 		}
 		private void InitUI() {
 			DstCursorView.Visibility = Visibility.Collapsed;
@@ -96,26 +100,91 @@ namespace PenMotionEditor.UI.Tabs {
 			ControlBar.RemoveItemButton_OnClick += RemoveItemButton_OnClick;
 		}
 
+		//Events
+		internal void EditingFile_ItemCreated(MotionItemBase item, MotionFolderItem parentFolder) {
+			if (item == null)
+				return;
+
+			MotionItemBaseView view = null;
+			switch (item.Type) {
+				case MotionItemType.Motion:
+					MotionItemView motionView = new MotionItemView(EditorContext, (MotionItem)item);
+					view = motionView;
+
+					motionView.UpdatePreviewGraph();
+					break;
+				case MotionItemType.Folder:
+					MotionFolderItemView folderView = new MotionFolderItemView(EditorContext, (MotionFolderItem)item);
+					view = folderView;
+
+					if (parentFolder == null) {
+						//Root
+						folderView.SetRootFolder();
+						RootFolderView = folderView;
+						ItemStackPanel.Children.Add(folderView);
+					}
+
+					//Register events
+					MotionFolderItem folderItem = (MotionFolderItem)item;
+
+					folderItem.ChildInserted += folderView.Data_ChildInserted;
+					folderItem.ChildRemoved += folderView.Data_ChildRemoved;
+					break;
+			}
+
+			//Register events
+			item.NameChanged += view.Data_NameChanged;
+
+			//Add to collection
+			itemList.Add(item);
+			DataToViewDict.Add(item, view);
+
+			EditorContext.MarkUnsaved();
+		}
+		internal void EditingFile_ItemRemoved(MotionItemBase item, MotionFolderItem parentFolder) {
+			MotionItemBaseView view = DataToViewDict[item];
+			view.DetachParent();
+
+			//Remove from collection
+			itemList.Remove(item);
+			DataToViewDict.Remove(item);
+
+			if (item.IsRoot) {
+				ItemStackPanel.Children.Remove(view);
+				RootFolderView = null;
+			}
+
+			switch (item.Type) {
+				case MotionItemType.Motion:
+					break;
+				case MotionItemType.Folder:
+					//Unregister events
+					MotionFolderItemView folderView = (MotionFolderItemView)view;
+					MotionFolderItem folderItem = (MotionFolderItem)item;
+
+					folderItem.ChildInserted -= folderView.Data_ChildInserted;
+					folderItem.ChildRemoved -= folderView.Data_ChildRemoved;
+					break;
+			}
+			//Unregister events
+			item.NameChanged -= view.Data_NameChanged;
+
+			EditorContext.MarkUnsaved();
+		}
 
 		private void CreateItemButton_OnClick() {
-			MotionItemBaseView motion = CreateMotion(SelectedItemParent);
-			SelectItemSingle(motion);
-
-			EditorContext.MarkUnsaved();
+			MotionItem item = EditingFile.CreateMotionDefault(SelectedItemParent);
+			SelectItemSingle(item);
 		}
 		private void CreateFolderButton_OnClick() {
-			MotionItemBaseView folder = CreateFolder(SelectedItemParent);
-			SelectItemSingle(folder);
-
-			EditorContext.MarkUnsaved();
+			MotionFolderItem item = EditingFile.CreateFolder(SelectedItemParent);
+			SelectItemSingle(item);
 		}
 		private void RemoveItemButton_OnClick() {
-			foreach (MotionItemBaseView item in selectedItemSet) {
-				RemoveItem(item);
+			foreach (MotionItemBase item in selectedItemSet) {
+				EditingFile.RemoveItem(item);
 			}
 			UnselectItemAll();
-
-			EditorContext.MarkUnsaved();
 		}
 		private void CopyItemButton_OnClick() {
 			DuplicateSelectedMotion();
@@ -126,22 +195,9 @@ namespace PenMotionEditor.UI.Tabs {
 			ControlBar.CopyItemButton.IsEnabled = IsSelectedItemCopyable;
 		}
 
-		public MotionItemView CreateMotion(MotionFolderItemView parent) {
-			MotionItemView motion = new MotionItemView(EditorContext);
-			parent.AddChild(motion);
-			return motion;
-		}
-		public MotionFolderItemView CreateFolder(MotionFolderItemView parent) {
-			MotionFolderItemView folder = new MotionFolderItemView(EditorContext);
-			parent.AddChild(folder);
-			return folder;
-		}
-		public void RemoveItem(MotionItemBaseView item) {
-			if (item.ParentItemView != null) {
-				item.ParentItemView.RemoveChild(item);
-			}
-		}
 		public void ClearItems() {
+			UnselectItemAll();
+			itemList.Clear();
 			ItemStackPanel.Children.Clear();
 		}
 
@@ -149,36 +205,37 @@ namespace PenMotionEditor.UI.Tabs {
 			if (!IsSelectedItemCopyable)
 				return;
 
-			MotionItemBaseView latestNewItem = null;
-			MotionFolderItemView parent = SelectedItemParent;
-			foreach (MotionItemBaseView refItem in selectedItemSet) {
+			MotionItemBase latestNewItem = null;
+			MotionFolderItem parentFolder = SelectedItemParent;
+			foreach (MotionItemBase refItem in selectedItemSet) {
 				if (refItem.Type == MotionItemType.Motion) {
-					MotionItemView refMotionItem = refItem.Cast<MotionItemView>();
+					MotionItem refMotionItem = (MotionItem)refItem;
 					//Create motion
-					MotionItemView newItemView = CreateMotion(parent);
-					latestNewItem = newItemView;
-					newItemView.Data.pointList.Clear();
+					MotionItem newItem = EditingFile.CreateMotionEmpty(parentFolder);
+					latestNewItem = newItem;
 
 					//Copy points
-					foreach (MotionPoint refPoint in refMotionItem.Data.pointList) {
+					foreach (MotionPoint refPoint in refMotionItem.pointList) {
 						MotionPoint point = new MotionPoint();
-						newItemView.Data.AddPoint(point);
+						newItem.AddPoint(point);
 
-						point.mainPoint = refPoint.mainPoint;
-						point.subPoints = refPoint.subPoints.ToArray();
+						point.SetMainPoint(refPoint.MainPoint);
+						for (int i = 0; i < refPoint.SubPoints.Length; ++i) {
+							point.SetSubPoint(i, refPoint.SubPoints[i]);
+						}
 					}
 
 					//Set name
-					const string copyPostfix = "_Copy";
-					string name = refItem.Data.name;
+					const string CopyPostfix = "_Copy";
+					string name = refItem.Name;
 					for (; ; ) {
 						if (EditingFile.itemDict.ContainsKey(name)) {
-							name += copyPostfix;
+							name += CopyPostfix;
 						} else {
 							break;
 						}
 					}
-					newItemView.SetName(name);
+					newItem.SetName(name);
 
 				}
 			}
@@ -187,16 +244,25 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 		}
 
-		public void SelectItemSingle(MotionItemBaseView itemView) {
-			UnselectItemAll();
-			SelectItemAdd(itemView);
+		public void UpdateItemPreviews() {
+			foreach (MotionItemBase item in itemList) {
+				if (item.Type == MotionItemType.Motion) {
+					((MotionItemView)DataToViewDict[item]).UpdatePreviewGraph();
+				}
+			}
 		}
-		public void SelectItemAdd(MotionItemBaseView itemView) {
-			itemView.SetSelected(true);
-			selectedItemSet.Add(itemView);
 
-			if (itemView.Type == MotionItemType.Motion) {
-				EditorContext.GraphEditorTab.AttachMotion((MotionItemView)itemView);
+		//Select
+		public void SelectItemSingle(MotionItemBase item) {
+			UnselectItemAll();
+			SelectItemAdd(item);
+		}
+		public void SelectItemAdd(MotionItemBase item) {
+			DataToViewDict[item].SetSelected(true);
+			selectedItemSet.Add(item);
+
+			if (item.Type == MotionItemType.Motion) {
+				EditorContext.GraphEditorTab.AttachMotion((MotionItem)item);
 				EditorContext.PreviewTab.ResetPreviewTime();
 			} else {
 				EditorContext.GraphEditorTab.DetachMotion();
@@ -204,23 +270,25 @@ namespace PenMotionEditor.UI.Tabs {
 
 			OnSelectItemChanged();
 		}
-		public void UnselectItemSingle(MotionItemBaseView item) {
-			item.SetSelected(false);
+		public void UnselectItemSingle(MotionItemBase item) {
+			DataToViewDict[item].SetSelected(false);
 			selectedItemSet.Remove(item);
 			GraphEditorTab.DetachMotion();
 
 			if (selectedItemSet.Count > 0) {
-				MotionItemBaseView lastSelectedItemView = selectedItemSet.Last();
-				if(lastSelectedItemView.Type == MotionItemType.Motion) {
-					GraphEditorTab.AttachMotion((MotionItemView)lastSelectedItemView);
+				MotionItemBase lastSelectedItemView = selectedItemSet.Last();
+				if (lastSelectedItemView.Type == MotionItemType.Motion) {
+					GraphEditorTab.AttachMotion((MotionItem)lastSelectedItemView);
 				}
 			}
 
 			OnSelectItemChanged();
 		}
 		public void UnselectItemAll() {
-			foreach (MotionItemBaseView item in selectedItemSet) {
-				item.SetSelected(false);
+			foreach (MotionItemBase item in selectedItemSet) {
+				if(DataToViewDict.ContainsKey(item)) {
+					DataToViewDict[item].SetSelected(false);
+				}
 			}
 			selectedItemSet.Clear();
 			GraphEditorTab.DetachMotion();
@@ -228,46 +296,17 @@ namespace PenMotionEditor.UI.Tabs {
 			OnSelectItemChanged();
 		}
 
-		//private IEnumerator UpdateItemPreviewRoutine() {
-		//	//UpdateItemPreview
-		//	int iterCounter = 0;
-		//	for (; ; ) {
-		//		if (OnEditing) {
-		//			yield return UpdateItemPreview(editingFile.file.rootFolder);
-		//		}
-		//		yield return new GWait(GTimeUnit.Frame, 1);
-		//	}
-
-		//	IEnumerator UpdateItemPreview(PMFolder folder) {
-		//		for (int childI = 0; childI < folder.childList.Count; ++childI) {
-		//			PMItemBase child = folder.childList[childI];
-		//			switch (child.type) {
-		//				case PMItemType.Motion:
-		//					PMMotion motion = child.Cast<PMMotion>();
-		//					motion.view.Cast<PMItemView>().UpdatePreviewGraph(motion);
-
-		//					if (++iterCounter >= 2) {
-		//						iterCounter = 0;
-		//						yield return new GWait(GTimeUnit.Frame, 1);
-		//					}
-		//					break;
-		//				case PMItemType.Folder:
-		//					yield return UpdateItemPreview(child.Cast<PMFolder>());
-		//					break;
-		//			}
-		//		}
-		//	}
-		//}
-
+		//ItemMove UI
 		public void UpdateDstCursorView(MoveOrder moveOrder) {
-			Panel targetContent = moveOrder.target.ContentContext;
+			MotionItemBaseView targetView = DataToViewDict[moveOrder.target];
+			Panel targetContent = targetView.ContentContext;
 			Vector2 targetPanelSize = new Vector2((float)targetContent.ActualWidth, (float)targetContent.ActualHeight);
 
-			float panelRelativeTop = (float)moveOrder.target.TranslatePoint(new Point(), ItemStackPanel).Y;
+			float panelRelativeTop = (float)targetView.TranslatePoint(new Point(), ItemStackPanel).Y;
 
 			double pointerHeight = targetPanelSize.y * FolderSideEventWeight;
 			DstCursorView.Width = targetPanelSize.x;
-			MotionItemBaseView parent = moveOrder.target.ParentItemView;
+			MotionItemBase parent = moveOrder.target.Parent;
 			if (moveOrder.target.Type == MotionItemType.Motion) {
 				DstCursorView.Height = pointerHeight;
 				switch (moveOrder.direction) {
@@ -297,7 +336,7 @@ namespace PenMotionEditor.UI.Tabs {
 
 			float posX = 0f;
 			if (!moveOrder.target.IsRoot && !parent.IsRoot) {
-				posX = (float)parent.ChildStackPanel.TranslatePoint(new Point(), ItemStackPanel).X;
+				posX = (float)DataToViewDict[parent].ChildStackPanel.TranslatePoint(new Point(), ItemStackPanel).X;
 			}
 			Canvas.SetLeft(DstCursorView, posX);
 
@@ -317,37 +356,38 @@ namespace PenMotionEditor.UI.Tabs {
 			posY = Mathf.Clamp(posY, 0f, (float)RootFolderView.ChildStackPanel.ActualHeight);
 			Canvas.SetTop(DstItemView, posY);
 		}
+
 		public bool ApplyMoveOrder(MoveOrder moveOrder) {
-			MotionFolderItemView[] selectedFolders =
-				motionItemList.Where(item => item.Type == MotionItemType.Folder && selectedItemSet.Contains(item)).Select(item => item.Cast<MotionFolderItemView>()).ToArray();
+			MotionFolderItem[] selectedFolders =
+				itemList.Where(item => item.Type == MotionItemType.Folder && selectedItemSet.Contains(item)).Select(item => item.Cast<MotionFolderItem>()).ToArray();
 
 			//검사
 			//최적화하면서 루프 돌 수 있지만, 코드의 가독성을 위해 성능을 희생한다.
 			//O(n^2) 의 시간복잡도
-			foreach (MotionFolderItemView itemView in selectedFolders) {
-				if (itemView == moveOrder.target)
+			foreach (MotionFolderItem selectedFolder in selectedFolders) {
+				if (selectedFolder == moveOrder.target)
 					return false;
 
-				if (ContainsChildRecursive(itemView, moveOrder.target)) {
+				if (IsContainsChildRecursive(selectedFolder, moveOrder.target)) {
 					ToastMessage.Show("자신의 하위 폴더로 이동할 수 없습니다.");
 					return false;
 				}
 			}
 
 			//정렬
-			MotionItemBaseView[] selectedItems = CollectSelectedItems();
+			MotionItemBase[] selectedItems = CollectSelectedItems();
 
 			//실행
-			foreach (MotionItemBaseView item in selectedItems) {
-				item.ParentItemView.RemoveChild(item);
+			foreach (MotionItemBase item in selectedItems) {
+				item.Parent.RemoveChild(item);
 
 				if (moveOrder.direction == Direction.Right) {
 					//폴더 내부로
-					MotionFolderItemView targetFolder = moveOrder.target.Cast<MotionFolderItemView>();
+					MotionFolderItem targetFolder = moveOrder.target.Cast<MotionFolderItem>();
 					targetFolder.AddChild(item);
 				} else {
 					//아이템 위로
-					MotionFolderItemView targetFolder = moveOrder.target.ParentItemView;
+					MotionFolderItem targetFolder = moveOrder.target.Parent;
 					int targetIndex = targetFolder.childList.IndexOf(moveOrder.target) +
 						(moveOrder.direction == Direction.Bottom ? 1 : 0);
 
@@ -358,19 +398,19 @@ namespace PenMotionEditor.UI.Tabs {
 		}
 
 		public MoveOrder GetMoveOrder() {
-			MoveOrder moveOrder = GetMoveOrderRecursion(RootFolderView);
+			MoveOrder moveOrder = GetMoveOrderRecursion(RootFolderView.Data);
 
 			Panel rootPanel = RootFolderView.ChildStackPanel;
 			float bottomY = rootPanel.GetAbsolutePosition(new Vector2(0f, (float)rootPanel.ActualHeight)).y;
 			if (moveOrder == null && MouseInput.AbsolutePosition.y > bottomY) {
-				moveOrder = new MoveOrder(RootFolderView, Direction.Right);
+				moveOrder = new MoveOrder(RootFolderView.Data, Direction.Right);
 			}
 			return moveOrder;
 		}
-		private MoveOrder GetMoveOrderRecursion(MotionItemBaseView searchTarget) {
+		private MoveOrder GetMoveOrderRecursion(MotionItemBase searchTarget) {
 			//Check current
 			if (!searchTarget.IsRoot) {
-				Panel panel = searchTarget.ContentPanel;
+				Panel panel = DataToViewDict[searchTarget].ContentPanel;
 				try {
 					if (IsMouseOverY(panel)) {
 						float panelTop = panel.GetAbsolutePosition().y;
@@ -394,16 +434,16 @@ namespace PenMotionEditor.UI.Tabs {
 
 							//선택중인 모션아이템이면 피해서 오더를 설정한다.
 							if (selectedItemSet.Contains(moveOrder.target)) {
-								int index = moveOrder.target.ParentItemView.childList.IndexOf(moveOrder.target);
+								int index = moveOrder.target.Parent.childList.IndexOf(moveOrder.target);
 								for (; ; ) {
 									if (selectedItemSet.Contains(moveOrder.target)) {
 										moveOrder.direction = Direction.Bottom;
 										if (index > 0) {
 											--index;
-											moveOrder.target = moveOrder.target.ParentItemView.childList[index];
+											moveOrder.target = moveOrder.target.Parent.childList[index];
 										} else {
 											//아래로 순회하면서 탐색
-											foreach (MotionItemBaseView childItem in moveOrder.target.ParentItemView.childList) {
+											foreach (MotionItemBase childItem in moveOrder.target.Parent.childList) {
 												if (!selectedItemSet.Contains(childItem)) {
 													moveOrder.target = childItem;
 													moveOrder.direction = Direction.Top;
@@ -412,7 +452,7 @@ namespace PenMotionEditor.UI.Tabs {
 											}
 
 											//없으면 상위 폴더에 넣는 오더로
-											moveOrder.target = moveOrder.target.ParentItemView;
+											moveOrder.target = moveOrder.target.Parent;
 											moveOrder.direction = Direction.Right;
 											return moveOrder;
 										}
@@ -432,7 +472,7 @@ namespace PenMotionEditor.UI.Tabs {
 
 			//Recursive
 			if (searchTarget.Type == MotionItemType.Folder) {
-				foreach (MotionItemBaseView itemView in searchTarget.Cast<MotionFolderItemView>().childList) {
+				foreach (MotionItemBase itemView in searchTarget.Cast<MotionFolderItem>().childList) {
 					MoveOrder moveOrder = GetMoveOrderRecursion(itemView);
 					if (moveOrder != null) {
 						return moveOrder;
@@ -441,42 +481,43 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 			return null;
 		}
-		private MotionItemBaseView[] CollectSelectedItems() {
-			List<MotionItemBaseView> resultList = new List<MotionItemBaseView>();
+		private MotionItemBase[] CollectSelectedItems() {
+			List<MotionItemBase> resultList = new List<MotionItemBase>();
 
-			CollectSelectedItemsRecursion(RootFolderView);
+			CollectSelectedItemsRecursion(RootFolderView.Data);
 
 			return resultList.ToArray();
 
-			void CollectSelectedItemsRecursion(MotionItemBaseView targetItemView) {
+			void CollectSelectedItemsRecursion(MotionItemBase targetItem) {
 				//Collect
-				if (selectedItemSet.Contains(targetItemView)) {
-					resultList.Add(targetItemView);
+				if (selectedItemSet.Contains(targetItem)) {
+					resultList.Add(targetItem);
 				}
 
 				//Recursion
-				if (targetItemView.Type == MotionItemType.Folder) {
-					foreach (MotionItemBaseView child in targetItemView.Cast<MotionFolderItemView>().childList) {
+				if (targetItem.Type == MotionItemType.Folder) {
+					foreach (MotionItemBase child in targetItem.Cast<MotionFolderItem>().childList) {
 						CollectSelectedItemsRecursion(child);
 					}
 				}
 			}
 		}
 
-		public bool IsSelected(MotionItemBaseView item) {
+		public bool IsSelected(MotionItemBase item) {
 			return selectedItemSet.Contains(item);
 		}
 		private bool IsMouseOverY(Panel itemPanel) {
 			float panelTop = itemPanel.GetAbsolutePosition().y;
 			return MouseInput.AbsolutePosition.y > panelTop && MouseInput.AbsolutePosition.y < panelTop + itemPanel.ActualHeight;
 		}
-		private bool ContainsChildRecursive(MotionFolderItemView parent, MotionItemBaseView target) {
-			foreach (MotionItemBaseView itemView in parent.childList) {
-				if (itemView == target) {
+
+		private bool IsContainsChildRecursive(MotionFolderItem parentFolder, MotionItemBase target) {
+			foreach (MotionItemBase item in parentFolder.childList) {
+				if (item == target) {
 					return true;
-				} else if (itemView.Type == MotionItemType.Folder) {
+				} else if (item.Type == MotionItemType.Folder) {
 					//Recursion
-					if (ContainsChildRecursive(itemView.Cast<MotionFolderItemView>(), target)) {
+					if (IsContainsChildRecursive(item.Cast<MotionFolderItem>(), target)) {
 						return true;
 					}
 				}

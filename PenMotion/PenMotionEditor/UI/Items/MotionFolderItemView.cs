@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using PendulumMotion.Components.Items;
+using PenMotion.Datas.Items;
 using PenMotionEditor.UI.Tabs;
 using GKit;
 
@@ -19,40 +19,29 @@ namespace PenMotionEditor.UI.Items {
 			}
 		}
 
-		public List<MotionItemBaseView> childList;
-
-		public MotionFolderItemView(EditorContext editorContext) : base(editorContext, MotionItemType.Folder) {
+		public MotionFolderItemView(EditorContext editorContext, MotionFolderItem data) : base(editorContext, MotionItemType.Folder) {
 			ContentPanel.Children.Remove(MotionContent);
 
-			childList = new List<MotionItemBaseView>();
-			Data = EditingFile.CreateFolder();
+			Data = data;
 		}
 
-		public void AddChild(MotionItemBaseView itemView) {
-			itemView.DetachParent();
-
-			childList.Add(itemView);
-			ChildStackPanel.Children.Add(itemView);
-
-			Data.AddChild(itemView.Data);
-		}
-		public void InsertChild(int index, MotionItemBaseView itemView) {
-			itemView.DetachParent();
-
-			childList.Insert(index, itemView);
+		private void InsertChildView(int index, MotionItemBaseView itemView) {
 			ChildStackPanel.Children.Insert(index, itemView);
-
-			Data.InsertChild(index, itemView.Data);
 		}
-		public void RemoveChild(MotionItemBaseView itemView) {
-			childList.Remove(itemView);
+		private void RemoveChildView(MotionItemBaseView itemView) {
 			ChildStackPanel.Children.Remove(itemView);
-
-			Data.RemoveChild(itemView.Data);
 		}
+
 		public void SetRootFolder() {
 			BackPanel.Children.Remove(ContentContext);
 			ChildStackPanel.Margin = new Thickness();
+		}
+
+		internal void Data_ChildInserted(int index, MotionItemBase childItem) {
+			InsertChildView(index, MotionTab.DataToViewDict[childItem]);
+		}
+		internal void Data_ChildRemoved(MotionItemBase childItem) {
+			RemoveChildView(MotionTab.DataToViewDict[childItem]);
 		}
 	}
 }

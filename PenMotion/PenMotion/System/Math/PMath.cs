@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PendulumMotion.System {
+namespace PenMotion.System {
 	public static class PMath {
 		public static float Clamp(float value, float min = 0f, float max = 1f) {
 			return Math.Min(Math.Max(value, min), max);
