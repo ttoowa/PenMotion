@@ -5,11 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using GKit;
 using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 using PenMotionEditor.UI.Tabs;
 using PenMotionEditor.UI.Items.Elements;
+using GKit;
+using GKit.WPF.UI.Controls;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace PenMotionEditor.UI.Items {
 	public class MotionItemView : MotionItemBaseView {
@@ -27,6 +30,9 @@ namespace PenMotionEditor.UI.Items {
 
 		private Line[] graphLines;
 
+		public MotionItemView() : base() {
+
+		}
 		public MotionItemView(EditorContext editorContext, MotionItem data) : base(editorContext, MotionItemType.Motion) {
 			ContentPanel.Children.Remove(FolderContent);
 			CreatePreviewGraph();
@@ -69,6 +75,14 @@ namespace PenMotionEditor.UI.Items {
 					return Data.GetMotionValue(linearValue);
 				}
 			}
+		}
+
+		public void SetDisplayName(string name) {
+			throw new NotImplementedException();
+		}
+
+		public void SetDisplaySelected(bool isSelected) {
+			throw new NotImplementedException();
 		}
 	}
 }

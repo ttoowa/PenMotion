@@ -7,7 +7,7 @@
 
 			 xmlns:Items="clr-namespace:PenMotionEditor.UI.Items"
 			 xmlns:Workspaces="clr-namespace:PenMotionEditor.UI.Tabs"
-			 xmlns:GComponents="clr-namespace:GKit.WPF.Components;assembly=GKitForWPF"
+			 xmlns:GControls="clr-namespace:GKit.WPF.UI.Controls;assembly=GKitForWPF"
 
              mc:Ignorable="d" 
              d:DesignWidth="300" d:DesignHeight="450">
@@ -15,8 +15,9 @@
 	</UserControl.Resources>
 
 	<DockPanel Background="#3B3B3B" Grid.Column="0" MinWidth="170">
-		<GComponents:ListManagerBar x:Name="ControlBar" DockPanel.Dock="Top" Height="45" Background="#FF454545"/>
-		<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
+		<GControls:ListManagerBar x:Name="ControlBar" DockPanel.Dock="Top" Height="45" Background="#FF454545"/>
+		<GControls:EditListView x:Name="MotionListView"/>
+		<!--<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
 			<Grid>
 				<StackPanel Name="ItemStackPanel" Orientation="Vertical">
 				</StackPanel>
@@ -25,6 +26,6 @@
 					<Rectangle Name="DstCursorView" Width="300" Height="10" Fill="#7F3167A8"></Rectangle>
 				</Canvas>
 			</Grid>
-		</ScrollViewer>
+		</ScrollViewer>-->
 	</DockPanel>
 </UserControl>

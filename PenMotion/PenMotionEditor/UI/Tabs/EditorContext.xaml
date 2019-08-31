@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 
 			 xmlns:Ad="http://schemas.xceed.com/wpf/xaml/avalondock"
-			 xmlns:AdConverters="clr-namespace:Xceed.Wpf.AvalonDock.Converters;assembly=Xceed.Wpf.AvalonDock"
 			 xmlns:AdThemes="clr-namespace:Bgoon.AvalonDockTheme;assembly=Bgoon.AvalonDockThemes"
 
 			 xmlns:Tabs="clr-namespace:PenMotionEditor.UI.Tabs"
@@ -23,7 +22,7 @@
 					<!--Tab 1-->
 					<Ad:LayoutAnchorablePaneGroup x:Name="AdMotionTab" DockWidth="200px">
 						<Ad:LayoutAnchorablePane>
-							<Ad:LayoutAnchorable Title="Motion" CanDockAsTabbedDocument="True" CanAutoHide="False">
+							<Ad:LayoutAnchorable Title="Motion" CanDockAsTabbedDocument="True" CanAutoHide="False" CanHide="False">
 								<Tabs:MotionTab x:Name="MotionTab"/>
 							</Ad:LayoutAnchorable>
 						</Ad:LayoutAnchorablePane>
@@ -32,7 +31,7 @@
 					<!--Tab 2-->
 					<Ad:LayoutAnchorablePaneGroup x:Name="AdGraphEditTab" Orientation="Vertical" DockWidth="3*">
 						<Ad:LayoutAnchorablePane>
-							<Ad:LayoutAnchorable Title="GraphEditor" CanAutoHide="False">
+							<Ad:LayoutAnchorable Title="GraphEditor" CanDockAsTabbedDocument="True" CanAutoHide="False" CanHide="False">
 								<DockPanel>
 									<Tabs:PreviewTab DockPanel.Dock="Top" x:Name="PreviewTab"/>
 									<Tabs:GraphEditorTab x:Name="GraphEditorTab"/>

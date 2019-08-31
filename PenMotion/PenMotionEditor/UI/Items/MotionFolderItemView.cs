@@ -7,9 +7,11 @@ using System.Windows;
 using PenMotion.Datas.Items;
 using PenMotionEditor.UI.Tabs;
 using GKit;
+using GKit.WPF.UI.Controls;
+using System.Windows.Controls;
 
 namespace PenMotionEditor.UI.Items {
-	public class MotionFolderItemView : MotionItemBaseView {
+	public class MotionFolderItemView : MotionItemBaseView, IListFolder {
 		public new MotionFolderItem Data {
 			get {
 				return base.Data.Cast<MotionFolderItem>();
@@ -19,6 +21,11 @@ namespace PenMotionEditor.UI.Items {
 			}
 		}
 
+		public UIElementCollection ChildItemCollection => ChildStackPanel.Children;
+
+		public MotionFolderItemView() : base() {
+
+		}
 		public MotionFolderItemView(EditorContext editorContext, MotionFolderItem data) : base(editorContext, MotionItemType.Folder) {
 			ContentPanel.Children.Remove(MotionContent);
 
@@ -26,10 +33,13 @@ namespace PenMotionEditor.UI.Items {
 		}
 
 		private void InsertChildView(int index, MotionItemBaseView itemView) {
-			ChildStackPanel.Children.Insert(index, itemView);
+			if (itemView.GetParentItem() != null) {
+				((MotionFolderItemView)itemView.GetParentItem()).RemoveChildView(itemView);
+			}
+			ChildItemCollection.Insert(index, itemView);
 		}
 		private void RemoveChildView(MotionItemBaseView itemView) {
-			ChildStackPanel.Children.Remove(itemView);
+			ChildItemCollection.Remove(itemView);
 		}
 
 		public void SetRootFolder() {

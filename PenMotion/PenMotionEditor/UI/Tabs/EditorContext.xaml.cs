@@ -77,6 +77,8 @@ namespace PenMotionEditor.UI.Tabs {
 			EditingFile = new MotionFile();
 
 			RegisterFileEvents(EditingFile);
+
+			MarkSaved();
 			return true;
 		}
 		public bool OpenFile(bool checkSaved = true) {
@@ -119,8 +121,6 @@ namespace PenMotionEditor.UI.Tabs {
 			MotionTab.ClearItems();
 			GraphEditorTab.DetachMotion();
 			EditingFile = null;
-
-			FileClosed();
 
 			return true;
 		}
@@ -167,10 +167,6 @@ namespace PenMotionEditor.UI.Tabs {
 		//Events
 		private void OnTick() {
 			//ApplyPreviewFPS();
-		}
-		private void FileOpened() {
-		}
-		private void FileClosed() {
 		}
 		
 		private string GetSaveFilename() {

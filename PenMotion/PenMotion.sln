@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PenMotion", "PenMotion\PenM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PMTester", "PMTester\PMTester.csproj", "{0D2D946C-13B6-40E3-BB14-2F404E425659}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKitForWPF", "..\..\20190217_GKit\GKit\GKitForWPF\GKitForWPF.csproj", "{896246BD-905D-4A62-90D2-54664A158656}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D2D946C-13B6-40E3-BB14-2F404E425659}.Release|Any CPU.Build.0 = Release|Any CPU
+		{896246BD-905D-4A62-90D2-54664A158656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{896246BD-905D-4A62-90D2-54664A158656}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{896246BD-905D-4A62-90D2-54664A158656}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{896246BD-905D-4A62-90D2-54664A158656}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
