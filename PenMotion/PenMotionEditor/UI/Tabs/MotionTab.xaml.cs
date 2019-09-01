@@ -122,6 +122,7 @@ namespace PenMotionEditor.UI.Tabs {
 						RootFolderView = folderView;
 
 						MotionListView.ChildItemCollection.Add(folderView);
+						MotionListView.ManualRootFolder = folderView;
 					}
 
 					//Register events
