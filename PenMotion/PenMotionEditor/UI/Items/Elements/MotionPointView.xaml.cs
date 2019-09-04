@@ -130,6 +130,10 @@ namespace PenMotionEditor.UI.Items.Elements
 			cursorOffset = GetCursorOffset(GraphEditorTab.PointCanvas, this);
 			LoopEngine.AddLoopAction(MainHandle_OnDrag, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 			LoopEngine.AddLoopAction(MainHandle_OnMouseUp, GLoopCycle.None, GWhen.MouseUpRemove);
+
+			GraphEditorTab.isPointDragging = true;
+
+			StartDragging();
 		}
 		private void MainHandle_OnDrag() {
 			Vector2 cursorPos = MouseInput.GetRelativePosition(GraphEditorTab.PointCanvas) + cursorOffset;
@@ -157,6 +161,10 @@ namespace PenMotionEditor.UI.Items.Elements
 			GraphEditorTab.HideSmartFollowText();
 			GraphEditorTab.HideSmartLineForX();
 			GraphEditorTab.HideSmartLineForY();
+
+			GraphEditorTab.isPointDragging = false;
+
+			EndDragging();
 		}
 
 		private void SubHandle_OnMouseDown(int index) {
@@ -164,6 +172,8 @@ namespace PenMotionEditor.UI.Items.Elements
 
 			LoopEngine.AddLoopAction(() => { SubHandle_OnDrag(index); }, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
 			LoopEngine.AddLoopAction(SubHandle_OnMouseUp, GLoopCycle.None, GWhen.MouseUpRemove);
+
+			StartDragging();
 		}
 		private void SubHandle_OnDrag(int index) {
 			Vector2 cursorPos = MouseInput.GetRelativePosition(GraphEditorTab.PointCanvas) + cursorOffset;
@@ -192,6 +202,8 @@ namespace PenMotionEditor.UI.Items.Elements
 			GraphEditorTab.HideSmartFollowText();
 			GraphEditorTab.HideSmartLineForX();
 			GraphEditorTab.HideSmartLineForY();
+
+			EndDragging();
 		}
 
 		public void Update() {
@@ -212,6 +224,15 @@ namespace PenMotionEditor.UI.Items.Elements
 			GraphEditorTab.UpdateGraphLine();
 			PreviewTab.UpdatePositionContinuum();
 			MotionTab.DataToViewDict[GraphEditorTab.EditingMotionData].Cast<MotionItemView>().UpdatePreviewGraph();
+		}
+
+		private void StartDragging() {
+
+			GraphEditorTab.isPointDragging = true;
+		}
+		private void EndDragging() {
+			GraphEditorTab.isPointDragging = false;
+
 		}
 
 		private Vector2 GetCursorOffset(Visual context, UIElement element) {

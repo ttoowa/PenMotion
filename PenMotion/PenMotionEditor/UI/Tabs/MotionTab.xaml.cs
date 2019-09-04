@@ -132,6 +132,9 @@ namespace PenMotionEditor.UI.Tabs {
 					folderItem.ChildRemoved += folderView.Data_ChildRemoved;
 					break;
 			}
+			if(parentFolder != null) {
+				view.ParentItem = (MotionFolderItemView)DataToViewDict[parentFolder];
+			}
 
 			//Register events
 			item.NameChanged += view.Data_NameChanged;
@@ -144,7 +147,10 @@ namespace PenMotionEditor.UI.Tabs {
 		}
 		internal void EditingFile_ItemRemoved(MotionItemBase item, MotionFolderItem parentFolder) {
 			MotionItemBaseView view = DataToViewDict[item];
-			view.DetachParent();
+			if(view.ParentItem != null) {
+				view.ParentItem.ChildItemCollection.Remove(view);
+				view.ParentItem = null;
+			}
 
 			//Remove from collection
 			itemList.Remove(item);

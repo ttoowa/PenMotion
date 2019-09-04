@@ -39,8 +39,10 @@ namespace PenMotionEditor.UI.Tabs {
 		private const float WidthRatio = 1.777f;
 		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
 
-		//Datas
 		public bool OnEditing => EditingMotionData != null;
+		internal bool isPointDragging;
+
+		//Datas
 		public MotionItem EditingMotionData {
 			get; private set;
 		}
@@ -126,7 +128,7 @@ namespace PenMotionEditor.UI.Tabs {
 
 		//Events
 		private void OnTick() {
-			CheckCursorInteraction();
+			ProcessCursorInteraction();
 		}
 		private void OnSizeChanged(object sender, SizeChangedEventArgs e) {
 			UpdateUiAll();
@@ -430,7 +432,7 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 		}
 
-		private void CheckCursorInteraction() {
+		private void ProcessCursorInteraction() {
 			//코드 꼴이 말이 아니다. 으아아악
 			//언젠가 리팩토링 할 것.
 
@@ -444,7 +446,7 @@ namespace PenMotionEditor.UI.Tabs {
 			int cursorOverPointIndex = -1;
 			FindCursorOverPoint(out cursorOverPoint, out cursorOverPointIndex);
 
-			if (KeyInput.GetKeyHold(WinKey.LeftAlt)) {
+			if (Keyboard.IsKeyDown(Key.LeftAlt)) {
 				//Remove mode
 				if (cursorOverPoint != null && cursorOverPointIndex > 0 && cursorOverPointIndex < pointViewList.Count - 1) {
 					SetCursor(CursorStorage.cursor_remove);
@@ -454,9 +456,9 @@ namespace PenMotionEditor.UI.Tabs {
 						EditingMotionData.RemovePoint(cursorOverPoint.Data);
 					}
 				}
-			} else if (KeyInput.GetKeyHold(WinKey.LeftControl) && cursorOverPoint == null) {
+			} else if (Keyboard.IsKeyDown(Key.LeftCtrl) && cursorOverPoint == null) {
 				Vector2 cursorPos = DisplayToNormal(MouseInput.GetRelativePosition(PointCanvas));
-				if (!KeyInput.GetKeyHold(WinKey.Space) && cursorPos.x > 0f && cursorPos.x < 1f) {
+				if (!Keyboard.IsKeyDown(Key.Space) && cursorPos.x > 0f && cursorPos.x < 1f) {
 					//Add mode
 
 					int index = EditingMotionData.GetRightPointIndex(cursorPos.x);
@@ -473,7 +475,7 @@ namespace PenMotionEditor.UI.Tabs {
 					HideSmartLineForX();
 				}
 			}
-			if (KeyInput.GetKeyUp(WinKey.LeftControl) && !MouseInput.Left.Hold) {
+			if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !isPointDragging) {
 				HideSmartLineForX();
 			}
 			if (!cursorChanged) {

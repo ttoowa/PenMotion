@@ -33,8 +33,8 @@ namespace PenMotionEditor.UI.Items {
 		}
 
 		private void InsertChildView(int index, MotionItemBaseView itemView) {
-			if (itemView.GetParentItem() != null) {
-				((MotionFolderItemView)itemView.GetParentItem()).RemoveChildView(itemView);
+			if (itemView.ParentItem != null) {
+				itemView.ParentItem.ChildItemCollection.Remove(itemView);
 			}
 			ChildItemCollection.Insert(index, itemView);
 		}

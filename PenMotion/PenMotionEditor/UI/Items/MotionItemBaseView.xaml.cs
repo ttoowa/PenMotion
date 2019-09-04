@@ -38,6 +38,9 @@ namespace PenMotionEditor.UI.Items {
 		public string DisplayName => NameTextBox.Text;
 
 		public bool IsRoot => Data.IsRoot;
+		public IListFolder ParentItem {
+			get; set;
+		}
 
 		public FrameworkElement ItemContext => ContentContext;
 
@@ -75,12 +78,6 @@ namespace PenMotionEditor.UI.Items {
 
 		public void SetDisplaySelected(bool isSelected) {
 			ContentPanel.Background = isSelected ? SelectedBG : DefaultBG;
-		}
-
-		public IListFolder GetParentItem() {
-			if (Data.Parent == null)
-				return null;
-			return (IListFolder)MotionTab.DataToViewDict[Data.Parent];
 		}
 
 		//Event
