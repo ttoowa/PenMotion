@@ -24,7 +24,7 @@ using GKit.WPF.UI.Controls;
 
 namespace PenMotionEditor.UI.Elements {
 	public partial class MotionItemBaseView : UserControl, IListItem {
-		protected EditorContext EditorContext;
+		protected MotionEditorContext EditorContext;
 		protected MotionTab MotionTab => EditorContext.MotionTab;
 		protected GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
 		protected GLoopEngine LoopEngine => EditorContext.LoopEngine;
@@ -54,7 +54,7 @@ namespace PenMotionEditor.UI.Elements {
 		public MotionItemBaseView() {
 			InitializeComponent();
 		}
-		public MotionItemBaseView(EditorContext editorContext, MotionItemType type) {
+		public MotionItemBaseView(MotionEditorContext editorContext, MotionItemType type) {
 			this.EditorContext = editorContext;
 			this.Type = type;
 

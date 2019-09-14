@@ -27,7 +27,7 @@ using GKit.WPF.UI.Controls;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class MotionTab : UserControl {
-		private EditorContext EditorContext;
+		private MotionEditorContext EditorContext;
 		private GLoopEngine LoopEngine => EditorContext.LoopEngine;
 		private MotionFile EditingFile => EditorContext.EditingFile;
 		private GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
@@ -74,7 +74,7 @@ namespace PenMotionEditor.UI.Tabs {
 		public MotionTab() {
 			InitializeComponent();
 		}
-		public void Init(EditorContext editorContext) {
+		public void Init(MotionEditorContext editorContext) {
 			this.EditorContext = editorContext;
 
 			InitMembers();

@@ -26,7 +26,7 @@ namespace PenMotionEditor.UI.Elements {
 		public MotionFolderItemView() : base() {
 
 		}
-		public MotionFolderItemView(EditorContext editorContext, MotionFolderItem data) : base(editorContext, MotionItemType.Folder) {
+		public MotionFolderItemView(MotionEditorContext editorContext, MotionFolderItem data) : base(editorContext, MotionItemType.Folder) {
 			ContentPanel.Children.Remove(MotionContent);
 
 			Data = data;

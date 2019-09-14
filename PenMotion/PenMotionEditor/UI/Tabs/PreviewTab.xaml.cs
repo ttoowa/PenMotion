@@ -20,7 +20,7 @@ using PenMotionEditor.UI.Elements;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class PreviewTab : UserControl {
-		private EditorContext EditorContext;
+		private MotionEditorContext EditorContext;
 		private GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
 		private MotionItem EditingMotionData => GraphEditorTab.EditingMotionData;
 
@@ -39,7 +39,7 @@ namespace PenMotionEditor.UI.Tabs {
 		public PreviewTab() {
 			InitializeComponent();
 		}
-		public void Init(EditorContext editorContext) {
+		public void Init(MotionEditorContext editorContext) {
 			this.EditorContext = editorContext;
 
 			InitMembers();
@@ -68,7 +68,6 @@ namespace PenMotionEditor.UI.Tabs {
 			SecondsEditText.KeyDown += SecondsEditText_OnKeyDown;
 
 			previewLoopEngine.AddLoopAction(OnPreviewTick);
-
 		}
 
 		//Events

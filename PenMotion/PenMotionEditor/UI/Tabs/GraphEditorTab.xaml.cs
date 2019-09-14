@@ -29,7 +29,7 @@ namespace PenMotionEditor.UI.Tabs {
 /// MotionItem을 Attach할 때 MotionPointView들을 생성하고, Detach할 때 MotionPointView들을 제거합니다.
 /// </summary>
 	public partial class GraphEditorTab : UserControl {
-		private EditorContext EditorContext;
+		private MotionEditorContext EditorContext;
 		private GLoopEngine LoopEngine => EditorContext.LoopEngine;
 		private PreviewTab PreviewTab => EditorContext.PreviewTab;
 		private MotionTab MotionTab => EditorContext.MotionTab;
@@ -44,6 +44,8 @@ namespace PenMotionEditor.UI.Tabs {
 		public FrameworkElement DraggingElement {
 			get; private set;
 		}
+
+		private bool clickEventExecuted;
 
 		//Datas
 		public MotionItem EditingMotionData {
@@ -101,7 +103,7 @@ namespace PenMotionEditor.UI.Tabs {
 		public GraphEditorTab() {
 			InitializeComponent();
 		}
-		public void Init(EditorContext editorContext) {
+		public void Init(MotionEditorContext editorContext) {
 			this.EditorContext = editorContext;
 
 			InitMembers();
@@ -448,12 +450,16 @@ namespace PenMotionEditor.UI.Tabs {
 				view.Update();
 			}
 		}
-
+		
 		private void UpdateCursorInteraction() {
 			//코드 꼴이 말이 아니다. 으아아악
 			//언젠가 리팩토링 할 것.
 
 			const float InteractionThreshold = 0.02f;
+
+			if(Mouse.LeftButton != MouseButtonState.Pressed) {
+				clickEventExecuted = false;
+			}
 
 			if (!OnEditing)
 				return;
@@ -469,7 +475,9 @@ namespace PenMotionEditor.UI.Tabs {
 					SetCursor(CursorStorage.cursor_remove);
 					cursorChanged = true;
 
-					if (MouseInput.Left.Down) {
+					if (!clickEventExecuted && Mouse.LeftButton == MouseButtonState.Pressed) {
+						clickEventExecuted = true;
+
 						EditingMotionData.RemovePoint(cursorOveredPoint.Data);
 					}
 				}
@@ -484,7 +492,9 @@ namespace PenMotionEditor.UI.Tabs {
 						SetSmartLineForX(cursorPos.x);
 						cursorChanged = true;
 
-						if (MouseInput.Left.Down) {
+						if (!clickEventExecuted && Mouse.LeftButton == MouseButtonState.Pressed) {
+							clickEventExecuted = true;
+
 							CreatePointWithInterpolation(index, cursorPos);
 						}
 					}

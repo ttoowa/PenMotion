@@ -33,7 +33,7 @@ namespace PenMotionEditor.UI.Elements {
 		public MotionItemView() : base() {
 
 		}
-		public MotionItemView(EditorContext editorContext, MotionItem data) : base(editorContext, MotionItemType.Motion) {
+		public MotionItemView(MotionEditorContext editorContext, MotionItem data) : base(editorContext, MotionItemType.Motion) {
 			ContentPanel.Children.Remove(FolderContent);
 			CreatePreviewGraph();
 

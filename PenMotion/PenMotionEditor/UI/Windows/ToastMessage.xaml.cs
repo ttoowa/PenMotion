@@ -50,7 +50,7 @@ namespace PenMotionEditor.UI.Windows {
 
 		private void OnLoaded(object sender, RoutedEventArgs e) {
 			Width = MessageText.ActualWidth + 200f;
-			EditorContext.Instance.LoopEngine.AddGRoutine(ToastRoutine(delaySec));
+			MotionEditorContext.Instance.LoopEngine.AddGRoutine(ToastRoutine(delaySec));
 		}
 		protected override void OnSourceInitialized(EventArgs e) {
 			base.OnSourceInitialized(e);

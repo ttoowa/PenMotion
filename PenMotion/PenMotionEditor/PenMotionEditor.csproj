@@ -42,6 +42,9 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bgoon.AvalonDockThemes">
       <HintPath>..\..\..\..\Library\Bgoon.AvalonDockThemes\Bgoon.AvalonDockThemes.dll</HintPath>
@@ -98,8 +101,8 @@
     <Compile Include="UI\Elements\MoveOrderCursor.xaml.cs">
       <DependentUpon>MoveOrderCursor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Tabs\EditorContext.xaml.cs">
-      <DependentUpon>EditorContext.xaml</DependentUpon>
+    <Compile Include="UI\Tabs\MotionEditorContext.xaml.cs">
+      <DependentUpon>MotionEditorContext.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\ToastMessage.xaml.cs">
       <DependentUpon>ToastMessage.xaml</DependentUpon>
@@ -131,7 +134,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\Tabs\EditorContext.xaml">
+    <Page Include="UI\Tabs\MotionEditorContext.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

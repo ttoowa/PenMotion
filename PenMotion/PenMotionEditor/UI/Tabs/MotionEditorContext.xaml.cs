@@ -19,8 +19,8 @@ using PenMotion.Datas;
 using PenMotion.System;
 
 namespace PenMotionEditor.UI.Tabs {
-	public partial class EditorContext : UserControl {
-		public static EditorContext Instance {
+	public partial class MotionEditorContext : UserControl {
+		public static MotionEditorContext Instance {
 			get; private set;
 		}
 
@@ -41,7 +41,7 @@ namespace PenMotionEditor.UI.Tabs {
 			get; private set;
 		}
 
-		public EditorContext() {
+		public MotionEditorContext() {
 			Instance = this;
 
 			InitializeComponent();
@@ -63,6 +63,7 @@ namespace PenMotionEditor.UI.Tabs {
 			IsSaved = true;
 
 			LoopEngine.StartLoop();
+			LoopEngine.MaxOverlapFrame = 1;
 		}
 		private void RegisterEvents() {
 

@@ -25,7 +25,7 @@ namespace PenMotionEditor.UI.Elements
 	/// </summary>
 	public partial class MotionPointView : UserControl, IDisposable
 	{
-		private EditorContext EditorContext;
+		private MotionEditorContext EditorContext;
 		private GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
 		private MotionTab MotionTab => EditorContext.MotionTab;
 		private PreviewTab PreviewTab => EditorContext.PreviewTab;
@@ -60,7 +60,7 @@ namespace PenMotionEditor.UI.Elements
 			//For designer
 			InitializeComponent();
 		}
-		public MotionPointView(EditorContext editorContext, MotionPoint data)
+		public MotionPointView(MotionEditorContext editorContext, MotionPoint data)
 		{
 			InitializeComponent();
 
@@ -138,6 +138,8 @@ namespace PenMotionEditor.UI.Elements
 			cursorOffset = new Vector2(MainHandleWidthHalf, MainHandleWidthHalf) - (Vector2)e.GetPosition(MainHandle);
 
 			StartDragging(MainHandleView);
+
+			e.Handled = true;
 		}
 		private void MainHandleView_MouseMove(object sender, MouseEventArgs e) {
 			if (GraphEditorTab.DraggingElement != MainHandleView)
@@ -152,6 +154,8 @@ namespace PenMotionEditor.UI.Elements
 			Data.SetMainPoint(pointPos.ToPVector2());
 
 			GraphEditorTab.SetSmartFollowText(pointPos);
+
+			e.Handled = true;
 
 			void ApplyMagnet() {
 				float? result = null;
@@ -174,6 +178,8 @@ namespace PenMotionEditor.UI.Elements
 			GraphEditorTab.HideSmartLineForY();
 
 			EndDragging();
+
+			e.Handled = true;
 		}
 
 		private void SubHandle_MouseDown(object sender, MouseButtonEventArgs e, int index) {
