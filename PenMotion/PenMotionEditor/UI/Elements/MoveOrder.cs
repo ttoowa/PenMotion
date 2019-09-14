@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using PenMotion;
 using PenMotion.Datas.Items;
-using PenMotionEditor.UI.Items;
+using PenMotionEditor.UI.Elements;
 using GKit;
 
-namespace PenMotionEditor.UI.Items {
+namespace PenMotionEditor.UI.Elements {
 	public class MoveOrder {
 		public MotionItemBase target;
 		public Direction direction;

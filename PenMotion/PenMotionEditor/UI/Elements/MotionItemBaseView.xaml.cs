@@ -18,11 +18,11 @@ using PenMotion.Datas.Items;
 using GKit;
 using GKit.WPF;
 using PenMotionEditor.UI.Tabs;
-using PenMotionEditor.UI.Items.Elements;
+using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Windows;
 using GKit.WPF.UI.Controls;
 
-namespace PenMotionEditor.UI.Items {
+namespace PenMotionEditor.UI.Elements {
 	public partial class MotionItemBaseView : UserControl, IListItem {
 		protected EditorContext EditorContext;
 		protected MotionTab MotionTab => EditorContext.MotionTab;
@@ -68,17 +68,6 @@ namespace PenMotionEditor.UI.Items {
 		private void RegisterEvent() {
 			NameTextBox.KeyDown += NameEditText_KeyDown;
 		}
-		private void SetNameTextBoxEditable(bool editable) {
-			if (editable) {
-				NameTextBox_StartEdit();
-			} else {
-				NameTextBox_EndEdit();
-			}
-		}
-
-		public void SetDisplaySelected(bool isSelected) {
-			ContentPanel.Background = isSelected ? SelectedBG : DefaultBG;
-		}
 
 		//Event
 		//DataChanged
@@ -115,6 +104,16 @@ namespace PenMotionEditor.UI.Items {
 			}
 		}
 
+		private void SetNameTextBoxEditable(bool editable) {
+			if (editable) {
+				NameTextBox_StartEdit();
+			} else {
+				NameTextBox_EndEdit();
+			}
+		}
+		public void SetDisplaySelected(bool isSelected) {
+			ContentPanel.Background = isSelected ? SelectedBG : DefaultBG;
+		}
 		public void SetDisplayName(string name) {
 			NameTextBox.Text = name;
 		}

@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PenMotionEditor.UI.Items {
+namespace PenMotionEditor.UI.Elements {
 	/// <summary>
 	/// MoveOrderCursor.xaml에 대한 상호 작용 논리
 	/// </summary>

@@ -18,7 +18,7 @@ using PenMotion.Datas.Items.Elements;
 using PenMotion.System;
 using PenMotionEditor.UI.Tabs;
 
-namespace PenMotionEditor.UI.Items.Elements
+namespace PenMotionEditor.UI.Elements
 {
 	/// <summary>
 	/// MGHandle.xaml에 대한 상호 작용 논리
@@ -89,15 +89,22 @@ namespace PenMotionEditor.UI.Items.Elements
 			}
 
 			//Mouse events
-			MainHandleView.MouseDown += MainHandle_OnMouseDown;
+			MainHandleView.MouseDown += MainHandleView_MouseDown;
+			MainHandleView.MouseMove += MainHandleView_MouseMove;
+			MainHandleView.MouseUp += MainHandleView_MouseUp;
+
 			for (int subI = 0; subI < SubHandleViews.Length; ++subI) {
 				int subHandleIndex = subI;
 
-				SubHandleViews[subI].MouseDown += (object sender, MouseButtonEventArgs e) => {
-					if (e.ChangedButton != MouseButton.Left)
-						return;
-
-					SubHandle_OnMouseDown(subHandleIndex);
+				Grid subHandleView = SubHandleViews[subI]; 
+				subHandleView.MouseDown += (object sender, MouseButtonEventArgs e) => {
+					SubHandle_MouseDown(sender, e, subHandleIndex);
+				};
+				subHandleView.MouseMove += (object sender, MouseEventArgs e) => {
+					SubHandle_MouseMove(sender, e, subHandleIndex);
+				};
+				subHandleView.MouseUp += (object sender, MouseButtonEventArgs e) => {
+					SubHandle_MouseUp(sender, e, subHandleIndex);
 				};
 			}
 
@@ -105,6 +112,7 @@ namespace PenMotionEditor.UI.Items.Elements
 			Data.MainPointChanged += Data_MainPointChanged;
 			Data.SubPointChanged += Data_SubPointChanged;
 		}
+
 		public void Dispose() {
 			Data.MainPointChanged -= Data_MainPointChanged;
 			Data.SubPointChanged -= Data_SubPointChanged;
@@ -123,29 +131,29 @@ namespace PenMotionEditor.UI.Items.Elements
 			button.SetButtonReaction((Shape)button.Children[button.Children.Count - 1], 0.3f);
 		}
 
-		private void MainHandle_OnMouseDown(object sender, MouseButtonEventArgs e) {
+		private void MainHandleView_MouseDown(object sender, MouseButtonEventArgs e) {
 			if (e.ChangedButton != MouseButton.Left)
 				return;
 
-			cursorOffset = GetCursorOffset(GraphEditorTab.PointCanvas, this);
-			LoopEngine.AddLoopAction(MainHandle_OnDrag, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
-			LoopEngine.AddLoopAction(MainHandle_OnMouseUp, GLoopCycle.None, GWhen.MouseUpRemove);
+			cursorOffset = new Vector2(MainHandleWidthHalf, MainHandleWidthHalf) - (Vector2)e.GetPosition(MainHandle);
 
-			GraphEditorTab.isPointDragging = true;
-
-			StartDragging();
+			StartDragging(MainHandleView);
 		}
-		private void MainHandle_OnDrag() {
-			Vector2 cursorPos = MouseInput.GetRelativePosition(GraphEditorTab.PointCanvas) + cursorOffset;
+		private void MainHandleView_MouseMove(object sender, MouseEventArgs e) {
+			if (GraphEditorTab.DraggingElement != MainHandleView)
+				return;
+
+			Vector2 cursorPos = (Vector2)e.GetPosition(GraphEditorTab.PointCanvas) + cursorOffset;
 			Vector2 pointPos = GraphEditorTab.DisplayToNormal(cursorPos);
 			pointPos = BMath.Clamp(pointPos, -MaxHandleRange + 1f, MaxHandleRange);
-			FilterMagnet();
+
+			ApplyMagnet();
 
 			Data.SetMainPoint(pointPos.ToPVector2());
 
 			GraphEditorTab.SetSmartFollowText(pointPos);
 
-			void FilterMagnet() {
+			void ApplyMagnet() {
 				float? result = null;
 				result = GraphEditorTab.FindMagnetForY(pointPos.y, true, this);
 				if (result.HasValue) {
@@ -157,36 +165,43 @@ namespace PenMotionEditor.UI.Items.Elements
 				}
 			}
 		}
-		private void MainHandle_OnMouseUp() {
+		private void MainHandleView_MouseUp(object sender, MouseButtonEventArgs e) {
+			if (GraphEditorTab.DraggingElement != MainHandleView)
+				return;
+
 			GraphEditorTab.HideSmartFollowText();
 			GraphEditorTab.HideSmartLineForX();
 			GraphEditorTab.HideSmartLineForY();
 
-			GraphEditorTab.isPointDragging = false;
-
 			EndDragging();
 		}
 
-		private void SubHandle_OnMouseDown(int index) {
-			cursorOffset = GetCursorOffset(this, SubHandleViews[index]) + new Vector2(MotionPointView.SubHandleWidthHalf, MotionPointView.SubHandleWidthHalf);
+		private void SubHandle_MouseDown(object sender, MouseButtonEventArgs e, int index) {
+			if (e.ChangedButton != MouseButton.Left)
+				return;
 
-			LoopEngine.AddLoopAction(() => { SubHandle_OnDrag(index); }, GLoopCycle.EveryFrame, GWhen.MouseUpRemove);
-			LoopEngine.AddLoopAction(SubHandle_OnMouseUp, GLoopCycle.None, GWhen.MouseUpRemove);
+			//cursorOffset = this.GetCanvasPosition() - (Vector2)e.GetPosition(SubHandleViews[index]) + new Vector2(MotionPointView.SubHandleWidthHalf, MotionPointView.SubHandleWidthHalf);
+			cursorOffset = -(Vector2)e.GetPosition(SubHandleViews[index]) + new Vector2(MotionPointView.SubHandleWidthHalf, MotionPointView.SubHandleWidthHalf);
 
-			StartDragging();
+			StartDragging(SubHandleViews[index]);
 		}
-		private void SubHandle_OnDrag(int index) {
-			Vector2 cursorPos = MouseInput.GetRelativePosition(GraphEditorTab.PointCanvas) + cursorOffset;
+		private void SubHandle_MouseMove(object sender, MouseEventArgs e, int index) {
+			if (GraphEditorTab.DraggingElement != SubHandleViews[index])
+				return;
+
+			Vector2 cursorPos = (Vector2)e.GetPosition(GraphEditorTab.PointCanvas) + cursorOffset;
 			Vector2 pointPosAbsolute = GraphEditorTab.DisplayToNormal(cursorPos);
 			pointPosAbsolute = BMath.Clamp(pointPosAbsolute, -MaxHandleRange + 1f, MaxHandleRange);
-			FilterMagnet();
+
+			ApplyMagnet();
+
 			Vector2 pointPosRelative = pointPosAbsolute - Data.MainPoint.ToVector2();
 
 			Data.SetSubPoint(index, pointPosRelative.ToPVector2());
 
 			GraphEditorTab.SetSmartFollowText(pointPosRelative, GraphEditorTab.NormalToDisplay(pointPosAbsolute));
 
-			void FilterMagnet() {
+			void ApplyMagnet() {
 				float? result = null;
 				result = GraphEditorTab.FindMagnetForY(pointPosAbsolute.y, true, null);
 				if (result.HasValue) {
@@ -198,7 +213,10 @@ namespace PenMotionEditor.UI.Items.Elements
 				}
 			}
 		}
-		private void SubHandle_OnMouseUp() {
+		private void SubHandle_MouseUp(object sender, MouseButtonEventArgs e, int index) {
+			if (GraphEditorTab.DraggingElement != SubHandleViews[index])
+				return;
+
 			GraphEditorTab.HideSmartFollowText();
 			GraphEditorTab.HideSmartLineForX();
 			GraphEditorTab.HideSmartLineForY();
@@ -226,17 +244,11 @@ namespace PenMotionEditor.UI.Items.Elements
 			MotionTab.DataToViewDict[GraphEditorTab.EditingMotionData].Cast<MotionItemView>().UpdatePreviewGraph();
 		}
 
-		private void StartDragging() {
-
-			GraphEditorTab.isPointDragging = true;
+		private void StartDragging(FrameworkElement element) {
+			GraphEditorTab.SetDraggingElement(element);
 		}
 		private void EndDragging() {
-			GraphEditorTab.isPointDragging = false;
-
-		}
-
-		private Vector2 GetCursorOffset(Visual context, UIElement element) {
-			return new Vector2((float)Canvas.GetLeft(element), (float)Canvas.GetTop(element)) - MouseInput.GetRelativePosition(context);
+			GraphEditorTab.SetDraggingElement(null);
 		}
 	}
 }

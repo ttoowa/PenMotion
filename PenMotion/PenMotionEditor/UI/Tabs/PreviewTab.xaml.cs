@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 using GKit;
 using GKit.WPF;
 using PenMotion.Datas.Items;
-using PenMotionEditor.UI.Items;
+using PenMotionEditor.UI.Elements;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class PreviewTab : UserControl {

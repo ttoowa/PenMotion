@@ -24,7 +24,7 @@ using PenMotion;
 using PenMotion.Datas;
 using PenMotion.Datas.Items;
 using PenMotion.System;
-using PenMotionEditor.UI.Items;
+using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.FX;
 
 namespace PenMotionEditor.UI.Windows

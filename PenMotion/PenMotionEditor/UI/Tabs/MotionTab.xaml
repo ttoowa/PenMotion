@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 xmlns:System="clr-namespace:System;assembly=mscorlib"
 
-			 xmlns:Items="clr-namespace:PenMotionEditor.UI.Items"
+			 xmlns:Items="clr-namespace:PenMotionEditor.UI.Elements"
 			 xmlns:Workspaces="clr-namespace:PenMotionEditor.UI.Tabs"
 			 xmlns:GControls="clr-namespace:GKit.WPF.UI.Controls;assembly=GKitForWPF"
 
@@ -14,8 +14,8 @@
 	<UserControl.Resources>
 	</UserControl.Resources>
 
-	<DockPanel Background="#3B3B3B" Grid.Column="0" MinWidth="170">
-		<GControls:ListManagerBar x:Name="ControlBar" DockPanel.Dock="Top" Height="45" Background="#FF454545"/>
+	<DockPanel Grid.Column="0" MinWidth="170">
+		<GControls:ListManagerBar x:Name="ControlBar" DockPanel.Dock="Top" Height="45"/>
 		<GControls:EditListView x:Name="MotionListView"/>
 		<!--<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
 			<Grid>

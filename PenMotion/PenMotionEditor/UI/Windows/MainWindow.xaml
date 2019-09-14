@@ -6,7 +6,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
 
         xmlns:Tabs="clr-namespace:PenMotionEditor.UI.Tabs"
-        xmlns:Items="clr-namespace:PenMotionEditor.UI.Items"
+        xmlns:Items="clr-namespace:PenMotionEditor.UI.Elements"
 
 		xmlns:GControls="clr-namespace:GKit.WPF.UI.Controls;assembly=GKitForWPF"
 

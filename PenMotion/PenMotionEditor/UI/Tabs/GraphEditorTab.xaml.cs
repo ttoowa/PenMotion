@@ -18,8 +18,7 @@ using PenMotion.Datas;
 using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 using PenMotion.System;
-using PenMotionEditor.UI.Items;
-using PenMotionEditor.UI.Items.Elements;
+using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Tabs;
 using PenMotionEditor.UI.Windows;
 using GKit;
@@ -40,7 +39,11 @@ namespace PenMotionEditor.UI.Tabs {
 		private static SolidColorBrush GraphLineColor = "B09753".ToBrush();
 
 		public bool OnEditing => EditingMotionData != null;
-		internal bool isPointDragging;
+
+		private bool IsElementDragging => DraggingElement != null;
+		public FrameworkElement DraggingElement {
+			get; private set;
+		}
 
 		//Datas
 		public MotionItem EditingMotionData {
@@ -128,7 +131,7 @@ namespace PenMotionEditor.UI.Tabs {
 
 		//Events
 		private void OnTick() {
-			ProcessCursorInteraction();
+			UpdateCursorInteraction();
 		}
 		private void OnSizeChanged(object sender, SizeChangedEventArgs e) {
 			UpdateUiAll();
@@ -198,6 +201,10 @@ namespace PenMotionEditor.UI.Tabs {
 
 		}
 
+		public void SetDraggingElement(FrameworkElement element) {
+			this.DraggingElement = element;
+		}
+
 		//MotionItem
 		public void AttachMotion(MotionItem motionItem) {
 			DetachMotion();
@@ -241,7 +248,6 @@ namespace PenMotionEditor.UI.Tabs {
 
 			PreviewTab.SetPositionContinuumVisible(false);
 		}
-
 
 		//Grid
 		private void CreateGrid() {
@@ -375,7 +381,7 @@ namespace PenMotionEditor.UI.Tabs {
 			dataToViewDict.Clear();
 		}
 
-		//Points // 이거 MotionItem 으로 옮기자
+		//Points
 		private void CreatePointWithInterpolation(int index, Vector2 position) {
 			//Collect prev, next points
 			MotionPointView prevPointView = pointViewList[index - 1];
@@ -383,27 +389,38 @@ namespace PenMotionEditor.UI.Tabs {
 			float prevNextDeltaX = nextPointView.Data.MainPoint.x - prevPointView.Data.MainPoint.x;
 			float prevDeltaX = position.x - prevPointView.Data.MainPoint.x;
 			float nextDeltaX = nextPointView.Data.MainPoint.x - position.x;
+			float weight = (position.x - prevPointView.Data.MainPoint.x) / prevNextDeltaX;
 
 			MotionPoint point = new MotionPoint();
 
-			//Set data
+			//Calculate data
 			float mainPointX = position.x;
-			float subPoint0X = position.x - prevDeltaX * 0.5f;
-			float subPoint1X = position.x + nextDeltaX * 0.5f;
-			PVector2 subPoint0 = new PVector2(subPoint0X, EditingMotionData.GetMotionValue(subPoint0X)) - point.MainPoint;
-			PVector2 subPoint1 = new PVector2(subPoint1X, EditingMotionData.GetMotionValue(subPoint1X)) - point.MainPoint;
-			point.SetSubPoint(0, subPoint0);
-			point.SetSubPoint(1, subPoint1);
+			float subPoint0X = position.x - prevDeltaX * (1f - weight) * 0.5f;
+			float subPoint1X = position.x + nextDeltaX * weight * 0.5f;
+			Vector2 subPoint0 = new Vector2(subPoint0X, EditingMotionData.GetMotionValue(subPoint0X)) - point.MainPoint.ToVector2();
+			Vector2 subPoint1 = new Vector2(subPoint1X, EditingMotionData.GetMotionValue(subPoint1X)) - point.MainPoint.ToVector2();
 
-			//망한 방법이다. 나중에 고치자.
-			//Vector2 averageVector = GetAverageVector(subPoint0.ToVector2(), subPoint1.ToVector2());
-			//point.subPoints[0] = (averageVector * subPoint0.magnitude).ToPVector2();
-			//point.subPoints[1] = (-averageVector * subPoint1.magnitude).ToPVector2();
+			Vector2 subPoint0Delta = subPoint0 - position;
+			Vector2 subPoint1Delta = subPoint1 - position;
+			
+			//subPoint의 각도로부터 90도씩 꺾인 각도를 구한다
+			float subPoint0Angle = Mathf.Atan2(subPoint0Delta.y, subPoint0Delta.x) * Mathf.Rad2Deg + 90f;
+			float subPoint1Angle = Mathf.Atan2(subPoint1Delta.y, subPoint1Delta.x) * Mathf.Rad2Deg - 90f;
+			
+			//그리고 둘이 섞었다가 다시 분리한다
+			float averAngle = (subPoint0Angle + subPoint1Angle) * 0.5f;
+			subPoint0Angle = (averAngle - 90f) * Mathf.Deg2Rad;
+			subPoint1Angle = (averAngle + 90f) * Mathf.Deg2Rad;
+
+			subPoint0 = new Vector2(Mathf.Cos(subPoint0Angle), Mathf.Sin(subPoint0Angle)) * subPoint0Delta.magnitude;
+			subPoint1 = new Vector2(Mathf.Cos(subPoint1Angle), Mathf.Sin(subPoint1Angle)) * subPoint1Delta.magnitude;
 
 			//Apply
+			point.SetSubPoint(0, subPoint0.ToPVector2());
+			point.SetSubPoint(1, subPoint1.ToPVector2());
 			point.SetMainPoint(new PVector2(mainPointX, EditingMotionData.GetMotionValue(mainPointX)));
-			prevPointView.Data.SubPoints[1] *= prevDeltaX * 0.5f / prevNextDeltaX;
-			nextPointView.Data.SubPoints[0] *= nextDeltaX * 0.5f / prevNextDeltaX;
+			prevPointView.Data.SetSubPoint(1, prevPointView.Data.SubPoints[1] * (prevDeltaX / prevNextDeltaX));
+			nextPointView.Data.SetSubPoint(0, nextPointView.Data.SubPoints[0] * (nextDeltaX / prevNextDeltaX));
 
 			EditingMotionData.InsertPoint(index, point);
 		}
@@ -432,7 +449,7 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 		}
 
-		private void ProcessCursorInteraction() {
+		private void UpdateCursorInteraction() {
 			//코드 꼴이 말이 아니다. 으아아악
 			//언젠가 리팩토링 할 것.
 
@@ -442,22 +459,22 @@ namespace PenMotionEditor.UI.Tabs {
 				return;
 
 			bool cursorChanged = false;
-			MotionPointView cursorOverPoint;
+			MotionPointView cursorOveredPoint;
 			int cursorOverPointIndex = -1;
-			FindCursorOverPoint(out cursorOverPoint, out cursorOverPointIndex);
+			FindCursorOverPoint(out cursorOveredPoint, out cursorOverPointIndex);
 
 			if (Keyboard.IsKeyDown(Key.LeftAlt)) {
 				//Remove mode
-				if (cursorOverPoint != null && cursorOverPointIndex > 0 && cursorOverPointIndex < pointViewList.Count - 1) {
+				if (cursorOveredPoint != null && cursorOverPointIndex > 0 && cursorOverPointIndex < pointViewList.Count - 1) {
 					SetCursor(CursorStorage.cursor_remove);
 					cursorChanged = true;
 
 					if (MouseInput.Left.Down) {
-						EditingMotionData.RemovePoint(cursorOverPoint.Data);
+						EditingMotionData.RemovePoint(cursorOveredPoint.Data);
 					}
 				}
-			} else if (Keyboard.IsKeyDown(Key.LeftCtrl) && cursorOverPoint == null) {
-				Vector2 cursorPos = DisplayToNormal(MouseInput.GetRelativePosition(PointCanvas));
+			} else if (Keyboard.IsKeyDown(Key.LeftCtrl) && cursorOveredPoint == null) {
+				Vector2 cursorPos = DisplayToNormal((Vector2)Mouse.GetPosition(PointCanvas));
 				if (!Keyboard.IsKeyDown(Key.Space) && cursorPos.x > 0f && cursorPos.x < 1f) {
 					//Add mode
 
@@ -475,7 +492,7 @@ namespace PenMotionEditor.UI.Tabs {
 					HideSmartLineForX();
 				}
 			}
-			if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !isPointDragging) {
+			if ((cursorOveredPoint != null || !Keyboard.IsKeyDown(Key.LeftCtrl)) && !IsElementDragging) {
 				HideSmartLineForX();
 			}
 			if (!cursorChanged) {
@@ -575,7 +592,6 @@ namespace PenMotionEditor.UI.Tabs {
 					return magnet;
 				}
 			}
-			GDebug.Log(magnetList.Count);
 			HideSmartLineForY();
 			return null;
 		}
@@ -600,8 +616,8 @@ namespace PenMotionEditor.UI.Tabs {
 			return new Vector2(DisplayToNormalX(displayPoint.x), DisplayToNormalY(displayPoint.y));
 		}
 		
-		private Vector2 GetAverageVector(Vector2 left, Vector2 right) {
-			float averageAngle = ((left.x / left.y) + (right.x / right.y)) * 0.5f * Mathf.Rad2Deg;
+		private Vector2 GetAverageVector(Vector2 left, Vector2 right, float weight) {
+			float averageAngle = ((left.x / left.y) * (1f - weight) + (right.x / right.y) * weight) * Mathf.Rad2Deg;
 			float verticalRadian = (averageAngle + 90f) * Mathf.Deg2Rad;
 
 			return new Vector2(Mathf.Cos(verticalRadian), -Mathf.Sin(verticalRadian));

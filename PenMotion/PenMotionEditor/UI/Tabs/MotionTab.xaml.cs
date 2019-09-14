@@ -18,7 +18,7 @@ using PenMotion;
 using PenMotion.Datas;
 using PenMotion.Datas.Items;
 using PenMotion.System;
-using PenMotionEditor.UI.Items;
+using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Windows;
 using GKit;
 using GKit.WPF;
@@ -88,10 +88,10 @@ namespace PenMotionEditor.UI.Tabs {
 			MotionListView.AutoApplyItemMove = false;
 		}
 		private void RegisterEvents() {
-			ControlBar.CreateItemButton_OnClick += CreateItemButton_OnClick;
-			ControlBar.CreateFolderButton_OnClick += CreateFolderButton_OnClick;
-			ControlBar.CopyItemButton_OnClick += CopyItemButton_OnClick;
-			ControlBar.RemoveItemButton_OnClick += RemoveItemButton_OnClick;
+			ControlBar.CreateItemButtonClick += CreateItemButton_OnClick;
+			ControlBar.CreateFolderButtonClick += CreateFolderButton_OnClick;
+			ControlBar.CopyItemButtonClick += CopyItemButton_OnClick;
+			ControlBar.RemoveItemButtonClick += RemoveItemButton_OnClick;
 
 			MotionListView.SelectedItemSet.SelectionAdded += SelectedItemSet_SelectionAdded;
 			MotionListView.SelectedItemSet.SelectionRemoved += SelectedItemSet_SelectionRemoved;
@@ -179,21 +179,21 @@ namespace PenMotionEditor.UI.Tabs {
 			EditorContext.MarkUnsaved();
 		}
 
-		private void CreateItemButton_OnClick() {
+		private void CreateItemButton_OnClick(object sender, RoutedEventArgs e) {
 			MotionItem item = EditingFile.CreateMotionDefault(SelectedItemParent);
 			MotionListView.SelectedItemSet.SetSelectedItem((MotionItemView)DataToViewDict[item]);
 		}
-		private void CreateFolderButton_OnClick() {
+		private void CreateFolderButton_OnClick(object sender, RoutedEventArgs e) {
 			MotionFolderItem item = EditingFile.CreateFolder(SelectedItemParent);
 			MotionListView.SelectedItemSet.SetSelectedItem((MotionFolderItemView)DataToViewDict[item]);
 		}
-		private void RemoveItemButton_OnClick() {
+		private void RemoveItemButton_OnClick(object sender, RoutedEventArgs e) {
 			foreach (MotionItemBase item in MotionListView.SelectedItemSet.ToArray().Select(item => ((MotionItemBaseView)item).Data)) {
 				MotionListView.SelectedItemSet.RemoveSelectedItem(DataToViewDict[item]);
 				EditingFile.RemoveItem(item);
 			}
 		}
-		private void CopyItemButton_OnClick() {
+		private void CopyItemButton_OnClick(object sender, RoutedEventArgs e) {
 			DuplicateSelectedMotion();
 
 			EditorContext.MarkUnsaved();

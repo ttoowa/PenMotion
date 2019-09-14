@@ -10,7 +10,7 @@ using GKit;
 using GKit.WPF.UI.Controls;
 using System.Windows.Controls;
 
-namespace PenMotionEditor.UI.Items {
+namespace PenMotionEditor.UI.Elements {
 	public class MotionFolderItemView : MotionItemBaseView, IListFolder {
 		public new MotionFolderItem Data {
 			get {

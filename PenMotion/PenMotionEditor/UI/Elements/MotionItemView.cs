@@ -8,13 +8,13 @@ using System.Windows.Shapes;
 using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 using PenMotionEditor.UI.Tabs;
-using PenMotionEditor.UI.Items.Elements;
+using PenMotionEditor.UI.Elements;
 using GKit;
 using GKit.WPF.UI.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace PenMotionEditor.UI.Items {
+namespace PenMotionEditor.UI.Elements {
 	public class MotionItemView : MotionItemBaseView {
 		private const int GraphResolution = 16;
 		private static SolidColorBrush GraphLineColor = "A89676".ToBrush();
@@ -75,14 +75,6 @@ namespace PenMotionEditor.UI.Items {
 					return Data.GetMotionValue(linearValue);
 				}
 			}
-		}
-
-		public void SetDisplayName(string name) {
-			throw new NotImplementedException();
-		}
-
-		public void SetDisplaySelected(bool isSelected) {
-			throw new NotImplementedException();
 		}
 	}
 }

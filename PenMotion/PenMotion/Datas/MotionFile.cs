@@ -33,7 +33,7 @@ namespace PenMotion.Datas {
 			}
 		}
 
-		public void Save(string filePath) {
+		public void Save(string filename) {
 			JObject jRoot = new JObject();
 			jRoot.Add("Version", SystemInfo.Version);
 
@@ -75,17 +75,17 @@ namespace PenMotion.Datas {
 
 			string jsonString = jRoot.ToString();
 
-			using(FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite)) {
+			using(FileStream fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite)) {
 				using (StreamWriter writer = new StreamWriter(fileStream, Encoding.UTF8)) {
 					writer.Write(jsonString);
 				}
 			}
 		}
-		public void Load(string filePath) {
-			this.filePath = filePath;
+		public void Load(string filename) {
+			this.filePath = filename;
 
 			string jsonString;
-			using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
+			using (FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
 				using (StreamReader reader = new StreamReader(fileStream, Encoding.UTF8)) {
 					jsonString = reader.ReadToEnd();
 				}
