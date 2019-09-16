@@ -43,13 +43,17 @@ namespace PenMotion.Datas {
 				JObject jItem = new JObject();
 				jParent.Add(item.IsRoot ? "RootFolder" : item.Name, jItem);
 				jItem.Add("Type", item.Type.ToString());
-				JObject jData = new JObject();
-				jItem.Add("Data", jData);
 
 				if (item.Type == MotionItemType.Motion) {
+					JObject jData = new JObject();
+					jItem.Add("Data", jData);
+
 					SaveMotion(jData, item as MotionItem);
 				} else {
-					SaveFolder(jData, item as MotionFolderItem);
+					JObject jItems = new JObject();
+					jItem.Add("Items", jItems);
+
+					SaveFolder(jItems, item as MotionFolderItem);
 				}
 			}
 			void SaveMotion(JObject jData, MotionItem motion) {
@@ -136,8 +140,8 @@ namespace PenMotion.Datas {
 					folder.SetName(name);
 				}
 
-				JObject jData = jItem["Data"] as JObject;
-				foreach(JToken jChild in jData.Children()) {
+				JObject jItems = jItem["Items"] as JObject;
+				foreach(JToken jChild in jItems.Children()) {
 					JProperty jChildProp = jChild as JProperty;
 					LoadItemRecursive(jChildProp.Value, folder);
 				}
