@@ -34,54 +34,11 @@ namespace PenMotion.Datas {
 		}
 
 		public void Save(string filename) {
-			JObject jRoot = new JObject();
-			jRoot.Add("Version", SystemInfo.Version);
-
-			AddItemRecursive(jRoot, rootFolder);
-
-			void AddItemRecursive(JObject jParent, MotionItemBase item) {
-				JObject jItem = new JObject();
-				jParent.Add(item.IsRoot ? "RootFolder" : item.Name, jItem);
-				jItem.Add("Type", item.Type.ToString());
-
-				if (item.Type == MotionItemType.Motion) {
-					JObject jData = new JObject();
-					jItem.Add("Data", jData);
-
-					SaveMotion(jData, item as MotionItem);
-				} else {
-					JObject jItems = new JObject();
-					jItem.Add("Items", jItems);
-
-					SaveFolder(jItems, item as MotionFolderItem);
-				}
-			}
-			void SaveMotion(JObject jData, MotionItem motion) {
-				JArray jPoints = new JArray();
-				jData.Add("Point", jPoints);
-				
-				for (int pointI = 0; pointI < motion.pointList.Count; ++pointI) {
-					JArray jPoint = new JArray();
-					jPoints.Add(jPoint);
-
-					MotionPoint point = motion.pointList[pointI];
-					jPoint.Add(point.MainPoint.ToString());
-					jPoint.Add(point.SubPoints[0].ToString());
-					jPoint.Add(point.SubPoints[1].ToString());
-				}
-			}
-			void SaveFolder(JObject jData, MotionFolderItem folder) {
-				for (int i = 0; i < folder.childList.Count; ++i) {
-					MotionItemBase childItem = folder.childList[i];
-					AddItemRecursive(jData, childItem);
-				}
-			}
-
-			string jsonString = jRoot.ToString();
+			JObject jFile = ToJObject();
 
 			using(FileStream fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite)) {
 				using (StreamWriter writer = new StreamWriter(fileStream, Encoding.UTF8)) {
-					writer.Write(jsonString);
+					writer.Write(jFile.ToString());
 				}
 			}
 		}
@@ -248,6 +205,52 @@ namespace PenMotion.Datas {
 					return nameBase + num;
 				}
 			}
+		}
+
+		public JObject ToJObject() {
+			JObject jFile = new JObject();
+			jFile.Add("Version", SystemInfo.Version);
+
+			AddItemRecursive(jFile, rootFolder);
+
+			void AddItemRecursive(JObject jParent, MotionItemBase item) {
+				JObject jItem = new JObject();
+				jParent.Add(item.IsRoot ? "RootFolder" : item.Name, jItem);
+				jItem.Add("Type", item.Type.ToString());
+
+				if (item.Type == MotionItemType.Motion) {
+					JObject jData = new JObject();
+					jItem.Add("Data", jData);
+
+					SaveMotion(jData, item as MotionItem);
+				} else {
+					JObject jItems = new JObject();
+					jItem.Add("Items", jItems);
+
+					SaveFolder(jItems, item as MotionFolderItem);
+				}
+			}
+			void SaveMotion(JObject jData, MotionItem motion) {
+				JArray jPoints = new JArray();
+				jData.Add("Point", jPoints);
+
+				for (int pointI = 0; pointI < motion.pointList.Count; ++pointI) {
+					JArray jPoint = new JArray();
+					jPoints.Add(jPoint);
+
+					MotionPoint point = motion.pointList[pointI];
+					jPoint.Add(point.MainPoint.ToString());
+					jPoint.Add(point.SubPoints[0].ToString());
+					jPoint.Add(point.SubPoints[1].ToString());
+				}
+			}
+			void SaveFolder(JObject jData, MotionFolderItem folder) {
+				for (int i = 0; i < folder.childList.Count; ++i) {
+					MotionItemBase childItem = folder.childList[i];
+					AddItemRecursive(jData, childItem);
+				}
+			}
+			return jFile;
 		}
 	}
 }

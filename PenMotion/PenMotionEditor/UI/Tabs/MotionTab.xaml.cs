@@ -47,10 +47,10 @@ namespace PenMotionEditor.UI.Tabs {
 		//Selected
 		public bool IsSelectedItemCopyable {
 			get {
-				if (MotionListView.SelectedItemSet.Count == 0)
+				if (MotionTreeView.SelectedItemSet.Count == 0)
 					return false;
 
-				foreach (IListItem item in MotionListView.SelectedItemSet) {
+				foreach (ITreeItem item in MotionTreeView.SelectedItemSet) {
 					if (item is MotionItemView)
 						return true;
 				}
@@ -60,7 +60,7 @@ namespace PenMotionEditor.UI.Tabs {
 		}
 		public MotionFolderItemView SelectedItemParentView {
 			get {
-				IListFolder selectedItemParent = MotionListView.SelectedItemParent;
+				ITreeFolder selectedItemParent = MotionTreeView.SelectedItemParent;
 				return selectedItemParent is MotionFolderItemView ? (MotionFolderItemView)selectedItemParent : null;
 			}
 		}
@@ -85,7 +85,7 @@ namespace PenMotionEditor.UI.Tabs {
 			DataToViewDict = new Dictionary<MotionItemBase, MotionItemBaseView>();
 		}
 		private void InitUI() {
-			MotionListView.AutoApplyItemMove = false;
+			MotionTreeView.AutoApplyItemMove = false;
 		}
 		private void RegisterEvents() {
 			ControlBar.CreateItemButtonClick += CreateItemButton_OnClick;
@@ -93,10 +93,10 @@ namespace PenMotionEditor.UI.Tabs {
 			ControlBar.CopyItemButtonClick += CopyItemButton_OnClick;
 			ControlBar.RemoveItemButtonClick += RemoveItemButton_OnClick;
 
-			MotionListView.SelectedItemSet.SelectionAdded += SelectedItemSet_SelectionAdded;
-			MotionListView.SelectedItemSet.SelectionRemoved += SelectedItemSet_SelectionRemoved;
-			MotionListView.ItemMoved += MotionListView_ItemMoved;
-			MotionListView.MessageOccured += MotionListView_MessageOccured;
+			MotionTreeView.SelectedItemSet.SelectionAdded += SelectedItemSet_SelectionAdded;
+			MotionTreeView.SelectedItemSet.SelectionRemoved += SelectedItemSet_SelectionRemoved;
+			MotionTreeView.ItemMoved += MotionListView_ItemMoved;
+			MotionTreeView.MessageOccured += MotionListView_MessageOccured;
 		}
 
 		//Events
@@ -121,8 +121,8 @@ namespace PenMotionEditor.UI.Tabs {
 						folderView.SetRootFolder();
 						RootFolderView = folderView;
 
-						MotionListView.ChildItemCollection.Add(folderView);
-						MotionListView.ManualRootFolder = folderView;
+						MotionTreeView.ChildItemCollection.Add(folderView);
+						MotionTreeView.ManualRootFolder = folderView;
 					}
 
 					//Register events
@@ -157,7 +157,7 @@ namespace PenMotionEditor.UI.Tabs {
 			DataToViewDict.Remove(item);
 
 			if (item.IsRoot) {
-				MotionListView.ChildItemCollection.Remove(view);
+				MotionTreeView.ChildItemCollection.Remove(view);
 				RootFolderView = null;
 			}
 
@@ -181,15 +181,15 @@ namespace PenMotionEditor.UI.Tabs {
 
 		private void CreateItemButton_OnClick(object sender, RoutedEventArgs e) {
 			MotionItem item = EditingFile.CreateMotionDefault(SelectedItemParent);
-			MotionListView.SelectedItemSet.SetSelectedItem((MotionItemView)DataToViewDict[item]);
+			MotionTreeView.SelectedItemSet.SetSelectedItem((MotionItemView)DataToViewDict[item]);
 		}
 		private void CreateFolderButton_OnClick(object sender, RoutedEventArgs e) {
 			MotionFolderItem item = EditingFile.CreateFolder(SelectedItemParent);
-			MotionListView.SelectedItemSet.SetSelectedItem((MotionFolderItemView)DataToViewDict[item]);
+			MotionTreeView.SelectedItemSet.SetSelectedItem((MotionFolderItemView)DataToViewDict[item]);
 		}
 		private void RemoveItemButton_OnClick(object sender, RoutedEventArgs e) {
-			foreach (MotionItemBase item in MotionListView.SelectedItemSet.ToArray().Select(item => ((MotionItemBaseView)item).Data)) {
-				MotionListView.SelectedItemSet.RemoveSelectedItem(DataToViewDict[item]);
+			foreach (MotionItemBase item in MotionTreeView.SelectedItemSet.ToArray().Select(item => ((MotionItemBaseView)item).Data)) {
+				MotionTreeView.SelectedItemSet.RemoveSelectedItem(DataToViewDict[item]);
 				EditingFile.RemoveItem(item);
 			}
 		}
@@ -199,10 +199,10 @@ namespace PenMotionEditor.UI.Tabs {
 			EditorContext.MarkUnsaved();
 		}
 
-		private void SelectedItemSet_SelectionRemoved(IListItem item) {
+		private void SelectedItemSet_SelectionRemoved(ITreeItem item) {
 			SelectionItemChanged();
 		}
-		private void SelectedItemSet_SelectionAdded(IListItem item) {
+		private void SelectedItemSet_SelectionAdded(ITreeItem item) {
 			SelectionItemChanged();
 		}
 		private void SelectionItemChanged() {
@@ -210,7 +210,7 @@ namespace PenMotionEditor.UI.Tabs {
 			UpdateFocusItem();
 		}
 
-		private void MotionListView_ItemMoved(IListItem item, IListFolder oldParent, IListFolder newParent, int index) {
+		private void MotionListView_ItemMoved(ITreeItem item, ITreeFolder oldParent, ITreeFolder newParent, int index) {
 			MotionItemBase itemData = ((MotionItemBaseView)item).Data;
 			MotionFolderItemView newParentFolderView = (MotionFolderItemView)newParent;
 
@@ -225,9 +225,9 @@ namespace PenMotionEditor.UI.Tabs {
 		}
 
 		public void ClearItems() {
-			MotionListView.SelectedItemSet.UnselectItems();
+			MotionTreeView.SelectedItemSet.UnselectItems();
 			itemList.Clear();
-			MotionListView.ChildItemCollection.Clear();
+			MotionTreeView.ChildItemCollection.Clear();
 		}
 
 		public void DuplicateSelectedMotion() {
@@ -236,7 +236,7 @@ namespace PenMotionEditor.UI.Tabs {
 
 			MotionItemBase latestNewItem = null;
 			MotionFolderItem parentFolder = SelectedItemParent;
-			foreach (MotionItemBaseView refItem in MotionListView.SelectedItemSet) {
+			foreach (MotionItemBaseView refItem in MotionTreeView.SelectedItemSet) {
 				if (refItem.Type == MotionItemType.Motion) {
 					MotionItem refMotionItem = (MotionItem)refItem.Data;
 					//Create motion
@@ -270,13 +270,13 @@ namespace PenMotionEditor.UI.Tabs {
 				}
 			}
 			if (latestNewItem != null) {
-				MotionListView.SelectedItemSet.SetSelectedItem(DataToViewDict[latestNewItem]);
+				MotionTreeView.SelectedItemSet.SetSelectedItem(DataToViewDict[latestNewItem]);
 			}
 		}
 
 		private void UpdateFocusItem() {
-			if (MotionListView.SelectedItemSet.Count == 1) {
-				MotionItemBaseView itemBaseView = (MotionItemBaseView)MotionListView.SelectedItemSet.Last;
+			if (MotionTreeView.SelectedItemSet.Count == 1) {
+				MotionItemBaseView itemBaseView = (MotionItemBaseView)MotionTreeView.SelectedItemSet.Last;
 				
 				if(itemBaseView.Type == MotionItemType.Motion) {
 					EditorContext.GraphEditorTab.AttachMotion((MotionItem)itemBaseView.Data);
@@ -296,13 +296,13 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 		}
 
-		private MotionItemBase ToMotionItemBase(IListItem item) {
+		private MotionItemBase ToMotionItemBase(ITreeItem item) {
 			return ((MotionItemBaseView)item).Data;
 		}
-		private MotionItem ToMotionItem(IListItem item) {
+		private MotionItem ToMotionItem(ITreeItem item) {
 			return ((MotionItemView)item).Data;
 		}
-		private MotionFolderItem ToFolderItem(IListFolder item) {
+		private MotionFolderItem ToFolderItem(ITreeFolder item) {
 			return ((MotionFolderItemView)item).Data;
 		}
 	}

@@ -23,7 +23,7 @@ using PenMotionEditor.UI.Windows;
 using GKit.WPF.UI.Controls;
 
 namespace PenMotionEditor.UI.Elements {
-	public partial class MotionItemBaseView : UserControl, IListItem {
+	public partial class MotionItemBaseView : UserControl, ITreeItem {
 		protected MotionEditorContext EditorContext;
 		protected MotionTab MotionTab => EditorContext.MotionTab;
 		protected GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
@@ -38,7 +38,7 @@ namespace PenMotionEditor.UI.Elements {
 		public string DisplayName => NameTextBox.Text;
 
 		public bool IsRoot => Data.IsRoot;
-		public IListFolder ParentItem {
+		public ITreeFolder ParentItem {
 			get; set;
 		}
 

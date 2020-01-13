@@ -16,7 +16,7 @@
 
 	<DockPanel Grid.Column="0" MinWidth="170">
 		<GControls:ListManagerBar x:Name="ControlBar" DockPanel.Dock="Top" Height="45"/>
-		<GControls:EditListView x:Name="MotionListView"/>
+		<GControls:EditTreeView x:Name="MotionTreeView"/>
 		<!--<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
 			<Grid>
 				<StackPanel Name="ItemStackPanel" Orientation="Vertical">
