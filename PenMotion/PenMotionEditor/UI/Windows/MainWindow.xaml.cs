@@ -54,9 +54,9 @@ namespace PenMotionEditor.UI.Windows
 			EditorContext.LoopEngine.AddLoopAction(OnTick);
 
 			//FileManagerBar
-			FileManagerBar.CreateFileButton_OnClick += NewFileButton_OnClick;
-			FileManagerBar.OpenFileButton_OnClick += OpenFileButton_OnClick;
-			FileManagerBar.SaveFileButton_OnClick += SaveFileButton_OnClick;
+			FileManagerBar.CreateFileButtonClick += NewFileButton_OnClick;
+			FileManagerBar.OpenFileButtonClick += OpenFileButton_OnClick;
+			FileManagerBar.SaveFileButtonClick += SaveFileButton_OnClick;
 		}
 
 		private void OnClosing(object sender, CancelEventArgs e) {

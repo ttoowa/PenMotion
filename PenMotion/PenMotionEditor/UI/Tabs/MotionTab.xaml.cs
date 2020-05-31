@@ -83,8 +83,7 @@ namespace PenMotionEditor.UI.Tabs {
 		private void InitMembers() {
 			itemList = new List<MotionItemBase>();
 			DataToViewDict = new Dictionary<MotionItemBase, MotionItemBaseView>();
-		}
-		private void InitUI() {
+
 			MotionTreeView.AutoApplyItemMove = false;
 		}
 		private void RegisterEvents() {
@@ -128,8 +127,17 @@ namespace PenMotionEditor.UI.Tabs {
 					//Register events
 					MotionFolderItem folderItem = (MotionFolderItem)item;
 
-					folderItem.ChildInserted += folderView.Data_ChildInserted;
-					folderItem.ChildRemoved += folderView.Data_ChildRemoved;
+					folderItem.ChildInserted += Data_ChildInserted;
+					folderItem.ChildRemoved += Data_ChildRemoved;
+
+					void Data_ChildInserted(int index, MotionItemBase childItem) {
+						MotionItemBaseView childItemView = DataToViewDict[childItem];
+						folderView.ChildItemCollection.Insert(index, childItemView);
+					}
+					void Data_ChildRemoved(MotionItemBase childItem) {
+						MotionItemBaseView childItemView = DataToViewDict[childItem];
+						folderView.ChildItemCollection.Remove(childItemView);
+					}
 					break;
 			}
 			if(parentFolder != null) {
@@ -161,39 +169,28 @@ namespace PenMotionEditor.UI.Tabs {
 				RootFolderView = null;
 			}
 
-			switch (item.Type) {
-				case MotionItemType.Motion:
-					break;
-				case MotionItemType.Folder:
-					//Unregister events
-					MotionFolderItemView folderView = (MotionFolderItemView)view;
-					MotionFolderItem folderItem = (MotionFolderItem)item;
-
-					folderItem.ChildInserted -= folderView.Data_ChildInserted;
-					folderItem.ChildRemoved -= folderView.Data_ChildRemoved;
-					break;
-			}
 			//Unregister events
+			//어차피 삭제이후 사용되지 않으므로 참조가 어려운 이벤트는 생략한다.
 			item.NameChanged -= view.Data_NameChanged;
 
 			EditorContext.MarkUnsaved();
 		}
 
-		private void CreateItemButton_OnClick(object sender, RoutedEventArgs e) {
+		private void CreateItemButton_OnClick() {
 			MotionItem item = EditingFile.CreateMotionDefault(SelectedItemParent);
 			MotionTreeView.SelectedItemSet.SetSelectedItem((MotionItemView)DataToViewDict[item]);
 		}
-		private void CreateFolderButton_OnClick(object sender, RoutedEventArgs e) {
+		private void CreateFolderButton_OnClick() {
 			MotionFolderItem item = EditingFile.CreateFolder(SelectedItemParent);
 			MotionTreeView.SelectedItemSet.SetSelectedItem((MotionFolderItemView)DataToViewDict[item]);
 		}
-		private void RemoveItemButton_OnClick(object sender, RoutedEventArgs e) {
+		private void RemoveItemButton_OnClick() {
 			foreach (MotionItemBase item in MotionTreeView.SelectedItemSet.ToArray().Select(item => ((MotionItemBaseView)item).Data)) {
 				MotionTreeView.SelectedItemSet.RemoveSelectedItem(DataToViewDict[item]);
 				EditingFile.RemoveItem(item);
 			}
 		}
-		private void CopyItemButton_OnClick(object sender, RoutedEventArgs e) {
+		private void CopyItemButton_OnClick() {
 			DuplicateSelectedMotion();
 
 			EditorContext.MarkUnsaved();

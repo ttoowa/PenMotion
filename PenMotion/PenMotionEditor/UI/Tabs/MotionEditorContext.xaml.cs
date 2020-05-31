@@ -46,6 +46,9 @@ namespace PenMotionEditor.UI.Tabs {
 
 			InitializeComponent();
 
+			if (this.IsDesignMode())
+				return;
+
 			InitMembers();
 			InitTabs();
 			RegisterEvents();

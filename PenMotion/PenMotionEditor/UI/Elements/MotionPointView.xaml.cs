@@ -128,7 +128,7 @@ namespace PenMotionEditor.UI.Elements
 		}
 
 		private void SetButtonReaction(Grid button) {
-			button.SetButtonReaction((Shape)button.Children[button.Children.Count - 1], 0.3f);
+			button.RegisterButtonReaction((Shape)button.Children[button.Children.Count - 1], 0.3f);
 		}
 
 		private void MainHandleView_MouseDown(object sender, MouseButtonEventArgs e) {

@@ -32,26 +32,9 @@ namespace PenMotionEditor.UI.Elements {
 			Data = data;
 		}
 
-		private void InsertChildView(int index, MotionItemBaseView itemView) {
-			if (itemView.ParentItem != null) {
-				itemView.ParentItem.ChildItemCollection.Remove(itemView);
-			}
-			ChildItemCollection.Insert(index, itemView);
-		}
-		private void RemoveChildView(MotionItemBaseView itemView) {
-			ChildItemCollection.Remove(itemView);
-		}
-
 		public void SetRootFolder() {
 			BackPanel.Children.Remove(ContentContext);
 			ChildStackPanel.Margin = new Thickness();
-		}
-
-		internal void Data_ChildInserted(int index, MotionItemBase childItem) {
-			InsertChildView(index, MotionTab.DataToViewDict[childItem]);
-		}
-		internal void Data_ChildRemoved(MotionItemBase childItem) {
-			RemoveChildView(MotionTab.DataToViewDict[childItem]);
 		}
 	}
 }
