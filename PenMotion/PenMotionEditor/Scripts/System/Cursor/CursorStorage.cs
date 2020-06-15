@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.IO;
 using System.Windows.Input;
-using GKit;
-using PenMotionEditor.Properties;
-using PenMotionEditor.UI.Windows;
 
 namespace PenMotionEditor {
 	public class CursorStorage {

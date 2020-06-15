@@ -7,7 +7,7 @@
 
 			 xmlns:Items="clr-namespace:PenMotionEditor.UI.Elements"
 			 xmlns:Workspaces="clr-namespace:PenMotionEditor.UI.Tabs"
-			 xmlns:GControls="clr-namespace:GKit.WPF.UI.Controls;assembly=GKitForWPF"
+			 xmlns:GControls="clr-namespace:GKitForWPF.UI.Controls;assembly=GKitForWPF"
 
              mc:Ignorable="d" 
              d:DesignWidth="300" d:DesignHeight="450">

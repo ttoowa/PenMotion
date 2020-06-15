@@ -1,26 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using GKitForWPF;
+using GKitForWPF.Graphics;
+using GKitForWPF.UI.Controls;
 using PenMotion.Datas;
 using PenMotion.Datas.Items;
-using GKit;
-using GKit.WPF;
 using PenMotionEditor.UI.Tabs;
-using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Windows;
-using GKit.WPF.UI.Controls;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PenMotionEditor.UI.Elements {
 	public partial class MotionItemBaseView : UserControl, ITreeItem {
@@ -98,7 +86,7 @@ namespace PenMotionEditor.UI.Elements {
 			}
 		}
 		private void NameEditText_KeyDown(object sender, KeyEventArgs e) {
-			if(e.Key == Key.Return) {
+			if (e.Key == Key.Return) {
 				SetNameTextBoxEditable(false);
 				Keyboard.ClearFocus();
 			}

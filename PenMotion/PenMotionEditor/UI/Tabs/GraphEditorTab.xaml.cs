@@ -1,33 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using PenMotion;
-using PenMotion.Datas;
+﻿using GKitForWPF;
+using GKitForWPF.Graphics;
 using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 using PenMotion.System;
 using PenMotionEditor.UI.Elements;
-using PenMotionEditor.UI.Tabs;
-using PenMotionEditor.UI.Windows;
-using GKit;
-using GKit.WPF;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace PenMotionEditor.UI.Tabs {
-/// <summary>
-/// MotionItem을 Attach할 때 MotionPointView들을 생성하고, Detach할 때 MotionPointView들을 제거합니다.
-/// </summary>
+	/// <summary>
+	/// MotionItem을 Attach할 때 MotionPointView들을 생성하고, Detach할 때 MotionPointView들을 제거합니다.
+	/// </summary>
 	public partial class GraphEditorTab : UserControl {
 		private MotionEditorContext EditorContext;
 		private GLoopEngine LoopEngine => EditorContext.LoopEngine;
@@ -157,7 +145,7 @@ namespace PenMotionEditor.UI.Tabs {
 			cursorPosMemory = MouseInput.AbsolutePosition;
 
 			displayOffset += cursorDelta.ToPVector2() / displayZoom * 0.5f;
-			displayOffset = BMath.Clamp(displayOffset.ToVector2(), -MaxOffset, MaxOffset).ToPVector2();
+			displayOffset = GMath.Clamp(displayOffset.ToVector2(), -MaxOffset, MaxOffset).ToPVector2();
 
 			UpdateUiAll();
 		}
@@ -234,7 +222,7 @@ namespace PenMotionEditor.UI.Tabs {
 			ClearPointViews();
 
 			//Unregister events
-			if(OnEditing) {
+			if (OnEditing) {
 				EditingMotionData.PointInserted -= MotionItem_PointInserted;
 				EditingMotionData.PointRemoved -= MotionItem_PointRemoved;
 			}
@@ -365,7 +353,7 @@ namespace PenMotionEditor.UI.Tabs {
 			view.Data_MainPointChanged(motionPoint.MainPoint);
 
 			//SubPoints
-			for(int i=0; i<motionPoint.SubPoints.Length; ++i) {
+			for (int i = 0; i < motionPoint.SubPoints.Length; ++i) {
 				view.Data_SubPointChanged(i, motionPoint.SubPoints[i]);
 			}
 
@@ -375,7 +363,7 @@ namespace PenMotionEditor.UI.Tabs {
 			PointCanvas.Children.Remove(motionPointView);
 		}
 		private void ClearPointViews() {
-			foreach(MotionPointView pointView in pointViewList) {
+			foreach (MotionPointView pointView in pointViewList) {
 				pointView.Dispose();
 			}
 
@@ -404,11 +392,11 @@ namespace PenMotionEditor.UI.Tabs {
 
 			Vector2 subPoint0Delta = subPoint0 - position;
 			Vector2 subPoint1Delta = subPoint1 - position;
-			
+
 			//subPoint의 각도로부터 90도씩 꺾인 각도를 구한다
 			float subPoint0Angle = Mathf.Atan2(subPoint0Delta.y, subPoint0Delta.x) * Mathf.Rad2Deg + 90f;
 			float subPoint1Angle = Mathf.Atan2(subPoint1Delta.y, subPoint1Delta.x) * Mathf.Rad2Deg - 90f;
-			
+
 			//그리고 둘이 섞었다가 다시 분리한다
 			float averAngle = (subPoint0Angle + subPoint1Angle) * 0.5f;
 			subPoint0Angle = (averAngle - 90f) * Mathf.Deg2Rad;
@@ -450,14 +438,14 @@ namespace PenMotionEditor.UI.Tabs {
 				view.Update();
 			}
 		}
-		
+
 		private void UpdateCursorInteraction() {
 			//코드 꼴이 말이 아니다. 으아아악
 			//언젠가 리팩토링 할 것.
 
 			const float InteractionThreshold = 0.02f;
 
-			if(Mouse.LeftButton != MouseButtonState.Pressed) {
+			if (Mouse.LeftButton != MouseButtonState.Pressed) {
 				clickEventExecuted = false;
 			}
 
@@ -625,7 +613,7 @@ namespace PenMotionEditor.UI.Tabs {
 		public Vector2 DisplayToNormal(Vector2 displayPoint) {
 			return new Vector2(DisplayToNormalX(displayPoint.x), DisplayToNormalY(displayPoint.y));
 		}
-		
+
 		private Vector2 GetAverageVector(Vector2 left, Vector2 right, float weight) {
 			float averageAngle = ((left.x / left.y) * (1f - weight) + (right.x / right.y) * weight) * Mathf.Rad2Deg;
 			float verticalRadian = (averageAngle + 90f) * Mathf.Deg2Rad;

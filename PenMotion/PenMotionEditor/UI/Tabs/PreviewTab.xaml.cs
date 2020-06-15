@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using GKitForWPF;
+using PenMotion.Datas.Items;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using GKit;
-using GKit.WPF;
-using PenMotion.Datas.Items;
-using PenMotionEditor.UI.Elements;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class PreviewTab : UserControl {
@@ -221,6 +210,6 @@ namespace PenMotionEditor.UI.Tabs {
 			}
 		}
 
-		
+
 	}
 }

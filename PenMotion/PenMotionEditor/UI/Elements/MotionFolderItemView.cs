@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using GKitForWPF;
+using GKitForWPF.UI.Controls;
 using PenMotion.Datas.Items;
 using PenMotionEditor.UI.Tabs;
-using GKit;
-using GKit.WPF.UI.Controls;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace PenMotionEditor.UI.Elements {

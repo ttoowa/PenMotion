@@ -8,7 +8,7 @@
         xmlns:Tabs="clr-namespace:PenMotionEditor.UI.Tabs"
         xmlns:Items="clr-namespace:PenMotionEditor.UI.Elements"
 
-		xmlns:GControls="clr-namespace:GKit.WPF.UI.Controls;assembly=GKitForWPF"
+		xmlns:GControls="clr-namespace:GKitForWPF.UI.Controls;assembly=GKitForWPF"
 
         mc:Ignorable="d"
         Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PenMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450" Focusable="False">

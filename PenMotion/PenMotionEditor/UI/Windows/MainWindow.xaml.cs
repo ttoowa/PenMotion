@@ -1,41 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Microsoft.Win32;
-using GKit;
-using GKit.WPF;
-using PenMotion;
-using PenMotion.Datas;
-using PenMotion.Datas.Items;
-using PenMotion.System;
-using PenMotionEditor.UI.Elements;
+﻿using GKitForWPF;
 using PenMotionEditor.UI.FX;
+using System.ComponentModel;
+using System.Windows;
 
-namespace PenMotionEditor.UI.Windows
-{
+namespace PenMotionEditor.UI.Windows {
 	/// <summary>
 	/// MainWindow.xaml에 대한 상호 작용 논리
 	/// </summary>
-	public partial class MainWindow : Window
-	{
-		public MainWindow()
-		{
+	public partial class MainWindow : Window {
+		public MainWindow() {
 			InitializeComponent();
 			if (this.IsDesignMode())
 				return;
@@ -61,7 +34,7 @@ namespace PenMotionEditor.UI.Windows
 
 		private void OnClosing(object sender, CancelEventArgs e) {
 			if (!EditorContext.IsSaved) {
-				if(!EditorContext.ShowSaveQuestion()) {
+				if (!EditorContext.ShowSaveQuestion()) {
 					e.Cancel = true;
 				}
 			}
@@ -81,7 +54,7 @@ namespace PenMotionEditor.UI.Windows
 			}
 		}
 		private void OpenFileButton_OnClick() {
-			if(EditorContext.OpenFile()) {
+			if (EditorContext.OpenFile()) {
 				SetContentContextVisible(true);
 			}
 		}
@@ -104,6 +77,6 @@ namespace PenMotionEditor.UI.Windows
 		public void SetContentContextVisible(bool show) {
 			EditorContext.Visibility = show ? Visibility.Visible : Visibility.Hidden;
 		}
-		
+
 	}
 }
