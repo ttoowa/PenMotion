@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PenMotion.System;
-using GKit;
+using GKitForWPF;
 
 namespace PenMotionEditor {
 	public static class VectorUtlity {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using GKit;
+using GKitForWPF;
 
 namespace PenMotionEditor {
 	public static class CanvasUtility {

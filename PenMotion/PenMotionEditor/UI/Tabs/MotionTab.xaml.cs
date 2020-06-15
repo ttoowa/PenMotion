@@ -20,10 +20,9 @@ using PenMotion.Datas.Items;
 using PenMotion.System;
 using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Windows;
-using GKit;
-using GKit.WPF;
 using PenMotion.Datas.Items.Elements;
-using GKit.WPF.UI.Controls;
+using GKitForWPF;
+using GKitForWPF.UI.Controls;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class MotionTab : UserControl {

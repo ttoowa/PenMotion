@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using PenMotion;
 using PenMotion.Datas.Items;
 using PenMotionEditor.UI.Elements;
-using GKit;
+using GKitForWPF;
 
 namespace PenMotionEditor.UI.Elements {
 	public class MoveOrder {

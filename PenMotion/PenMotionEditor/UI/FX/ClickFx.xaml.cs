@@ -13,8 +13,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using GKit;
-using GKit.WPF;
+using GKitForWPF;
+using GKitForWPF;
 
 namespace PenMotionEditor.UI.FX {
 	/// <summary>

@@ -14,7 +14,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using GKit;
+using GKitForWPF;
 using PenMotionEditor.UI.Tabs;
 
 namespace PenMotionEditor.UI.Windows {

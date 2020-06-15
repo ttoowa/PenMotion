@@ -21,8 +21,8 @@ using PenMotion.System;
 using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Tabs;
 using PenMotionEditor.UI.Windows;
-using GKit;
-using GKit.WPF;
+using GKitForWPF;
+using GKitForWPF.Graphics;
 
 namespace PenMotionEditor.UI.Tabs {
 /// <summary>
@@ -157,7 +157,7 @@ namespace PenMotionEditor.UI.Tabs {
 			cursorPosMemory = MouseInput.AbsolutePosition;
 
 			displayOffset += cursorDelta.ToPVector2() / displayZoom * 0.5f;
-			displayOffset = BMath.Clamp(displayOffset.ToVector2(), -MaxOffset, MaxOffset).ToPVector2();
+			displayOffset = GMath.Clamp(displayOffset.ToVector2(), -MaxOffset, MaxOffset).ToPVector2();
 
 			UpdateUiAll();
 		}

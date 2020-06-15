@@ -13,8 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
-using GKit;
-using GKit.WPF;
+using GKitForWPF;
+using GKitForWPF;
 using PenMotion.Datas;
 using PenMotion.System;
 

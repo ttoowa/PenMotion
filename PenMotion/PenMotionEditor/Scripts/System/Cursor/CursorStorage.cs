@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using GKit;
+using GKitForWPF;
 using PenMotionEditor.Properties;
 using PenMotionEditor.UI.Windows;
 

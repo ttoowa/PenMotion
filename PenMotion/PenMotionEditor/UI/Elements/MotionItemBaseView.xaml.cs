@@ -15,12 +15,12 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PenMotion.Datas;
 using PenMotion.Datas.Items;
-using GKit;
-using GKit.WPF;
+using GKitForWPF;
 using PenMotionEditor.UI.Tabs;
 using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Windows;
-using GKit.WPF.UI.Controls;
+using GKitForWPF.UI.Controls;
+using GKitForWPF.Graphics;
 
 namespace PenMotionEditor.UI.Elements {
 	public partial class MotionItemBaseView : UserControl, ITreeItem {

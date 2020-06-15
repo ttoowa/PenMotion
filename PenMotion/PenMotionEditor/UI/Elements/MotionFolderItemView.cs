@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using PenMotion.Datas.Items;
 using PenMotionEditor.UI.Tabs;
-using GKit;
-using GKit.WPF.UI.Controls;
+using GKitForWPF;
+using GKitForWPF.UI.Controls;
 using System.Windows.Controls;
 
 namespace PenMotionEditor.UI.Elements {

@@ -12,8 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using GKit;
-using GKit.WPF;
+using GKitForWPF;
+using GKitForWPF;
 using PenMotion.Datas.Items.Elements;
 using PenMotion.System;
 using PenMotionEditor.UI.Tabs;
@@ -147,7 +147,7 @@ namespace PenMotionEditor.UI.Elements
 
 			Vector2 cursorPos = (Vector2)e.GetPosition(GraphEditorTab.PointCanvas) + cursorOffset;
 			Vector2 pointPos = GraphEditorTab.DisplayToNormal(cursorPos);
-			pointPos = BMath.Clamp(pointPos, -MaxHandleRange + 1f, MaxHandleRange);
+			pointPos = GMath.Clamp(pointPos, -MaxHandleRange + 1f, MaxHandleRange);
 
 			ApplyMagnet();
 
@@ -197,7 +197,7 @@ namespace PenMotionEditor.UI.Elements
 
 			Vector2 cursorPos = (Vector2)e.GetPosition(GraphEditorTab.PointCanvas) + cursorOffset;
 			Vector2 pointPosAbsolute = GraphEditorTab.DisplayToNormal(cursorPos);
-			pointPosAbsolute = BMath.Clamp(pointPosAbsolute, -MaxHandleRange + 1f, MaxHandleRange);
+			pointPosAbsolute = GMath.Clamp(pointPosAbsolute, -MaxHandleRange + 1f, MaxHandleRange);
 
 			ApplyMagnet();
 

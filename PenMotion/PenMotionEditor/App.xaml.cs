@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using PenMotionEditor.UI.Windows;
-using GKit.WPF.Resources;
+using GKitForWPF.Resources;
 
 namespace PenMotionEditor
 {

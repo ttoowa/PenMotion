@@ -9,10 +9,11 @@ using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 using PenMotionEditor.UI.Tabs;
 using PenMotionEditor.UI.Elements;
-using GKit;
-using GKit.WPF.UI.Controls;
+using GKitForWPF;
+using GKitForWPF.UI.Controls;
 using System.Windows;
 using System.Windows.Controls;
+using GKitForWPF.Graphics;
 
 namespace PenMotionEditor.UI.Elements {
 	public class MotionItemView : MotionItemBaseView {
