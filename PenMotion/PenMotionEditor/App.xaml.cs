@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using PenMotionEditor.UI.Windows;
 using System.Windows;
-using PenMotionEditor.UI.Windows;
-using GKitForWPF.Resources;
 
-namespace PenMotionEditor
-{
+namespace PenMotionEditor {
 	/// <summary>
 	/// App.xaml에 대한 상호 작용 논리
 	/// </summary>

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GKitForWPF;
 using PenMotion.System;
-using GKitForWPF;
 
 namespace PenMotionEditor {
 	public static class VectorUtlity {

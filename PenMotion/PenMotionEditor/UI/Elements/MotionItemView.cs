@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using GKitForWPF;
+using GKitForWPF.Graphics;
+using PenMotion.Datas.Items;
+using PenMotionEditor.UI.Tabs;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using PenMotion.Datas.Items;
-using PenMotion.Datas.Items.Elements;
-using PenMotionEditor.UI.Tabs;
-using PenMotionEditor.UI.Elements;
-using GKitForWPF;
-using GKitForWPF.UI.Controls;
-using System.Windows;
-using System.Windows.Controls;
-using GKitForWPF.Graphics;
 
 namespace PenMotionEditor.UI.Elements {
 	public class MotionItemView : MotionItemBaseView {

@@ -1,28 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using PenMotion;
+﻿using GKitForWPF;
+using GKitForWPF.UI.Controls;
 using PenMotion.Datas;
 using PenMotion.Datas.Items;
-using PenMotion.System;
+using PenMotion.Datas.Items.Elements;
 using PenMotionEditor.UI.Elements;
 using PenMotionEditor.UI.Windows;
-using PenMotion.Datas.Items.Elements;
-using GKitForWPF;
-using GKitForWPF.UI.Controls;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Controls;
 
 namespace PenMotionEditor.UI.Tabs {
 	public partial class MotionTab : UserControl {
@@ -114,7 +99,7 @@ namespace PenMotionEditor.UI.Tabs {
 					MotionFolderItemView folderView = new MotionFolderItemView(EditorContext, (MotionFolderItem)item);
 					view = folderView;
 
-					if(parentFolder == null) {
+					if (parentFolder == null) {
 						//Create root
 						folderView.SetRootFolder();
 						RootFolderView = folderView;
@@ -139,7 +124,7 @@ namespace PenMotionEditor.UI.Tabs {
 					}
 					break;
 			}
-			if(parentFolder != null) {
+			if (parentFolder != null) {
 				view.ParentItem = (MotionFolderItemView)DataToViewDict[parentFolder];
 			}
 
@@ -154,7 +139,7 @@ namespace PenMotionEditor.UI.Tabs {
 		}
 		internal void EditingFile_ItemRemoved(MotionItemBase item, MotionFolderItem parentFolder) {
 			MotionItemBaseView view = DataToViewDict[item];
-			if(view.ParentItem != null) {
+			if (view.ParentItem != null) {
 				view.ParentItem.ChildItemCollection.Remove(view);
 				view.ParentItem = null;
 			}
@@ -273,8 +258,8 @@ namespace PenMotionEditor.UI.Tabs {
 		private void UpdateFocusItem() {
 			if (MotionTreeView.SelectedItemSet.Count == 1) {
 				MotionItemBaseView itemBaseView = (MotionItemBaseView)MotionTreeView.SelectedItemSet.Last;
-				
-				if(itemBaseView.Type == MotionItemType.Motion) {
+
+				if (itemBaseView.Type == MotionItemType.Motion) {
 					EditorContext.GraphEditorTab.AttachMotion((MotionItem)itemBaseView.Data);
 					EditorContext.PreviewTab.ResetPreviewTime();
 

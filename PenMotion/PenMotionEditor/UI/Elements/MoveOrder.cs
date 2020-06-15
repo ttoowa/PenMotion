@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PenMotion;
+﻿using GKitForWPF;
 using PenMotion.Datas.Items;
-using PenMotionEditor.UI.Elements;
-using GKitForWPF;
 
 namespace PenMotionEditor.UI.Elements {
 	public class MoveOrder {
