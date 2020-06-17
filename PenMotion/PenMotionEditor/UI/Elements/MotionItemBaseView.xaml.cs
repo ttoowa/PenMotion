@@ -99,7 +99,7 @@ namespace PenMotionEditor.UI.Elements {
 				NameTextBox_EndEdit();
 			}
 		}
-		public void SetDisplaySelected(bool isSelected) {
+		public void SetSelected(bool isSelected) {
 			ContentPanel.Background = isSelected ? SelectedBG : DefaultBG;
 		}
 		public void SetDisplayName(string name) {
