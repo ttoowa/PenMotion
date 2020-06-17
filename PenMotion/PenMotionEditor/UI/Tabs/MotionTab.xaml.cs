@@ -180,10 +180,10 @@ namespace PenMotionEditor.UI.Tabs {
 			EditorContext.MarkUnsaved();
 		}
 
-		private void SelectedItemSet_SelectionRemoved(ISelectable item) {
+		private void SelectedItemSet_SelectionRemoved(ITreeItem item) {
 			SelectionItemChanged();
 		}
-		private void SelectedItemSet_SelectionAdded(ISelectable item) {
+		private void SelectedItemSet_SelectionAdded(ITreeItem item) {
 			SelectionItemChanged();
 		}
 		private void SelectionItemChanged() {

@@ -207,11 +207,11 @@
     <None Include="Resources\Cursor_Remove.cur" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SubModules\Bgoon.AvalonDockTheme\Bgoon.AvalonDockTheme\Bgoon.AvalonDockThemes\Bgoon.AvalonDockThemes.csproj">
+    <ProjectReference Include="..\..\..\Bgoon.AvalonDockThemes\Bgoon.AvalonDockTheme\Bgoon.AvalonDockThemes\Bgoon.AvalonDockThemes.csproj">
       <Project>{ee497432-aeaf-4099-82c3-3764376171d4}</Project>
       <Name>Bgoon.AvalonDockThemes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SubModules\GKit\GKit\GKitForWPF\GKitForWPF.csproj">
+    <ProjectReference Include="..\..\..\GKit\GKit\GKitForWPF\GKitForWPF.csproj">
       <Project>{896246bd-905d-4a62-90d2-54664a158656}</Project>
       <Name>GKitForWPF</Name>
     </ProjectReference>
