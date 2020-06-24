@@ -106,12 +106,6 @@ namespace PenMotionEditor.UI.Elements {
 			NameTextBox.Text = name;
 		}
 
-		//private void OnFocusedTick() {
-		//	if(MouseInput.Left.Down && !NameTextBox.IsMouseOver && !ContentPanel.IsMouseOver) {
-		//		SetNameTextBoxEditable(false);
-		//	}
-		//}
-
 		private string FilterName(string name) {
 			return name.Trim();
 		}
