@@ -40,7 +40,7 @@ namespace PenMotionEditor.UI.Windows {
 			}
 		}
 		private void OnTick() {
-			if (MouseInput.Left.Down) {
+			if (MouseInput.Left.IsDown) {
 				Vector2 fxPos = MouseInput.AbsolutePosition - FxCanvas.GetAbsolutePosition();
 
 				ClickFx fx = new ClickFx();
