@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PenMotionEditor.UI.Elements"
+
+			 xmlns:GControls="clr-namespace:GKitForWPF.UI.Controls;assembly=GKitForWPF"
+
              mc:Ignorable="d" 
              d:DesignWidth="400">
 	<DockPanel Name="BackPanel">
@@ -17,7 +19,7 @@
 						<Polygon Points="0,0 0,8 7,4" VerticalAlignment="Center" HorizontalAlignment="Right" Fill="#FF9E9E9E"/>
 					</Grid>
 				</Grid>
-				<TextBox Name="NameTextBox" BorderThickness="0" IsHitTestVisible="False" FontFamily="/SweepMotionEditor;component/Resource/Font/#KoPubDotum_Pro Bold" FontSize="14" Text="Name" TextOptions.TextHintingMode="Animated" VerticalAlignment="Center" Margin="6,0" Foreground="#FFF1F1F1" Height="30" VerticalContentAlignment="Center" BorderBrush="{x:Null}" SelectionBrush="#FFDAAF3C" Background="#FF383838"/>
+				<GControls:EditTextBlock x:Name="NameTextBox" Foreground="#FFF1F1F1" Height="30" Margin="6,0" FontFamily="/PenMotionEditor;component/Resources/Font/#KoPubDotum_Pro Medium" />
 			</DockPanel>
 		</Grid>
 		<Grid>
