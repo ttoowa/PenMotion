@@ -39,6 +39,7 @@ namespace PenMotionEditor.UI.Elements {
 			get; set;
 		}
 
+		// [ Constructor ]
 		public MotionItemBaseView() {
 			InitializeComponent();
 		}
@@ -47,56 +48,34 @@ namespace PenMotionEditor.UI.Elements {
 			this.Type = type;
 
 			InitializeComponent();
-			Init();
-			RegisterEvent();
-		}
-		private void Init() {
-			SetNameTextBoxEditable(false);
-		}
-		private void RegisterEvent() {
+
+			// Register event
 			NameTextBox.KeyDown += NameEditText_KeyDown;
+			NameTextBox.TextEdited += NameTextBox_TextEdited;
 		}
 
-		//Event
-		//DataChanged
+		// [ Event ]
+		// DataChanged
 		internal void Data_NameChanged(string oldName, string newName) {
 			NameTextBox.Text = newName;
 		}
 
-		//NameText
-		private void NameTextBox_StartEdit() {
-			NameTextBox.Background = EditTextBG;
-			NameTextBox.Cursor = Cursors.IBeam;
-			NameTextBox.Focus();
-			NameTextBox.IsReadOnly = false;
-			NameTextBox.IsHitTestVisible = true;
-		}
-		private void NameTextBox_EndEdit() {
-			NameTextBox.Background = null;
-			NameTextBox.Cursor = CursorStorage.cursor_default;
-			NameTextBox.IsReadOnly = true;
-			NameTextBox.IsHitTestVisible = false;
-
-			string newName = FilterName(NameTextBox.Text);
-
-			if (Data != null) {
-				if (!Data.SetName(newName)) {
-					ToastMessage.Show("이미 존재하거나 올바르지 않은 이름입니다.");
-				}
-			}
-		}
+		// NameText
 		private void NameEditText_KeyDown(object sender, KeyEventArgs e) {
 			if (e.Key == Key.Return) {
-				SetNameTextBoxEditable(false);
+				NameTextBox.EndEditing();
 				Keyboard.ClearFocus();
 			}
 		}
 
-		private void SetNameTextBoxEditable(bool editable) {
-			if (editable) {
-				NameTextBox_StartEdit();
-			} else {
-				NameTextBox_EndEdit();
+		private void NameTextBox_TextEdited(string oldText, string newText, ref bool cancelEdit) {
+			newText = FilterName(newText);
+
+			if (Data != null) {
+				if (!Data.SetName(newText)) {
+					ToastMessage.Show("이미 존재하거나 올바르지 않은 이름입니다.");
+					cancelEdit = true;
+				}
 			}
 		}
 		public void SetSelected(bool isSelected) {
