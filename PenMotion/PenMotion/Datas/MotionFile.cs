@@ -54,6 +54,9 @@ namespace PenMotion.Datas {
 
 			JObject jRoot = JObject.Parse(jsonString);
 
+			LoadFromJson(jRoot);
+		}
+		public void LoadFromJson(JObject jRoot) {
 			//MotionTree
 			JObject jRootFolder = jRoot["RootFolder"] as JObject;
 			LoadItemRecursive(jRootFolder, null);
@@ -90,7 +93,7 @@ namespace PenMotion.Datas {
 			}
 			void LoadFolder(MotionFolderItem parent, JToken jItem, string name) {
 				MotionFolderItem folder = CreateFolder(parent);
-				
+
 				if (parent == null) {
 					rootFolder = folder;
 				} else {
@@ -98,7 +101,7 @@ namespace PenMotion.Datas {
 				}
 
 				JObject jItems = jItem["Items"] as JObject;
-				foreach(JToken jChild in jItems.Children()) {
+				foreach (JToken jChild in jItems.Children()) {
 					JProperty jChildProp = jChild as JProperty;
 					LoadItemRecursive(jChildProp.Value, folder);
 				}
