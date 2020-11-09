@@ -19,7 +19,7 @@
 						<Polygon Points="0,0 0,8 7,4" VerticalAlignment="Center" HorizontalAlignment="Right" Fill="#FF9E9E9E"/>
 					</Grid>
 				</Grid>
-				<GControls:EditTextBlock x:Name="NameTextBox" Foreground="#FFF1F1F1" Height="30" Margin="6,0" FontFamily="/PenMotionEditor;component/Resources/Font/#KoPubDotum_Pro Medium" />
+				<GControls:EditTextBlock x:Name="NameTextBox" Foreground="#FFF1F1F1" Height="30" Margin="6,0" FontFamily="/PenMotionEditor;component/Resources/Font/#KoPubDotum_Pro Medium" HorizontalAlignment="Left" />
 			</DockPanel>
 		</Grid>
 		<Grid>

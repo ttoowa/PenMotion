@@ -23,7 +23,7 @@
 					<Ad:LayoutAnchorablePaneGroup x:Name="AdMotionTab" DockWidth="200px">
 						<Ad:LayoutAnchorablePane>
 							<Ad:LayoutAnchorable Title="Motion" CanDockAsTabbedDocument="True" CanAutoHide="False" CanHide="False">
-								<Tabs:MotionTab x:Name="MotionTab"/>
+								<Tabs:MotionTab x:Name="MotionTab" x:FieldModifier="public"/>
 							</Ad:LayoutAnchorable>
 						</Ad:LayoutAnchorablePane>
 					</Ad:LayoutAnchorablePaneGroup>
