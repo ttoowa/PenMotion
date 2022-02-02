@@ -22,7 +22,7 @@ Remove control point</br>
 <br/><br/>
 ## How to use API
 ``` C#
-using PMotion;
+using PenMotion;
 
 …
 
