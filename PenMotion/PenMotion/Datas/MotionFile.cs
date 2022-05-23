@@ -12,9 +12,10 @@ using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 
 namespace PenMotion.Datas {
-	public class MotionFile
-	{
-		public bool IsFilePathAvailable =>!string.IsNullOrEmpty(filePath);
+	public class MotionFile {
+		public const string RootFolderName = "__RootFolder";
+
+		public bool IsFilePathAvailable => !string.IsNullOrEmpty(filePath);
 		public string filePath;
 
 		public Dictionary<string, MotionItemBase> itemDict;
@@ -28,15 +29,16 @@ namespace PenMotion.Datas {
 		public MotionFile(bool createRootFolder = true) {
 			itemDict = new Dictionary<string, MotionItemBase>();
 
-			if(createRootFolder) {
+			if (createRootFolder) {
 				rootFolder = new MotionFolderItem(this);
+				rootFolder.SetName(RootFolderName);
 			}
 		}
 
 		public void Save(string filename) {
 			JObject jFile = ToJObject();
 
-			using(FileStream fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite)) {
+			using (FileStream fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite)) {
 				using (StreamWriter writer = new StreamWriter(fileStream, Encoding.UTF8)) {
 					writer.Write(jFile.ToString());
 				}
@@ -137,7 +139,7 @@ namespace PenMotion.Datas {
 		public MotionItem CreateMotionEmpty(MotionFolderItem parentFolder = null, string name = null) {
 			if (parentFolder == null)
 				parentFolder = rootFolder;
-			if(string.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 				name = GetNewName(MotionItemType.Motion);
 
 			MotionItem motion = new MotionItem(this);
@@ -159,7 +161,7 @@ namespace PenMotion.Datas {
 
 			ItemCreated?.Invoke(folder, parentFolder);
 
-			if(parentFolder != null) {
+			if (parentFolder != null) {
 				parentFolder.AddChild(folder);
 			}
 			folder.SetName(name);
@@ -167,11 +169,11 @@ namespace PenMotion.Datas {
 			return folder;
 		}
 		public void RemoveItem(MotionItemBase item) {
-			if(item.Type == MotionItemType.Folder) {
+			if (item.Type == MotionItemType.Folder) {
 				//메세지 띄우기
 
 				MotionFolderItem folderItem = (MotionFolderItem)item;
-				foreach(MotionItemBase childItem in folderItem.childList.ToList()) {
+				foreach (MotionItemBase childItem in folderItem.childList.ToList()) {
 					RemoveItem(childItem);
 				}
 			}
@@ -200,8 +202,8 @@ namespace PenMotion.Datas {
 		public string GetNewName(MotionItemType type) {
 			string nameBase = $"New {type.ToString()} ";
 			int num = 1;
-			for(; ;) {
-				if(itemDict.ContainsKey(nameBase + num)) {
+			for (; ; ) {
+				if (itemDict.ContainsKey(nameBase + num)) {
 					++num;
 					continue;
 				} else {
@@ -218,7 +220,7 @@ namespace PenMotion.Datas {
 
 			void AddItemRecursive(JObject jParent, MotionItemBase item) {
 				JObject jItem = new JObject();
-				jParent.Add(item.IsRoot ? "RootFolder" : item.Name, jItem);
+				jParent.Add(item.IsRoot ? RootFolderName : item.Name, jItem);
 				jItem.Add("Type", item.Type.ToString());
 
 				if (item.Type == MotionItemType.Motion) {
