@@ -60,7 +60,7 @@ namespace PenMotion.Datas {
 		}
 		public void LoadFromJson(JObject jRoot) {
 			//MotionTree
-			JObject jRootFolder = jRoot["RootFolder"] as JObject;
+			JObject jRootFolder = jRoot[RootFolderName] as JObject;
 			LoadItemRecursive(jRootFolder, null);
 
 
