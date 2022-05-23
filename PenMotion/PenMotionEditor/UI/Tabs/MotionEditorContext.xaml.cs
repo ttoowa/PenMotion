@@ -61,12 +61,12 @@ namespace PenMotionEditor.UI.Tabs {
 			LoopEngine.AddLoopAction(OnTick);
 		}
 
-		public bool CreateFile(bool checkSaved = true) {
+		public bool CreateFile(bool checkSaved = true, bool createRootFolder = true) {
 			if (checkSaved && !ShowSaveQuestion())
 				return false;
 
 			CloseFile(false);
-			EditingFile = new MotionFile();
+			EditingFile = new MotionFile(createRootFolder);
 
 			RegisterFileEvents(EditingFile);
 
