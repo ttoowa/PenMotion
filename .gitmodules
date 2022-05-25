@@ -1,6 +1,6 @@
-[submodule "PenMotion/SubModules/GKit"]
-	path = PenMotion/SubModules/GKit
-	url = https://github.com/Bgoon/GKit.git
-[submodule "PenMotion/SubModules/Bgoon.AvalonDockTheme"]
-	path = PenMotion/SubModules/Bgoon.AvalonDockTheme
-	url = https://github.com/Bgoon/Bgoon.AvalonDockTheme.git
+[submodule "Develop/SubModules/GKit"]
+	path = Develop/SubModules/GKit
+	url = https://github.com/TTOOWA/GKit.git
+[submodule "Develop/SubModules/TTOOWA.AvalonDockTheme"]
+	path = Develop/SubModules/TTOOWA.AvalonDockTheme
+	url = https://github.com/TTOOWA/TTOOWA.AvalonDockTheme.git
