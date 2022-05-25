@@ -22,7 +22,7 @@
 		<Canvas Name="GraphContext"></Canvas>
 		<Canvas Name="PointCanvas"></Canvas>
 		<Canvas Name="SmartContext">
-			<TextBlock Name="SmartFollowTextView" ClipToBounds="False" Text="hi" Foreground="#FF62CD89" FontFamily="/PendulumMotionEditor;component/Resources/Font/#KoPubDotum_Pro Medium" FontSize="14" IsHitTestVisible="False"/>
+			<TextBlock Name="SmartFollowTextView" ClipToBounds="False" Text="hi" Foreground="#FF62CD89" FontFamily="/PenMotionEditor;component/Resources/Font/#KoPubDotum_Pro Medium" FontSize="14" IsHitTestVisible="False"/>
 			<Line Name="SmartLineForYView" X1="0" X2="100" Y1="100" Y2="100" Stroke="#FF3AFF9D" IsHitTestVisible="False"></Line>
 			<Line Name="SmartLineForXView" X1="100" X2="100" Y1="0" Y2="100" Stroke="#FF3AFF9D" IsHitTestVisible="False"></Line>
 		</Canvas>

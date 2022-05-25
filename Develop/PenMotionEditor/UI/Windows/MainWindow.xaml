@@ -11,16 +11,16 @@
 		xmlns:GControls="clr-namespace:GKitForWPF.UI.Controls;assembly=GKitForWPF"
 
         mc:Ignorable="d"
-        Title="PendulumMotionEditor" Width="1000" Height="600" Icon="/PenMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450" Focusable="False">
-	<Grid>
-		<DockPanel>
-			<GControls:FileManagerBar DockPanel.Dock="Top" x:Name="FileManagerBar"/>
-			<Grid Background="#FF343434">
-				<TextBlock Text="파일을 생성해라 애.송.이." Foreground="#FF5D5D5D" FontFamily="/PenMotionEditor;component/Resources/Fonts/#KoPubDotum_Pro Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+        Title="PenMotionEditor" Width="1000" Height="600" Icon="/PenMotionEditor;component/Resources/Image/Icon.png" MinWidth="600" MinHeight="450" Focusable="False">
+    <Grid>
+        <DockPanel>
+            <GControls:FileManagerBar DockPanel.Dock="Top" x:Name="FileManagerBar"/>
+            <Grid Background="#FF343434">
+                <TextBlock Text="파일을 생성해라 애.송.이." Foreground="#FF5D5D5D" FontFamily="/PenMotionEditor;component/Resources/Fonts/#KoPubDotum_Pro Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
 
-				<Tabs:MotionEditorContext x:Name="EditorContext"/>
-			</Grid>
-		</DockPanel>
-		<Canvas Name="FxCanvas" IsHitTestVisible="False" Focusable="False"/>
-	</Grid>
+                <Tabs:MotionEditorContext x:Name="EditorContext"/>
+            </Grid>
+        </DockPanel>
+        <Canvas Name="FxCanvas" IsHitTestVisible="False" Focusable="False"/>
+    </Grid>
 </Window>
