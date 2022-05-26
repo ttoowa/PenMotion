@@ -1,9 +1,8 @@
-<img src="https://i.imgur.com/ORpZ51h.png" width="256" height="256">
-
 # PenMotion
-MotionGraph Editor & API
+![Language badge](https://i.imgur.com/LUHwEU7.png)ㅤ![OS badge](https://i.imgur.com/MbF1zsp.png)ㅤ![State badge](https://i.imgur.com/G4YiiaG.png)
 
-<br/>
+## Summary
+Motion Easing Editor & API
 
 ## How to use Editor
 
