@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
+		<OutputType>Library</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
-		<StartupObject>PenMotionEditor.App</StartupObject>
-		<ApplicationIcon>Resources\Image\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,9 +24,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PenMotion\PenMotion.csproj" />
 		<ProjectReference Include="..\..\..\GKit\GKit\GKitForWPF\GKitForWPF.csproj" />
 		<ProjectReference Include="..\..\..\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes.csproj" />
+		<ProjectReference Include="..\PenMotion\PenMotion.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
