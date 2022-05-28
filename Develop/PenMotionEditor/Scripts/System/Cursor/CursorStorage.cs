@@ -9,9 +9,9 @@ namespace PenMotionEditor {
 			cursor_remove;
 
 		public CursorStorage() {
-			cursor_default = GetCursor(Properties.Resources.Cursor_Default);
-			cursor_add = GetCursor(Properties.Resources.Cursor_Add);
-			cursor_remove = GetCursor(Properties.Resources.Cursor_Remove);
+			cursor_default = GetCursor(CursorResource.Cursor_Default);
+			cursor_add = GetCursor(CursorResource.Cursor_Add);
+			cursor_remove = GetCursor(CursorResource.Cursor_Remove);
 		}
 
 		private Cursor GetCursor(byte[] resource) {
