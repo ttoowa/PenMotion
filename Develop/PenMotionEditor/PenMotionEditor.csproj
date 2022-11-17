@@ -1,54 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<OutputType>Library</OutputType>
-		<TargetFramework>net6.0-windows</TargetFramework>
-		<Nullable>disable</Nullable>
-		<UseWPF>true</UseWPF>
-	</PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>disable</Nullable>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<None Remove="Resources\Font\KoPub Dotum_Pro Bold.otf" />
-		<None Remove="Resources\Font\KoPub Dotum_Pro Medium.otf" />
-		<None Remove="Resources\Image\Icon.ico" />
-		<None Remove="Resources\Image\Icon.png" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Remove="Resources\Font\KoPub Dotum_Pro Bold.otf"/>
+        <None Remove="Resources\Font\KoPub Dotum_Pro Medium.otf"/>
+        <None Remove="Resources\Image\Icon.ico"/>
+        <None Remove="Resources\Image\Icon.png"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="Resources\Image\Icon.ico" />
-	</ItemGroup>
+    <ItemGroup>
+        <Content Include="Resources\Image\Icon.ico"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.1" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Dirkster.AvalonDock" Version="4.70.1"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\..\GKit\GKit\GKitForWPF\GKitForWPF.csproj" />
-		<ProjectReference Include="..\..\..\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes.csproj" />
-		<ProjectReference Include="..\PenMotion\PenMotion.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\GKit\GKit\GKitForWPF\GKitForWPF.csproj"/>
+        <ProjectReference Include="..\..\..\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes.csproj"/>
+        <ProjectReference Include="..\PenMotion\PenMotion.csproj"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<Resource Include="Resources\Font\KoPub Dotum_Pro Bold.otf" />
-		<Resource Include="Resources\Font\KoPub Dotum_Pro Medium.otf" />
-		<Resource Include="Resources\Image\Icon.ico" />
-		<Resource Include="Resources\Image\Icon.png" />
-	</ItemGroup>
+    <ItemGroup>
+        <Resource Include="Resources\Font\KoPub Dotum_Pro Bold.otf"/>
+        <Resource Include="Resources\Font\KoPub Dotum_Pro Medium.otf"/>
+        <Resource Include="Resources\Image\Icon.ico"/>
+        <Resource Include="Resources\Image\Icon.png"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<Compile Update="CursorResource.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>CursorResource.resx</DependentUpon>
-		</Compile>
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Update="CursorResource.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>CursorResource.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Update="CursorResource.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
-			<LastGenOutput>CursorResource.Designer.cs</LastGenOutput>
-		</EmbeddedResource>
-	</ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="CursorResource.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>CursorResource.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
 
 </Project>
