@@ -9,282 +9,303 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 
-namespace PenMotionEditor.UI.Tabs {
-	public partial class MotionTab : UserControl {
-		private MotionEditorContext EditorContext;
-		private GLoopEngine LoopEngine => EditorContext.LoopEngine;
-		private MotionFile EditingFile => EditorContext.EditingFile;
-		private GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
+namespace PenMotionEditor.UI.Tabs; 
 
-		//Event area
-		private const float FolderSideEventWeight = 0.2f;
-		private const float FolderMidEventWeight = 1f - FolderSideEventWeight * 2f;
+public partial class MotionTab : UserControl {
+    private MotionEditorContext EditorContext;
+    private GLoopEngine LoopEngine => EditorContext.LoopEngine;
+    private MotionFile EditingFile => EditorContext.EditingFile;
+    private GraphEditorTab GraphEditorTab => EditorContext.GraphEditorTab;
 
-		public MotionFolderItemView RootFolderView {
-			get; private set;
-		}
-		private List<MotionItemBase> itemList;
-		public Dictionary<MotionItemBase, MotionItemBaseView> DataToViewDict {
-			get; private set;
-		}
+    //Event area
+    private const float FolderSideEventWeight = 0.2f;
+    private const float FolderMidEventWeight = 1f - FolderSideEventWeight * 2f;
 
-		//Selected
-		public bool IsSelectedItemCopyable {
-			get {
-				if (MotionTreeView.SelectedItemSet.Count == 0)
-					return false;
+    public MotionFolderItemView RootFolderView { get; private set; }
+    private List<MotionItemBase> itemList;
+    public Dictionary<MotionItemBase, MotionItemBaseView> DataToViewDict { get; private set; }
 
-				foreach (ITreeItem item in MotionTreeView.SelectedItemSet) {
-					if (item is MotionItemView)
-						return true;
-				}
+    //Selected
+    public bool IsSelectedItemCopyable {
+        get {
+            if (MotionTreeView.SelectedItemSet.Count == 0) {
+                return false;
+            }
 
-				return false;
-			}
-		}
-		public MotionFolderItemView SelectedItemParentView {
-			get {
-				ITreeFolder selectedItemParent = MotionTreeView.SelectedItemParent;
-				return selectedItemParent is MotionFolderItemView ? (MotionFolderItemView)selectedItemParent : null;
-			}
-		}
-		public MotionFolderItem SelectedItemParent {
-			get {
-				MotionFolderItemView selectedItemParentView = SelectedItemParentView;
-				return selectedItemParentView != null ? selectedItemParentView.Data : null;
-			}
-		}
+            foreach (ITreeItem item in MotionTreeView.SelectedItemSet) {
+                if (item is MotionItemView) {
+                    return true;
+                }
+            }
 
-		public MotionTab() {
-			InitializeComponent();
-		}
-		public void Init(MotionEditorContext editorContext) {
-			this.EditorContext = editorContext;
+            return false;
+        }
+    }
 
-			InitMembers();
-			RegisterEvents();
-		}
-		private void InitMembers() {
-			itemList = new List<MotionItemBase>();
-			DataToViewDict = new Dictionary<MotionItemBase, MotionItemBaseView>();
+    public MotionFolderItemView SelectedItemParentView {
+        get {
+            ITreeFolder selectedItemParent = MotionTreeView.SelectedItemParent;
+            return selectedItemParent is MotionFolderItemView ? (MotionFolderItemView)selectedItemParent : null;
+        }
+    }
 
-			MotionTreeView.AutoApplyItemMove = false;
-		}
-		private void RegisterEvents() {
-			ControlBar.CreateItemButtonClick += CreateItemButton_OnClick;
-			ControlBar.CreateFolderButtonClick += CreateFolderButton_OnClick;
-			ControlBar.CopyItemButtonClick += CopyItemButton_OnClick;
-			ControlBar.RemoveItemButtonClick += RemoveItemButton_OnClick;
+    public MotionFolderItem SelectedItemParent {
+        get {
+            MotionFolderItemView selectedItemParentView = SelectedItemParentView;
+            return selectedItemParentView != null ? selectedItemParentView.Data : null;
+        }
+    }
 
-			MotionTreeView.SelectedItemSet.SelectionAdded += SelectedItemSet_SelectionAdded;
-			MotionTreeView.SelectedItemSet.SelectionRemoved += SelectedItemSet_SelectionRemoved;
-			MotionTreeView.ItemMoved += MotionListView_ItemMoved;
-			MotionTreeView.MessageOccured += MotionListView_MessageOccured;
-		}
+    public MotionTab() {
+        InitializeComponent();
+    }
 
-		//Events
-		internal void EditingFile_ItemCreated(MotionItemBase item, MotionFolderItem parentFolder) {
-			if (item == null)
-				return;
+    public void Init(MotionEditorContext editorContext) {
+        EditorContext = editorContext;
 
-			MotionItemBaseView view = null;
-			switch (item.Type) {
-				case MotionItemType.Motion:
-					MotionItemView motionView = new MotionItemView(EditorContext, (MotionItem)item);
-					view = motionView;
+        InitMembers();
+        RegisterEvents();
+    }
 
-					motionView.UpdatePreviewGraph();
-					break;
-				case MotionItemType.Folder:
-					MotionFolderItemView folderView = new MotionFolderItemView(EditorContext, (MotionFolderItem)item);
-					view = folderView;
+    private void InitMembers() {
+        itemList = new List<MotionItemBase>();
+        DataToViewDict = new Dictionary<MotionItemBase, MotionItemBaseView>();
 
-					if (parentFolder == null) {
-						//Create root
-						folderView.SetRootFolder();
-						RootFolderView = folderView;
+        MotionTreeView.AutoApplyItemMove = false;
+    }
 
-						MotionTreeView.ChildItemCollection.Add(folderView);
-						MotionTreeView.ManualRootFolder = folderView;
-					}
+    private void RegisterEvents() {
+        ControlBar.CreateItemButtonClick += CreateItemButton_OnClick;
+        ControlBar.CreateFolderButtonClick += CreateFolderButton_OnClick;
+        ControlBar.CopyItemButtonClick += CopyItemButton_OnClick;
+        ControlBar.RemoveItemButtonClick += RemoveItemButton_OnClick;
 
-					//Register events
-					MotionFolderItem folderItem = (MotionFolderItem)item;
+        MotionTreeView.SelectedItemSet.SelectionAdded += SelectedItemSet_SelectionAdded;
+        MotionTreeView.SelectedItemSet.SelectionRemoved += SelectedItemSet_SelectionRemoved;
+        MotionTreeView.ItemMoved += MotionListView_ItemMoved;
+        MotionTreeView.MessageOccured += MotionListView_MessageOccured;
+    }
 
-					folderItem.ChildInserted += Data_ChildInserted;
-					folderItem.ChildRemoved += Data_ChildRemoved;
+    //Events
+    internal void EditingFile_ItemCreated(MotionItemBase item, MotionFolderItem parentFolder) {
+        if (item == null) {
+            return;
+        }
 
-					void Data_ChildInserted(int index, MotionItemBase childItem) {
-						MotionItemBaseView childItemView = DataToViewDict[childItem];
-						folderView.ChildItemCollection.Insert(index, childItemView);
-					}
-					void Data_ChildRemoved(MotionItemBase childItem) {
-						MotionItemBaseView childItemView = DataToViewDict[childItem];
-						folderView.ChildItemCollection.Remove(childItemView);
-					}
-					break;
-			}
-			if (parentFolder != null) {
-				view.ParentItem = (MotionFolderItemView)DataToViewDict[parentFolder];
-			}
+        MotionItemBaseView view = null;
+        switch (item.Type) {
+            case MotionItemType.Motion:
+                MotionItemView motionView = new(EditorContext, (MotionItem)item);
+                view = motionView;
 
-			//Register events
-			item.NameChanged += view.Data_NameChanged;
+                motionView.UpdatePreviewGraph();
+                break;
+            case MotionItemType.Folder:
+                MotionFolderItemView folderView = new(EditorContext, (MotionFolderItem)item);
+                view = folderView;
 
-			//Add to collection
-			itemList.Add(item);
-			DataToViewDict.Add(item, view);
+                if (parentFolder == null) {
+                    //Create root
+                    folderView.SetRootFolder();
+                    RootFolderView = folderView;
 
-			EditorContext.MarkUnsaved();
-		}
-		internal void EditingFile_ItemRemoved(MotionItemBase item, MotionFolderItem parentFolder) {
-			MotionItemBaseView view = DataToViewDict[item];
-			if (view.ParentItem != null) {
-				view.ParentItem.ChildItemCollection.Remove(view);
-				view.ParentItem = null;
-			}
+                    MotionTreeView.ChildItemCollection.Add(folderView);
+                    MotionTreeView.ManualRootFolder = folderView;
+                }
 
-			//Remove from collection
-			itemList.Remove(item);
-			DataToViewDict.Remove(item);
+                //Register events
+                MotionFolderItem folderItem = (MotionFolderItem)item;
 
-			if (item.IsRoot) {
-				MotionTreeView.ChildItemCollection.Remove(view);
-				RootFolderView = null;
-			}
+                folderItem.ChildInserted += Data_ChildInserted;
+                folderItem.ChildRemoved += Data_ChildRemoved;
 
-			//Unregister events
-			//어차피 삭제이후 사용되지 않으므로 참조가 어려운 이벤트는 생략한다.
-			item.NameChanged -= view.Data_NameChanged;
+                void Data_ChildInserted(int index, MotionItemBase childItem) {
+                    MotionItemBaseView childItemView = DataToViewDict[childItem];
+                    folderView.ChildItemCollection.Insert(index, childItemView);
+                }
 
-			EditorContext.MarkUnsaved();
-		}
+                void Data_ChildRemoved(MotionItemBase childItem) {
+                    MotionItemBaseView childItemView = DataToViewDict[childItem];
+                    folderView.ChildItemCollection.Remove(childItemView);
+                }
 
-		private void CreateItemButton_OnClick() {
-			MotionItem item = EditingFile.CreateMotionDefault(SelectedItemParent);
-			MotionTreeView.SelectedItemSet.SetSelectedItem((MotionItemView)DataToViewDict[item]);
-		}
-		private void CreateFolderButton_OnClick() {
-			MotionFolderItem item = EditingFile.CreateFolder(SelectedItemParent);
-			MotionTreeView.SelectedItemSet.SetSelectedItem((MotionFolderItemView)DataToViewDict[item]);
-		}
-		private void RemoveItemButton_OnClick() {
-			foreach (MotionItemBase item in MotionTreeView.SelectedItemSet.ToArray().Select(item => ((MotionItemBaseView)item).Data)) {
-				MotionTreeView.SelectedItemSet.RemoveSelectedItem(DataToViewDict[item]);
-				EditingFile.RemoveItem(item);
-			}
-		}
-		private void CopyItemButton_OnClick() {
-			DuplicateSelectedMotion();
+                break;
+        }
 
-			EditorContext.MarkUnsaved();
-		}
+        if (parentFolder != null) {
+            view.ParentItem = (MotionFolderItemView)DataToViewDict[parentFolder];
+        }
 
-		private void SelectedItemSet_SelectionRemoved(ISelectable item) {
-			SelectionItemChanged();
-		}
-		private void SelectedItemSet_SelectionAdded(ISelectable item) {
-			SelectionItemChanged();
-		}
-		private void SelectionItemChanged() {
-			ControlBar.CopyItemButton.IsEnabled = IsSelectedItemCopyable;
-			UpdateFocusItem();
-		}
+        //Register events
+        item.NameChanged += view.Data_NameChanged;
 
-		private void MotionListView_ItemMoved(ITreeItem item, ITreeFolder oldParent, ITreeFolder newParent, int index) {
-			MotionItemBase itemData = ((MotionItemBaseView)item).Data;
-			MotionFolderItemView newParentFolderView = (MotionFolderItemView)newParent;
+        //Add to collection
+        itemList.Add(item);
+        DataToViewDict.Add(item, view);
 
-			if (oldParent != null) {
-				MotionFolderItemView oldParentFolderView = (MotionFolderItemView)oldParent;
-				oldParentFolderView.Data.RemoveChild(itemData);
-			}
-			newParentFolderView.Data.InsertChild(index, itemData);
-		}
-		private void MotionListView_MessageOccured(string message) {
-			ToastMessage.Show(message);
-		}
+        EditorContext.MarkUnsaved();
+    }
 
-		public void ClearItems() {
-			MotionTreeView.SelectedItemSet.UnselectItems();
-			itemList.Clear();
-			MotionTreeView.ChildItemCollection.Clear();
-		}
+    internal void EditingFile_ItemRemoved(MotionItemBase item, MotionFolderItem parentFolder) {
+        MotionItemBaseView view = DataToViewDict[item];
+        if (view.ParentItem != null) {
+            view.ParentItem.ChildItemCollection.Remove(view);
+            view.ParentItem = null;
+        }
 
-		public void DuplicateSelectedMotion() {
-			if (!IsSelectedItemCopyable)
-				return;
+        //Remove from collection
+        itemList.Remove(item);
+        DataToViewDict.Remove(item);
 
-			MotionItemBase latestNewItem = null;
-			MotionFolderItem parentFolder = SelectedItemParent;
-			foreach (MotionItemBaseView refItem in MotionTreeView.SelectedItemSet) {
-				if (refItem.Type == MotionItemType.Motion) {
-					MotionItem refMotionItem = (MotionItem)refItem.Data;
-					//Create motion
-					MotionItem newItem = EditingFile.CreateMotionEmpty(parentFolder);
-					latestNewItem = newItem;
+        if (item.IsRoot) {
+            MotionTreeView.ChildItemCollection.Remove(view);
+            RootFolderView = null;
+        }
 
-					//Copy points
-					foreach (MotionPoint refPoint in refMotionItem.pointList) {
-						MotionPoint point = new MotionPoint();
-						newItem.AddPoint(point);
+        //Unregister events
+        //어차피 삭제이후 사용되지 않으므로 참조가 어려운 이벤트는 생략한다.
+        item.NameChanged -= view.Data_NameChanged;
 
-						point.SetMainPoint(refPoint.MainPoint);
-						for (int i = 0; i < refPoint.SubPoints.Length; ++i) {
-							point.SetSubPoint(i, refPoint.SubPoints[i]);
-						}
-					}
+        EditorContext.MarkUnsaved();
+    }
 
-					((MotionItemView)DataToViewDict[newItem]).UpdatePreviewGraph();
+    private void CreateItemButton_OnClick() {
+        MotionItem item = EditingFile.CreateMotionDefault(SelectedItemParent);
+        MotionTreeView.SelectedItemSet.SetSingle((MotionItemView)DataToViewDict[item]);
+    }
 
-					//Set name
-					const string CopyPostfix = "_Copy";
-					string name = refItem.Data.Name;
-					for (; ; ) {
-						if (EditingFile.itemDict.ContainsKey(name)) {
-							name += CopyPostfix;
-						} else {
-							break;
-						}
-					}
-					newItem.SetName(name);
-				}
-			}
-			if (latestNewItem != null) {
-				MotionTreeView.SelectedItemSet.SetSelectedItem(DataToViewDict[latestNewItem]);
-			}
-		}
+    private void CreateFolderButton_OnClick() {
+        MotionFolderItem item = EditingFile.CreateFolder(SelectedItemParent);
+        MotionTreeView.SelectedItemSet.SetSingle((MotionFolderItemView)DataToViewDict[item]);
+    }
 
-		private void UpdateFocusItem() {
-			if (MotionTreeView.SelectedItemSet.Count == 1) {
-				MotionItemBaseView itemBaseView = (MotionItemBaseView)MotionTreeView.SelectedItemSet.Last;
+    private void RemoveItemButton_OnClick() {
+        foreach (MotionItemBase item in MotionTreeView.SelectedItemSet.ToArray().Select(item => ((MotionItemBaseView)item).Data)) {
+            MotionTreeView.SelectedItemSet.Remove(DataToViewDict[item]);
+            EditingFile.RemoveItem(item);
+        }
+    }
 
-				if (itemBaseView.Type == MotionItemType.Motion) {
-					EditorContext.GraphEditorTab.AttachMotion((MotionItem)itemBaseView.Data);
-					EditorContext.PreviewTab.ResetPreviewTime();
+    private void CopyItemButton_OnClick() {
+        DuplicateSelectedMotion();
 
-					return;
-				}
-			}
+        EditorContext.MarkUnsaved();
+    }
 
-			EditorContext.GraphEditorTab.DetachMotion();
-		}
-		public void UpdateItemPreviews() {
-			foreach (MotionItemBase item in itemList) {
-				if (item.Type == MotionItemType.Motion) {
-					((MotionItemView)DataToViewDict[item]).UpdatePreviewGraph();
-				}
-			}
-		}
+    private void SelectedItemSet_SelectionRemoved(ISelectable item) {
+        SelectionItemChanged();
+    }
 
-		private MotionItemBase ToMotionItemBase(ITreeItem item) {
-			return ((MotionItemBaseView)item).Data;
-		}
-		private MotionItem ToMotionItem(ITreeItem item) {
-			return ((MotionItemView)item).Data;
-		}
-		private MotionFolderItem ToFolderItem(ITreeFolder item) {
-			return ((MotionFolderItemView)item).Data;
-		}
-	}
+    private void SelectedItemSet_SelectionAdded(ISelectable item) {
+        SelectionItemChanged();
+    }
+
+    private void SelectionItemChanged() {
+        ControlBar.CopyItemButton.IsEnabled = IsSelectedItemCopyable;
+        UpdateFocusItem();
+    }
+
+    private void MotionListView_ItemMoved(ITreeItem item, ITreeFolder oldParent, ITreeFolder newParent, int index) {
+        MotionItemBase itemData = ((MotionItemBaseView)item).Data;
+        MotionFolderItemView newParentFolderView = (MotionFolderItemView)newParent;
+
+        if (oldParent != null) {
+            MotionFolderItemView oldParentFolderView = (MotionFolderItemView)oldParent;
+            oldParentFolderView.Data.RemoveChild(itemData);
+        }
+
+        newParentFolderView.Data.InsertChild(index, itemData);
+    }
+
+    private void MotionListView_MessageOccured(string message) {
+        ToastMessage.Show(message);
+    }
+
+    public void ClearItems() {
+        MotionTreeView.SelectedItemSet.Clear();
+        itemList.Clear();
+        MotionTreeView.ChildItemCollection.Clear();
+    }
+
+    public void DuplicateSelectedMotion() {
+        if (!IsSelectedItemCopyable) {
+            return;
+        }
+
+        MotionItemBase latestNewItem = null;
+        MotionFolderItem parentFolder = SelectedItemParent;
+        foreach (MotionItemBaseView refItem in MotionTreeView.SelectedItemSet) {
+            if (refItem.Type == MotionItemType.Motion) {
+                MotionItem refMotionItem = (MotionItem)refItem.Data;
+                //Create motion
+                MotionItem newItem = EditingFile.CreateMotionEmpty(parentFolder);
+                latestNewItem = newItem;
+
+                //Copy points
+                foreach (MotionPoint refPoint in refMotionItem.pointList) {
+                    MotionPoint point = new();
+                    newItem.AddPoint(point);
+
+                    point.SetMainPoint(refPoint.MainPoint);
+                    for (int i = 0; i < refPoint.SubPoints.Length; ++i) {
+                        point.SetSubPoint(i, refPoint.SubPoints[i]);
+                    }
+                }
+
+                ((MotionItemView)DataToViewDict[newItem]).UpdatePreviewGraph();
+
+                //Set name
+                const string CopyPostfix = "_Copy";
+                string name = refItem.Data.Name;
+                for (;;) {
+                    if (EditingFile.itemDict.ContainsKey(name)) {
+                        name += CopyPostfix;
+                    } else {
+                        break;
+                    }
+                }
+
+                newItem.SetName(name);
+            }
+        }
+
+        if (latestNewItem != null) {
+            MotionTreeView.SelectedItemSet.SetSingle(DataToViewDict[latestNewItem]);
+        }
+    }
+
+    private void UpdateFocusItem() {
+        if (MotionTreeView.SelectedItemSet.Count == 1) {
+            MotionItemBaseView itemBaseView = (MotionItemBaseView)MotionTreeView.SelectedItemSet.Last;
+
+            if (itemBaseView.Type == MotionItemType.Motion) {
+                EditorContext.GraphEditorTab.AttachMotion((MotionItem)itemBaseView.Data);
+                EditorContext.PreviewTab.ResetPreviewTime();
+
+                return;
+            }
+        }
+
+        EditorContext.GraphEditorTab.DetachMotion();
+    }
+
+    public void UpdateItemPreviews() {
+        foreach (MotionItemBase item in itemList) {
+            if (item.Type == MotionItemType.Motion) {
+                ((MotionItemView)DataToViewDict[item]).UpdatePreviewGraph();
+            }
+        }
+    }
+
+    private MotionItemBase ToMotionItemBase(ITreeItem item) {
+        return ((MotionItemBaseView)item).Data;
+    }
+
+    private MotionItem ToMotionItem(ITreeItem item) {
+        return ((MotionItemView)item).Data;
+    }
+
+    private MotionFolderItem ToFolderItem(ITreeFolder item) {
+        return ((MotionFolderItemView)item).Data;
+    }
 }
