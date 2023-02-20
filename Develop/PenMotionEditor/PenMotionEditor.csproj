@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dirkster.AvalonDock" Version="4.70.1"/>
+        <PackageReference Include="Dirkster.AvalonDock" Version="4.71.2"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
     </ItemGroup>
 
