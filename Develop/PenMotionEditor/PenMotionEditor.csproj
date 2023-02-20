@@ -2,38 +2,38 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFramework>net7.0-windows</TargetFramework>
+        <TargetFramework>net6.0-windows</TargetFramework>
         <Nullable>disable</Nullable>
         <UseWPF>true</UseWPF>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="Resources\Font\KoPub Dotum_Pro Bold.otf" />
-        <None Remove="Resources\Font\KoPub Dotum_Pro Medium.otf" />
-        <None Remove="Resources\Image\Icon.ico" />
-        <None Remove="Resources\Image\Icon.png" />
+        <None Remove="Resources\Font\KoPub Dotum_Pro Bold.otf"/>
+        <None Remove="Resources\Font\KoPub Dotum_Pro Medium.otf"/>
+        <None Remove="Resources\Image\Icon.ico"/>
+        <None Remove="Resources\Image\Icon.png"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Resources\Image\Icon.ico" />
+        <Content Include="Resources\Image\Icon.ico"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dirkster.AvalonDock" Version="4.71.2" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Dirkster.AvalonDock" Version="4.71.2"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\GKit\GKit\GKitForWPF\GKitForWPF.csproj" />
-        <ProjectReference Include="..\..\..\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes.csproj" />
-        <ProjectReference Include="..\PenMotion\PenMotion.csproj" />
+        <ProjectReference Include="..\..\..\GKit\GKit\GKitForWPF\GKitForWPF.csproj"/>
+        <ProjectReference Include="..\..\..\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes.csproj"/>
+        <ProjectReference Include="..\PenMotion\PenMotion.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Resource Include="Resources\Font\KoPub Dotum_Pro Bold.otf" />
-        <Resource Include="Resources\Font\KoPub Dotum_Pro Medium.otf" />
-        <Resource Include="Resources\Image\Icon.ico" />
-        <Resource Include="Resources\Image\Icon.png" />
+        <Resource Include="Resources\Font\KoPub Dotum_Pro Bold.otf"/>
+        <Resource Include="Resources\Font\KoPub Dotum_Pro Medium.otf"/>
+        <Resource Include="Resources\Image\Icon.ico"/>
+        <Resource Include="Resources\Image\Icon.png"/>
     </ItemGroup>
 
     <ItemGroup>
