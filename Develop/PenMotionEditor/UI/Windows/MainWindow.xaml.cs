@@ -20,10 +20,11 @@ public partial class MainWindow : Window {
     }
 
     private void Init() {
-        Cursor = EditorContext.CursorStorage.cursor_default;
         SetContentContextVisible(false);
 
         EditorContext.Init();
+        
+        Cursor = EditorContext.CursorStorage.cursor_default;
     }
 
     private void AddEventListeners() {

@@ -27,6 +27,10 @@ namespace PenMotion.Datas.Items {
         }
 
         public bool SetName(string newName) {
+            if (newName == null) {
+                newName = "";
+            }
+        
             string oldName = Name;
 
             Name = newName;

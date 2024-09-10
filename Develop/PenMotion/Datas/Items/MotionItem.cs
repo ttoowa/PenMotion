@@ -10,7 +10,7 @@ namespace PenMotion.Datas.Items {
         public const int DefaultMaxSample = 12;
         public const float DefaultMaxTolerance = 0.0001f;
 
-        public List<MotionPoint> pointList;
+        public readonly List<MotionPoint> pointList;
 
         public delegate void PointInsertedDelegate(int index, MotionPoint point);
 
