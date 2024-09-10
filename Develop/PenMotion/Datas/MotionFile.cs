@@ -12,250 +12,296 @@ using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 
 namespace PenMotion.Datas {
-	public class MotionFile {
-		public const string RootFolderName = "__RootFolder";
+    public class MotionFile {
+        public const string RootFolderName = "__RootFolder";
 
-		public bool IsFilePathAvailable => !string.IsNullOrEmpty(filePath);
-		public string filePath;
+        public bool IsFilePathAvailable => !string.IsNullOrEmpty(filePath);
+        public string filePath;
 
-		public Dictionary<string, MotionItemBase> itemDict;
+        public Dictionary<string, MotionItemBase> itemDict;
 
-		public MotionFolderItem rootFolder;
+        public MotionFolderItem rootFolder;
 
-		public delegate void MotionItemDelegate(MotionItemBase item, MotionFolderItem parentFolder);
-		public event MotionItemDelegate ItemCreated;
-		public event MotionItemDelegate ItemRemoved;
+        public delegate void MotionItemDelegate(MotionItemBase item, MotionFolderItem parentFolder);
 
-		public MotionFile(bool createRootFolder = true) {
-			itemDict = new Dictionary<string, MotionItemBase>();
+        public event MotionItemDelegate ItemCreated;
+        public event MotionItemDelegate ItemRemoved;
 
-			if (createRootFolder) {
-				rootFolder = new MotionFolderItem(this);
-				rootFolder.SetName(RootFolderName);
-			}
-		}
+        public MotionFile(bool createRootFolder = true) {
+            itemDict = new Dictionary<string, MotionItemBase>();
 
-		public void Save(string filename) {
-			JObject jFile = ToJObject();
+            if (createRootFolder) {
+                rootFolder = new MotionFolderItem(this);
+                rootFolder.SetName(RootFolderName);
+            }
+        }
 
-			using (FileStream fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite)) {
-				using (StreamWriter writer = new StreamWriter(fileStream, Encoding.UTF8)) {
-					writer.Write(jFile.ToString());
-				}
-			}
-		}
-		public void Load(string filename) {
-			this.filePath = filename;
+        public void Save(string filename) {
+            JObject jFile = ToJObject();
 
-			string jsonString;
-			using (FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
-				using (StreamReader reader = new StreamReader(fileStream, Encoding.UTF8)) {
-					jsonString = reader.ReadToEnd();
-				}
-			}
+            using (var fileStream = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite)) {
+                using (var writer = new StreamWriter(fileStream, Encoding.UTF8)) {
+                    writer.Write(jFile.ToString());
+                }
+            }
+        }
 
-			JObject jRoot = JObject.Parse(jsonString);
+        public void Load(string filename) {
+            filePath = filename;
 
-			LoadFromJson(jRoot);
-		}
-		public void LoadFromJson(JObject jRoot) {
-			//MotionTree
-			JObject jRootFolder = jRoot[RootFolderName] as JObject;
-			LoadItemRecursive(jRootFolder, null);
+            string jsonString;
+            using (var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
+                using (var reader = new StreamReader(fileStream, Encoding.UTF8)) {
+                    jsonString = reader.ReadToEnd();
+                }
+            }
+
+            JObject jRoot = JObject.Parse(jsonString);
+
+            LoadFromJson(jRoot);
+        }
+
+        public void LoadFromJson(JObject jRoot) {
+            //MotionTree
+            var jRootFolder = jRoot[RootFolderName] as JObject;
+            LoadItemRecursive(jRootFolder, null);
 
 
-			void LoadItemRecursive(JToken jItem, MotionFolderItem parent) {
-				JToken jType = jItem["Type"];
-				string typeText = jType != null ? jType.ToString() : null;
-				string name = (jItem.Parent as JProperty).Name;
+            void LoadItemRecursive(JToken jItem, MotionFolderItem parent) {
+                JToken jType = jItem["Type"];
+                string typeText = jType != null ? jType.ToString() : null;
+                string name = (jItem.Parent as JProperty).Name;
 
-				if (typeText == "Motion") {
-					LoadMotion(parent, jItem, name);
-				} else {
-					LoadFolder(parent, jItem, name);
-				}
-			}
+                if (typeText == "Motion") {
+                    LoadMotion(parent, jItem, name);
+                } else {
+                    LoadFolder(parent, jItem, name);
+                }
+            }
 
-			void LoadMotion(MotionFolderItem parent, JToken jItem, string name) {
-				JObject jData = jItem["Data"] as JObject;
-				JArray jPoints = jData["Point"] as JArray;
+            void LoadMotion(MotionFolderItem parent, JToken jItem, string name) {
+                var jData = jItem["Data"] as JObject;
+                var jPoints = jData["Point"] as JArray;
 
-				MotionItem motion = CreateMotionEmpty(parent);
-				motion.SetName(name);
+                MotionItem motion = CreateMotionEmpty(parent);
+                motion.SetName(name);
 
-				foreach (JToken jPointToken in jPoints) {
-					JArray jPoint = jPointToken as JArray;
+                if (jData["Guid"] != null) {
+                    motion.Guid = jData["Guid"].ToObject<string>();
+                }
 
-					MotionPoint point = new MotionPoint(
-						PVector2.Parse(jPoint[0].ToObject<string>()),
-						PVector2.Parse(jPoint[1].ToObject<string>()),
-						PVector2.Parse(jPoint[2].ToObject<string>()));
-					motion.AddPoint(point);
-				}
-			}
-			void LoadFolder(MotionFolderItem parent, JToken jItem, string name) {
-				MotionFolderItem folder = CreateFolder(parent);
+                foreach (JToken jPointToken in jPoints) {
+                    var jPoint = jPointToken as JArray;
 
-				if (parent == null) {
-					rootFolder = folder;
-				} else {
-					folder.SetName(name);
-				}
+                    var point = new MotionPoint(
+                        PVector2.Parse(jPoint[0].ToObject<string>()),
+                        PVector2.Parse(jPoint[1].ToObject<string>()),
+                        PVector2.Parse(jPoint[2].ToObject<string>()));
+                    motion.AddPoint(point);
+                }
+            }
 
-				JObject jItems = jItem["Items"] as JObject;
-				foreach (JToken jChild in jItems.Children()) {
-					JProperty jChildProp = jChild as JProperty;
-					LoadItemRecursive(jChildProp.Value, folder);
-				}
-			}
-		}
+            void LoadFolder(MotionFolderItem parent, JToken jItem, string name) {
+                MotionFolderItem folder = CreateFolder(parent);
 
-		public float GetMotionValue(string motionId, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
-			MotionItem motion = GetMotion(motionId);
-			return motion.GetMotionValue(linearValue, maxSample, tolerance);
-		}
-		public PVector2 GetMotionValue(string motionId, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
-			MotionItem motion = GetMotion(motionId);
-			return new PVector2(
-					motion.GetMotionValue(linearValue.x, maxSample, tolerance),
-					motion.GetMotionValue(linearValue.y, maxSample, tolerance)
-				);
-		}
-		public PVector3 GetMotionValue(string motionId, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
-			MotionItem motion = GetMotion(motionId);
-			return new PVector3(
-					motion.GetMotionValue(linearValue.x, maxSample, tolerance),
-					motion.GetMotionValue(linearValue.y, maxSample, tolerance),
-					motion.GetMotionValue(linearValue.z, maxSample, tolerance)
-				);
-		}
+                if (parent == null) {
+                    rootFolder = folder;
+                } else {
+                    folder.SetName(name);
+                }
 
-		public MotionItem CreateMotionDefault(MotionFolderItem parentFolder = null, string name = null) {
-			MotionItem motion = CreateMotionEmpty(parentFolder, name);
-			MotionItem.CreateDefault(motion);
+                var jItems = jItem["Items"] as JObject;
+                foreach (JToken jChild in jItems.Children()) {
+                    var jChildProp = jChild as JProperty;
+                    LoadItemRecursive(jChildProp.Value, folder);
+                }
+            }
+        }
 
-			return motion;
-		}
-		public MotionItem CreateMotionEmpty(MotionFolderItem parentFolder = null, string name = null) {
-			if (parentFolder == null)
-				parentFolder = rootFolder;
-			if (string.IsNullOrEmpty(name))
-				name = GetNewName(MotionItemType.Motion);
+        public float GetMotionValueByGuid(string guid, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return GetMotionValue(GetMotionByGuid(guid), linearValue, maxSample, tolerance);
+        }
 
-			MotionItem motion = new MotionItem(this);
+        public PVector2 GetMotionValueByGuid(string guid, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return GetMotionValue(GetMotionByGuid(guid), linearValue, maxSample, tolerance);
+        }
 
-			ItemCreated?.Invoke(motion, parentFolder);
+        public PVector3 GetMotionValueByGuid(string guid, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return GetMotionValue(GetMotionByGuid(guid), linearValue, maxSample, tolerance);
+        }
 
-			parentFolder.AddChild(motion);
-			motion.SetName(name);
+        public float GetMotionValueByName(string motionId, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return GetMotionValue(GetMotionByName(motionId), linearValue, maxSample, tolerance);
+        }
 
-			return motion;
-		}
-		public MotionFolderItem CreateFolder(MotionFolderItem parentFolder = null, string name = null) {
-			if (parentFolder == null)
-				parentFolder = rootFolder;
-			if (string.IsNullOrEmpty(name))
-				name = GetNewName(MotionItemType.Folder);
+        public PVector2 GetMotionValueByName(string motionId, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return GetMotionValue(GetMotionByName(motionId), linearValue, maxSample, tolerance);
+        }
 
-			MotionFolderItem folder = new MotionFolderItem(this);
+        public PVector3 GetMotionValueByName(string motionId, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return GetMotionValue(GetMotionByName(motionId), linearValue, maxSample, tolerance);
+        }
 
-			ItemCreated?.Invoke(folder, parentFolder);
+        public float GetMotionValue(MotionItem motion, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return motion.GetMotionValue(linearValue, maxSample, tolerance);
+        }
 
-			if (parentFolder != null) {
-				parentFolder.AddChild(folder);
-			}
-			folder.SetName(name);
+        public PVector2 GetMotionValue(MotionItem motion, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return new PVector2(
+                motion.GetMotionValue(linearValue.x, maxSample, tolerance),
+                motion.GetMotionValue(linearValue.y, maxSample, tolerance)
+            );
+        }
 
-			return folder;
-		}
-		public void RemoveItem(MotionItemBase item) {
-			if (item.Type == MotionItemType.Folder) {
-				//메세지 띄우기
+        public PVector3 GetMotionValue(MotionItem motion, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+            return new PVector3(
+                motion.GetMotionValue(linearValue.x, maxSample, tolerance),
+                motion.GetMotionValue(linearValue.y, maxSample, tolerance),
+                motion.GetMotionValue(linearValue.z, maxSample, tolerance)
+            );
+        }
 
-				MotionFolderItem folderItem = (MotionFolderItem)item;
-				foreach (MotionItemBase childItem in folderItem.childList.ToList()) {
-					RemoveItem(childItem);
-				}
-			}
+        public MotionItem CreateMotionDefault(MotionFolderItem parentFolder = null, string name = null) {
+            MotionItem motion = CreateMotionEmpty(parentFolder, name);
+            MotionItem.CreateDefault(motion);
 
-			MotionFolderItem parentFolder = item.Parent;
+            return motion;
+        }
 
-			item.Parent.childList.Remove(item);
-			itemDict.Remove(item.Name);
+        public MotionItem CreateMotionEmpty(MotionFolderItem parentFolder = null, string name = null) {
+            if (parentFolder == null)
+                parentFolder = rootFolder;
+            if (string.IsNullOrEmpty(name))
+                name = GetNewName(MotionItemType.Motion);
 
-			ItemRemoved?.Invoke(item, parentFolder);
-		}
+            var motion = new MotionItem(this);
 
-		public MotionItem GetMotion(string motionId) {
-			if (motionId == null) {
-				throw new Exception("motionId is Null.");
-			}
-			if (!itemDict.ContainsKey(motionId)) {
-				throw new KeyNotFoundException("Not exist motion.");
-			}
-			MotionItemBase item = itemDict[motionId];
-			if (item.Type != MotionItemType.Motion) {
-				throw new TypeLoadException("Item isn't Motion type.");
-			}
-			return item as MotionItem;
-		}
-		public string GetNewName(MotionItemType type) {
-			string nameBase = $"New {type.ToString()} ";
-			int num = 1;
-			for (; ; ) {
-				if (itemDict.ContainsKey(nameBase + num)) {
-					++num;
-					continue;
-				} else {
-					return nameBase + num;
-				}
-			}
-		}
+            ItemCreated?.Invoke(motion, parentFolder);
 
-		public JObject ToJObject() {
-			JObject jFile = new JObject();
-			jFile.Add("Version", SystemInfo.Version);
+            parentFolder.AddChild(motion);
+            motion.SetName(name);
 
-			AddItemRecursive(jFile, rootFolder);
+            return motion;
+        }
 
-			void AddItemRecursive(JObject jParent, MotionItemBase item) {
-				JObject jItem = new JObject();
-				jParent.Add(item.IsRoot ? RootFolderName : item.Name, jItem);
-				jItem.Add("Type", item.Type.ToString());
+        public MotionFolderItem CreateFolder(MotionFolderItem parentFolder = null, string name = null) {
+            if (parentFolder == null)
+                parentFolder = rootFolder;
+            if (string.IsNullOrEmpty(name))
+                name = GetNewName(MotionItemType.Folder);
 
-				if (item.Type == MotionItemType.Motion) {
-					JObject jData = new JObject();
-					jItem.Add("Data", jData);
+            var folder = new MotionFolderItem(this);
 
-					SaveMotion(jData, item as MotionItem);
-				} else {
-					JObject jItems = new JObject();
-					jItem.Add("Items", jItems);
+            ItemCreated?.Invoke(folder, parentFolder);
 
-					SaveFolder(jItems, item as MotionFolderItem);
-				}
-			}
-			void SaveMotion(JObject jData, MotionItem motion) {
-				JArray jPoints = new JArray();
-				jData.Add("Point", jPoints);
+            if (parentFolder != null) {
+                parentFolder.AddChild(folder);
+            }
 
-				for (int pointI = 0; pointI < motion.pointList.Count; ++pointI) {
-					JArray jPoint = new JArray();
-					jPoints.Add(jPoint);
+            folder.SetName(name);
 
-					MotionPoint point = motion.pointList[pointI];
-					jPoint.Add(point.MainPoint.ToString());
-					jPoint.Add(point.SubPoints[0].ToString());
-					jPoint.Add(point.SubPoints[1].ToString());
-				}
-			}
-			void SaveFolder(JObject jData, MotionFolderItem folder) {
-				for (int i = 0; i < folder.childList.Count; ++i) {
-					MotionItemBase childItem = folder.childList[i];
-					AddItemRecursive(jData, childItem);
-				}
-			}
-			return jFile;
-		}
-	}
+            return folder;
+        }
+
+        public void RemoveItem(MotionItemBase item) {
+            if (item.Type == MotionItemType.Folder) {
+                //메세지 띄우기
+
+                var folderItem = (MotionFolderItem)item;
+                foreach (MotionItemBase childItem in folderItem.childList.ToList()) {
+                    RemoveItem(childItem);
+                }
+            }
+
+            MotionFolderItem parentFolder = item.Parent;
+
+            item.Parent.childList.Remove(item);
+            itemDict.Remove(item.Guid);
+
+            ItemRemoved?.Invoke(item, parentFolder);
+        }
+
+        public MotionItem GetMotionByGuid(string guid) {
+            if (guid == null) {
+                return null;
+            }
+
+            if (itemDict.TryGetValue(guid, out MotionItemBase itemBase)) {
+                return itemBase as MotionItem;
+            }
+
+            return null;
+        }
+
+        public MotionItem GetMotionByName(string name) {
+            if (name == null) {
+                return null;
+            }
+
+            foreach (KeyValuePair<string, MotionItemBase> itemBase in itemDict) {
+                if (itemBase.Value.Type == MotionItemType.Motion) {
+                    if (itemBase.Value.Name == name) {
+                        return itemBase.Value as MotionItem;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public string GetNewName(MotionItemType type) {
+            return $"New {type.ToString()}";
+        }
+
+        public JObject ToJObject() {
+            var jFile = new JObject();
+            jFile.Add("Version", SystemInfo.Version);
+
+            AddItemRecursive(jFile, rootFolder);
+
+            void AddItemRecursive(JObject jParent, MotionItemBase item) {
+                var jItem = new JObject();
+                jParent.Add(item.IsRoot ? RootFolderName : item.Name, jItem);
+                jItem.Add("Type", item.Type.ToString());
+
+                if (item.Type == MotionItemType.Motion) {
+                    var jData = new JObject();
+                    jItem.Add("Data", jData);
+
+                    SaveMotion(jData, item as MotionItem);
+                } else {
+                    var jItems = new JObject();
+                    jItem.Add("Items", jItems);
+
+                    SaveFolder(jItems, item as MotionFolderItem);
+                }
+            }
+
+            void SaveMotion(JObject jData, MotionItem motion) {
+                var jPoints = new JArray();
+                jData.Add("Point", jPoints);
+
+                jData.Add("Guid", motion.Guid);
+
+                for (int pointI = 0; pointI < motion.pointList.Count; ++pointI) {
+                    var jPoint = new JArray();
+                    jPoints.Add(jPoint);
+
+                    MotionPoint point = motion.pointList[pointI];
+                    jPoint.Add(point.MainPoint.ToString());
+                    jPoint.Add(point.SubPoints[0].ToString());
+                    jPoint.Add(point.SubPoints[1].ToString());
+                }
+            }
+
+            void SaveFolder(JObject jData, MotionFolderItem folder) {
+                for (int i = 0; i < folder.childList.Count; ++i) {
+                    MotionItemBase childItem = folder.childList[i];
+                    AddItemRecursive(jData, childItem);
+                }
+            }
+
+            return jFile;
+        }
+    }
 }

@@ -38,27 +38,27 @@ namespace PenMotion {
 			}
 		}
 
-		public static float GetMotionValue(string motionId, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
-			return GetMotionValue(null, motionId, linearValue, maxSample, tolerance);
+		public static float GetMotionValueByName(string motionId, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+			return GetMotionValueByName(null, motionId, linearValue, maxSample, tolerance);
 		}
-		public static PVector2 GetMotionValue(string motionId, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
-			return GetMotionValue(null, motionId, linearValue, maxSample, tolerance);
+		public static PVector2 GetMotionValueByName(string motionId, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+			return GetMotionValueByName(null, motionId, linearValue, maxSample, tolerance);
 		}
-		public static PVector3 GetMotionValue(string motionId, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
-			return GetMotionValue(null, motionId, linearValue, maxSample, tolerance);
+		public static PVector3 GetMotionValueByName(string motionId, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+			return GetMotionValueByName(null, motionId, linearValue, maxSample, tolerance);
 		}
 
-		public static float GetMotionValue(string fileId, string motionId, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+		public static float GetMotionValueByName(string fileId, string motionId, float linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
 			MotionFile file = MotionStorage.GetFile(fileId);
-			return file.GetMotionValue(motionId, PMath.Clamp01(linearValue), maxSample, tolerance);
+			return file.GetMotionValueByName(motionId, PMath.Clamp01(linearValue), maxSample, tolerance);
 		}
-		public static PVector2 GetMotionValue(string fileId, string motionId, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+		public static PVector2 GetMotionValueByName(string fileId, string motionId, PVector2 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
 			MotionFile file = MotionStorage.GetFile(fileId);
-			return file.GetMotionValue(motionId, PMath.Clamp01(linearValue), maxSample, tolerance);
+			return file.GetMotionValueByName(motionId, PMath.Clamp01(linearValue), maxSample, tolerance);
 		}
-		public static PVector3 GetMotionValue(string fileId, string motionId, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
+		public static PVector3 GetMotionValueByName(string fileId, string motionId, PVector3 linearValue, int maxSample = MotionItem.DefaultMaxSample, float tolerance = MotionItem.DefaultMaxTolerance) {
 			MotionFile file = MotionStorage.GetFile(fileId);
-			return file.GetMotionValue(motionId, PMath.Clamp01(linearValue), maxSample, tolerance);
+			return file.GetMotionValueByName(motionId, PMath.Clamp01(linearValue), maxSample, tolerance);
 		}
 	}
 }
