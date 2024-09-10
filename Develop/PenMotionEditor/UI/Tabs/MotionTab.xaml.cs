@@ -255,15 +255,8 @@ public partial class MotionTab : UserControl {
                 ((MotionItemView)DataToViewDict[newItem]).UpdatePreviewGraph();
 
                 //Set name
-                const string CopyPostfix = "_Copy";
-                string name = refItem.Data.Name;
-                for (;;) {
-                    if (EditingFile.itemDict.ContainsKey(name)) {
-                        name += CopyPostfix;
-                    } else {
-                        break;
-                    }
-                }
+                const string CopyPostfix = " (Clone)";
+                string name = refItem.Data.Name + CopyPostfix;
 
                 newItem.SetName(name);
             }

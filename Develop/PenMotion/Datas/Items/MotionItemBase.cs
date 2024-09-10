@@ -6,52 +6,33 @@ using System.Threading.Tasks;
 using PenMotion.System;
 
 namespace PenMotion.Datas.Items {
-	public class MotionItemBase {
-		public MotionFile OwnerFile {
-			get; private set;
-		}
-		public MotionFolderItem Parent {
-			get; set;
-		}
+    public class MotionItemBase {
+        public MotionFile OwnerFile { get; private set; }
+        public MotionFolderItem Parent { get; set; }
 
-		public bool IsRoot => Parent == null;
+        public bool IsRoot => Parent == null;
 
-		public MotionItemType Type {
-			get; protected set;
-		}
-		public string Name {
-			get; private set;
-		}
+        public string Guid { get; set; }
+        public MotionItemType Type { get; protected set; }
+        public string Name { get; private set; }
 
-		public delegate void NameChangedDelegate(string oldName, string newName);
-		public event NameChangedDelegate NameChanged;
+        public delegate void NameChangedDelegate(string oldName, string newName);
 
-		public MotionItemBase(MotionFile ownerFile, MotionItemType type) {
-			this.OwnerFile = ownerFile;
-			this.Type = type;
-		}
+        public event NameChangedDelegate NameChanged;
 
-		public bool SetName(string newName, bool force = false) {
-			string oldName = Name;
+        public MotionItemBase(MotionFile ownerFile, MotionItemType type) {
+            Guid = global::System.Guid.NewGuid().ToString();
+            OwnerFile = ownerFile;
+            Type = type;
+        }
 
-			if(!force) {
-				if (oldName == newName) {
-					NameChanged?.Invoke(oldName, newName);
-					return true;
-				}
-				if(string.IsNullOrEmpty(newName) || OwnerFile.itemDict.ContainsKey(newName))
-					return false;
+        public bool SetName(string newName) {
+            string oldName = Name;
 
-				if(!string.IsNullOrEmpty(oldName) && OwnerFile.itemDict.ContainsKey(oldName)) {
-					OwnerFile.itemDict.Remove(oldName);
-				}
-			}
+            Name = newName;
 
-			OwnerFile.itemDict.Add(newName, this);
-			Name = newName;
-
-			NameChanged?.Invoke(oldName, newName);
-			return true;
-		}
-	}
+            NameChanged?.Invoke(oldName, newName);
+            return true;
+        }
+    }
 }
