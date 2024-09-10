@@ -6,6 +6,7 @@
 		<Nullable>disable</Nullable>
 		<Authors></Authors>
 		<Version></Version>
+		<LangVersion>10</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
