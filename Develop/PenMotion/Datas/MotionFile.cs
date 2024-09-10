@@ -174,8 +174,13 @@ public class MotionFile {
         void LoadMotion(JToken jItem) {
             var jPoints = jItem["Point"] as JArray;
 
-            MotionItem motion = CreateMotionEmpty();
-            motion.Guid = jItem["Guid"].ToObject<string>();
+            string guid = null;
+            JToken jGuid = jItem["Guid"];
+            if (jGuid != null) {
+                guid = jGuid.ToObject<string>();
+            }
+
+            MotionItem motion = CreateMotionEmpty(null, guid);
             motion.SetName(jItem["Name"].ToObject<string>());
             string parentGuid = jItem["Parent"].ToObject<string>();
 
@@ -195,13 +200,18 @@ public class MotionFile {
         }
 
         void LoadFolder(JToken jItem, bool isRoot) {
-            MotionFolderItem folder = CreateFolder();
+            string guid = null;
+            JToken jGuid = jItem["Guid"];
+            if (jGuid != null) {
+                guid = jGuid.ToObject<string>();
+            }
+
+            MotionFolderItem folder = CreateFolder(null, guid);
 
             if (isRoot) {
                 rootFolder = folder;
             }
 
-            folder.Guid = jItem["Guid"].ToObject<string>();
             folder.SetName(jItem["Name"].ToObject<string>());
 
             folderDict.Add(folder.Guid, folder);
@@ -323,29 +333,36 @@ public class MotionFile {
         return motion;
     }
 
-    public MotionItem CreateMotionEmpty(MotionFolderItem parentFolder = null, string name = null) {
-        if (parentFolder == null)
+    public MotionItem CreateMotionEmpty(MotionFolderItem parentFolder = null, string guid = null) {
+        if (parentFolder == null) {
             parentFolder = rootFolder;
-        if (string.IsNullOrEmpty(name))
-            name = GetNewName(MotionItemType.Motion);
+        }
 
         var motion = new MotionItem(this);
+        if (guid != null) {
+            motion.Guid = guid;
+        }
+
+        itemDict.Add(motion.Guid, motion);
 
         ItemCreated?.Invoke(motion, parentFolder);
 
         parentFolder.AddChild(motion);
-        motion.SetName(name);
+        motion.SetName(GetNewName(MotionItemType.Motion));
 
         return motion;
     }
 
-    public MotionFolderItem CreateFolder(MotionFolderItem parentFolder = null, string name = null) {
+    public MotionFolderItem CreateFolder(MotionFolderItem parentFolder = null, string guid = null) {
         if (parentFolder == null)
             parentFolder = rootFolder;
-        if (string.IsNullOrEmpty(name))
-            name = GetNewName(MotionItemType.Folder);
 
         var folder = new MotionFolderItem(this);
+        if (guid != null) {
+            folder.Guid = guid;
+        }
+
+        itemDict.Add(folder.Guid, folder);
 
         ItemCreated?.Invoke(folder, parentFolder);
 
@@ -353,7 +370,7 @@ public class MotionFile {
             parentFolder.AddChild(folder);
         }
 
-        folder.SetName(name);
+        folder.SetName(GetNewName(MotionItemType.Folder));
 
         return folder;
     }
