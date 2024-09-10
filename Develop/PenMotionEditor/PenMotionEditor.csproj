@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Library</OutputType>
-        <TargetFramework>net6.0-windows</TargetFramework>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net7.0-windows</TargetFramework>
         <Nullable>disable</Nullable>
         <UseWPF>true</UseWPF>
     </PropertyGroup>
@@ -24,9 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\GKit\GKit\GKitForWPF\GKitForWPF.csproj"/>
-        <ProjectReference Include="..\..\..\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes.csproj"/>
         <ProjectReference Include="..\PenMotion\PenMotion.csproj"/>
+        <ProjectReference Include="..\SubModules\GKit\GKit\GKitForWPF\GKitForWPF.csproj" />
+        <ProjectReference Include="..\SubModules\TTOOWA.AvalonDockTheme\TTOOWA.AvalonDockThemes\TTOOWA.AvalonDockThemes.csproj" />
     </ItemGroup>
 
     <ItemGroup>
