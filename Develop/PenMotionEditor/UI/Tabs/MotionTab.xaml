@@ -8,6 +8,7 @@
 			 xmlns:Items="clr-namespace:PenMotionEditor.UI.Elements"
 			 xmlns:Workspaces="clr-namespace:PenMotionEditor.UI.Tabs"
 			 xmlns:GControls="clr-namespace:GKitForWPF.UI.Controls;assembly=GKitForWPF"
+			 xmlns:LocalControls="clr-namespace:PenMotionEditor.UI.Controls"
 
              mc:Ignorable="d" 
              d:DesignWidth="300" d:DesignHeight="450">
@@ -16,7 +17,7 @@
 
 	<DockPanel Grid.Column="0" MinWidth="170">
 		<GControls:ListManagerBar x:Name="ControlBar" DockPanel.Dock="Top" Height="45"/>
-		<GControls:EditTreeView x:Name="MotionTreeView"/>
+		<LocalControls:VirtualizedMotionTree x:Name="MotionTreeView"/>
 		<!--<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
 			<Grid>
 				<StackPanel Name="ItemStackPanel" Orientation="Vertical">

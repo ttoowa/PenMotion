@@ -235,7 +235,7 @@ namespace PenMotionEditor.UI.Elements {
 			Update();
 			GraphEditorTab.UpdateGraphLine();
 			PreviewTab.UpdatePositionContinuum();
-			MotionTab.DataToViewDict[GraphEditorTab.EditingMotionData].Cast<MotionItemView>().UpdatePreviewGraph();
+			MotionTab.RefreshMotionPreview(GraphEditorTab.EditingMotionData);
 		}
 
 		private void StartDragging(FrameworkElement element) {

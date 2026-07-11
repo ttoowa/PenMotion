@@ -5,6 +5,7 @@ using PenMotionEditor.UI.Tabs;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows;
 
 namespace PenMotionEditor.UI.Elements {
 	public class MotionItemView : MotionItemBaseView {
@@ -20,7 +21,7 @@ namespace PenMotionEditor.UI.Elements {
 			}
 		}
 
-		private Line[] graphLines;
+		private Polyline graphLine;
 
 		public MotionItemView() : base() {
 
@@ -34,39 +35,26 @@ namespace PenMotionEditor.UI.Elements {
 
 		//PreviewGraph
 		public void CreatePreviewGraph() {
-			graphLines = new Line[GraphResolution];
-
-			for (int i = 0; i < graphLines.Length; ++i) {
-				Line line = graphLines[i] = new Line();
-				SetLineStyle(line);
-
-				PreviewGraphContext.Children.Add(line);
-			}
-
-			void SetLineStyle(Line line) {
-				line.Stroke = GraphLineColor;
-				line.StrokeThickness = 1.5d;
-			}
+			graphLine = new Polyline {
+				Stroke = GraphLineColor,
+				StrokeThickness = 1.5d,
+				SnapsToDevicePixels = true
+			};
+			PreviewGraphContext.Children.Add(graphLine);
 		}
 		public void UpdatePreviewGraph() {
+			if (Data == null || graphLine == null)
+				return;
 			float previewRectWidth = (float)PreviewGraphContext.Width;
 			float previewRectHeight = (float)PreviewGraphContext.Height;
-
-			for (int graphLineI = 0; graphLineI < graphLines.Length; ++graphLineI) {
-				float motionValue = GetMotionValue(graphLineI);
-				float nextMotionValue = GetMotionValue(graphLineI + 1);
-
-				Line line = graphLines[graphLineI];
-				line.X1 = graphLineI * previewRectWidth / GraphResolution;
-				line.X2 = (graphLineI + 1) * previewRectWidth / GraphResolution;
-				line.Y1 = previewRectHeight - motionValue * previewRectHeight;
-				line.Y2 = previewRectHeight - nextMotionValue * previewRectHeight;
-
-				float GetMotionValue(int index) {
-					float linearValue = (float)index / graphLines.Length;
-					return Data.GetMotionValue(linearValue);
-				}
+			PointCollection points = new(GraphResolution + 1);
+			for (int index = 0; index <= GraphResolution; index++) {
+				float linearValue = (float)index / GraphResolution;
+				float motionValue = Data.GetMotionValue(linearValue);
+				points.Add(new Point(index * previewRectWidth / GraphResolution,
+					previewRectHeight - motionValue * previewRectHeight));
 			}
+			graphLine.Points = points;
 		}
 	}
 }

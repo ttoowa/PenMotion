@@ -4,7 +4,9 @@ using PenMotion.Datas;
 using PenMotion.Datas.Items;
 using PenMotion.Datas.Items.Elements;
 using PenMotionEditor.UI.Elements;
+using PenMotionEditor.UI.Controls;
 using PenMotionEditor.UI.Windows;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
@@ -21,19 +23,18 @@ public partial class MotionTab : UserControl {
     private const float FolderSideEventWeight = 0.2f;
     private const float FolderMidEventWeight = 1f - FolderSideEventWeight * 2f;
 
-    public MotionFolderItemView RootFolderView { get; private set; }
     private List<MotionItemBase> itemList;
-    public Dictionary<MotionItemBase, MotionItemBaseView> DataToViewDict { get; private set; }
+    public Dictionary<MotionItemBase, MotionItemBaseView> DataToViewDict => MotionTreeView.RealizedViews;
 
     //Selected
     public bool IsSelectedItemCopyable {
         get {
-            if (MotionTreeView.SelectedItemSet.Count == 0) {
+            if (MotionTreeView.SelectedModels.Count == 0) {
                 return false;
             }
 
-            foreach (ITreeItem item in MotionTreeView.SelectedItemSet) {
-                if (item is MotionItemView) {
+            foreach (MotionItemBase item in MotionTreeView.SelectedModels) {
+                if (item is MotionItem) {
                     return true;
                 }
             }
@@ -42,17 +43,9 @@ public partial class MotionTab : UserControl {
         }
     }
 
-    public MotionFolderItemView SelectedItemParentView {
-        get {
-            ITreeFolder selectedItemParent = MotionTreeView.SelectedItemParent;
-            return selectedItemParent is MotionFolderItemView ? (MotionFolderItemView)selectedItemParent : null;
-        }
-    }
-
     public MotionFolderItem SelectedItemParent {
         get {
-            MotionFolderItemView selectedItemParentView = SelectedItemParentView;
-            return selectedItemParentView != null ? selectedItemParentView.Data : null;
+            return MotionTreeView.SelectedModel?.Parent ?? EditingFile?.rootFolder;
         }
     }
 
@@ -69,9 +62,7 @@ public partial class MotionTab : UserControl {
 
     private void InitMembers() {
         itemList = new List<MotionItemBase>();
-        DataToViewDict = new Dictionary<MotionItemBase, MotionItemBaseView>();
-
-        MotionTreeView.AutoApplyItemMove = false;
+        MotionTreeView.Init(EditorContext);
     }
 
     private void RegisterEvents() {
@@ -80,10 +71,8 @@ public partial class MotionTab : UserControl {
         ControlBar.CopyItemButtonClick += CopyItemButton_OnClick;
         ControlBar.RemoveItemButtonClick += RemoveItemButton_OnClick;
 
-        MotionTreeView.SelectedItemSet.SelectionAdded += SelectedItemSet_SelectionAdded;
-        MotionTreeView.SelectedItemSet.SelectionRemoved += SelectedItemSet_SelectionRemoved;
-        MotionTreeView.ItemMoved += MotionListView_ItemMoved;
-        MotionTreeView.MessageOccured += MotionListView_MessageOccured;
+        MotionTreeView.SelectionChangedByModel += SelectionItemChanged;
+        MotionTreeView.MoveRequested += MotionListView_ItemMoved;
     }
 
     //Events
@@ -92,96 +81,34 @@ public partial class MotionTab : UserControl {
             return;
         }
 
-        MotionItemBaseView view = null;
-        switch (item.Type) {
-            case MotionItemType.Motion:
-                MotionItemView motionView = new(EditorContext, (MotionItem)item);
-                view = motionView;
-
-                motionView.UpdatePreviewGraph();
-                break;
-            case MotionItemType.Folder:
-                MotionFolderItemView folderView = new(EditorContext, (MotionFolderItem)item);
-                view = folderView;
-
-                if (parentFolder == null) {
-                    //Create root
-                    folderView.SetRootFolder();
-                    RootFolderView = folderView;
-
-                    MotionTreeView.ChildItemCollection.Add(folderView);
-                    MotionTreeView.ManualRootFolder = folderView;
-                }
-
-                //Register events
-                MotionFolderItem folderItem = (MotionFolderItem)item;
-
-                folderItem.ChildInserted += Data_ChildInserted;
-                folderItem.ChildRemoved += Data_ChildRemoved;
-
-                void Data_ChildInserted(int index, MotionItemBase childItem) {
-                    MotionItemBaseView childItemView = DataToViewDict[childItem];
-                    folderView.ChildItemCollection.Insert(index, childItemView);
-                }
-
-                void Data_ChildRemoved(MotionItemBase childItem) {
-                    MotionItemBaseView childItemView = DataToViewDict[childItem];
-                    folderView.ChildItemCollection.Remove(childItemView);
-                }
-
-                break;
-        }
-
-        if (parentFolder != null) {
-            view.ParentItem = (MotionFolderItemView)DataToViewDict[parentFolder];
-        }
-
-        //Register events
-        item.NameChanged += view.Data_NameChanged;
-
-        //Add to collection
         itemList.Add(item);
-        DataToViewDict.Add(item, view);
+        if (parentFolder == null && item is MotionFolderItem rootFolder)
+            MotionTreeView.SetRoot(rootFolder);
+        else
+            MotionTreeView.ScheduleRebuild();
 
         EditorContext.MarkUnsaved();
     }
 
     internal void EditingFile_ItemRemoved(MotionItemBase item, MotionFolderItem parentFolder) {
-        MotionItemBaseView view = DataToViewDict[item];
-        if (view.ParentItem != null) {
-            view.ParentItem.ChildItemCollection.Remove(view);
-            view.ParentItem = null;
-        }
-
-        //Remove from collection
         itemList.Remove(item);
-        DataToViewDict.Remove(item);
-
-        if (item.IsRoot) {
-            MotionTreeView.ChildItemCollection.Remove(view);
-            RootFolderView = null;
-        }
-
-        //Unregister events
-        //어차피 삭제이후 사용되지 않으므로 참조가 어려운 이벤트는 생략한다.
-        item.NameChanged -= view.Data_NameChanged;
+        MotionTreeView.ScheduleRebuild();
 
         EditorContext.MarkUnsaved();
     }
 
     private void CreateItemButton_OnClick() {
         MotionItem item = EditingFile.CreateMotionDefault(SelectedItemParent);
-        MotionTreeView.SelectedItemSet.SetSingle((MotionItemView)DataToViewDict[item]);
+        MotionTreeView.SelectSingleDeferred(item);
     }
 
     private void CreateFolderButton_OnClick() {
         MotionFolderItem item = EditingFile.CreateFolder(SelectedItemParent);
-        MotionTreeView.SelectedItemSet.SetSingle((MotionFolderItemView)DataToViewDict[item]);
+        MotionTreeView.SelectSingleDeferred(item);
     }
 
     private void RemoveItemButton_OnClick() {
-        foreach (MotionItemBase item in MotionTreeView.SelectedItemSet.ToArray().Select(item => ((MotionItemBaseView)item).Data)) {
-            MotionTreeView.SelectedItemSet.Remove(DataToViewDict[item]);
+        foreach (MotionItemBase item in MotionTreeView.SelectedModels.ToArray()) {
             EditingFile.RemoveItem(item);
         }
     }
@@ -192,29 +119,29 @@ public partial class MotionTab : UserControl {
         EditorContext.MarkUnsaved();
     }
 
-    private void SelectedItemSet_SelectionRemoved(ISelectable item) {
-        SelectionItemChanged();
-    }
-
-    private void SelectedItemSet_SelectionAdded(ISelectable item) {
-        SelectionItemChanged();
-    }
-
     private void SelectionItemChanged() {
         ControlBar.CopyItemButton.IsEnabled = IsSelectedItemCopyable;
         UpdateFocusItem();
     }
 
-    private void MotionListView_ItemMoved(ITreeItem item, ITreeFolder oldParent, ITreeFolder newParent, int index) {
-        MotionItemBase itemData = ((MotionItemBaseView)item).Data;
-        MotionFolderItemView newParentFolderView = (MotionFolderItemView)newParent;
-
-        if (oldParent != null) {
-            MotionFolderItemView oldParentFolderView = (MotionFolderItemView)oldParent;
-            oldParentFolderView.Data.RemoveChild(itemData);
+    private void MotionListView_ItemMoved(MotionItemBase item, MotionItemBase target, MotionTreeDropMode mode) {
+        MotionFolderItem oldParent = item.Parent;
+        MotionFolderItem newParent = mode == MotionTreeDropMode.Inside
+            ? target as MotionFolderItem
+            : target.Parent;
+        if (oldParent == null || newParent == null)
+            return;
+        int index = mode == MotionTreeDropMode.Inside
+            ? newParent.childList.Count
+            : newParent.childList.IndexOf(target) + (mode == MotionTreeDropMode.After ? 1 : 0);
+        if (ReferenceEquals(oldParent, newParent)) {
+            int oldIndex = oldParent.childList.IndexOf(item);
+            if (oldIndex >= 0 && oldIndex < index)
+                index--;
         }
-
-        newParentFolderView.Data.InsertChild(index, itemData);
+        oldParent.RemoveChild(item);
+        newParent.InsertChild(Math.Clamp(index, 0, newParent.childList.Count), item);
+        MotionTreeView.ScheduleRebuild();
     }
 
     private void MotionListView_MessageOccured(string message) {
@@ -222,9 +149,8 @@ public partial class MotionTab : UserControl {
     }
 
     public void ClearItems() {
-        MotionTreeView.SelectedItemSet.Clear();
         itemList.Clear();
-        MotionTreeView.ChildItemCollection.Clear();
+        MotionTreeView.ClearTree();
     }
 
     public void DuplicateSelectedMotion() {
@@ -234,9 +160,9 @@ public partial class MotionTab : UserControl {
 
         MotionItemBase latestNewItem = null;
         MotionFolderItem parentFolder = SelectedItemParent;
-        foreach (MotionItemBaseView refItem in MotionTreeView.SelectedItemSet) {
+        foreach (MotionItemBase refItem in MotionTreeView.SelectedModels) {
             if (refItem.Type == MotionItemType.Motion) {
-                MotionItem refMotionItem = (MotionItem)refItem.Data;
+                MotionItem refMotionItem = (MotionItem)refItem;
                 //Create motion
                 MotionItem newItem = EditingFile.CreateMotionEmpty(parentFolder);
                 latestNewItem = newItem;
@@ -252,27 +178,25 @@ public partial class MotionTab : UserControl {
                     }
                 }
 
-                ((MotionItemView)DataToViewDict[newItem]).UpdatePreviewGraph();
-
                 //Set name
                 const string CopyPostfix = " (Clone)";
-                string name = refItem.Data.Name + CopyPostfix;
+                string name = refItem.Name + CopyPostfix;
 
                 newItem.SetName(name);
             }
         }
 
         if (latestNewItem != null) {
-            MotionTreeView.SelectedItemSet.SetSingle(DataToViewDict[latestNewItem]);
+            MotionTreeView.SelectSingleDeferred(latestNewItem);
         }
     }
 
     private void UpdateFocusItem() {
-        if (MotionTreeView.SelectedItemSet.Count == 1) {
-            MotionItemBaseView itemBaseView = (MotionItemBaseView)MotionTreeView.SelectedItemSet.Last;
+        if (MotionTreeView.SelectedModels.Count == 1) {
+            MotionItemBase item = MotionTreeView.SelectedModel;
 
-            if (itemBaseView.Type == MotionItemType.Motion) {
-                EditorContext.GraphEditorTab.AttachMotion((MotionItem)itemBaseView.Data);
+            if (item.Type == MotionItemType.Motion) {
+                EditorContext.GraphEditorTab.AttachMotion((MotionItem)item);
                 EditorContext.PreviewTab.ResetPreviewTime();
 
                 return;
@@ -283,12 +207,12 @@ public partial class MotionTab : UserControl {
     }
 
     public void UpdateItemPreviews() {
-        foreach (MotionItemBase item in itemList) {
-            if (item.Type == MotionItemType.Motion) {
-                ((MotionItemView)DataToViewDict[item]).UpdatePreviewGraph();
-            }
-        }
+        foreach (MotionItemBase item in itemList)
+            if (item.Type == MotionItemType.Motion)
+                MotionTreeView.RefreshRealized(item);
     }
+
+    public void RefreshMotionPreview(MotionItem item) => MotionTreeView.RefreshRealized(item);
 
     private MotionItemBase ToMotionItemBase(ITreeItem item) {
         return ((MotionItemBaseView)item).Data;

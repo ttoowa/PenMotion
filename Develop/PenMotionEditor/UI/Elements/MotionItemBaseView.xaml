@@ -21,6 +21,18 @@
 				</Grid>
 				<GControls:EditTextBlock x:Name="NameTextBox" Foreground="#FFF1F1F1" Height="30" Margin="6,0" FontFamily="/PenMotionEditor;component/Resources/Font/#KoPubDotum_Pro Medium" HorizontalAlignment="Left" />
 			</DockPanel>
+			<Border IsHitTestVisible="False">
+				<Border.Style>
+					<Style TargetType="Border">
+						<Setter Property="Background" Value="Transparent" />
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+								<Setter Property="Background" Value="#16FFFFFF" />
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</Border.Style>
+			</Border>
 		</Grid>
 		<Grid>
 			<Border Width="1" Background="#FF999999" HorizontalAlignment="Left"></Border>
