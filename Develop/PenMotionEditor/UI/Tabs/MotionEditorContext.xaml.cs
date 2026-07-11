@@ -1,4 +1,5 @@
 ﻿using GKitForWPF;
+using GKitForWPF.UI.Windows;
 using Microsoft.Win32;
 using PenMotion.Datas;
 using PenMotion.System;
@@ -137,14 +138,16 @@ public partial class MotionEditorContext : UserControl {
 
     public bool ShowSaveQuestion() {
         if (!IsSaved) {
-            MessageBoxResult result = MessageBox.Show($"작업 중인 파일이 저장되지 않았습니다.{Environment.NewLine}" + $"저장하시겠습니까?", "저장", MessageBoxButton.YesNoCancel);
+            ConfirmDialogResult result = ConfirmDialog.Show(Window.GetWindow(this),
+                $"작업 중인 파일이 저장되지 않았습니다.{Environment.NewLine}저장하시겠습니까?", "저장",
+                ConfirmDialogButtons.YesNoCancel);
             switch (result) {
-                case MessageBoxResult.Yes:
+                case ConfirmDialogResult.Yes:
                     return SaveFile();
-                case MessageBoxResult.No:
+                case ConfirmDialogResult.No:
                     return true;
                 default:
-                case MessageBoxResult.Cancel:
+                case ConfirmDialogResult.Cancel:
                     return false;
             }
         } else {
